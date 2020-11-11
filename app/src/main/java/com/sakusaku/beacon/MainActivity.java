@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
@@ -30,6 +31,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class MainActivity extends AppCompatActivity implements BeaconConsumer {
+
+    private final static String[] PERMISSION_CAMERA = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+    private final static int PERMISSION_REQUEST_CODE = 1;
 
     //iBeacon認識のためのフォーマット設定
     private static final String IBEACON_FORMAT = "m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24";
@@ -55,27 +59,19 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer {
             Toast.makeText(this, "このデバイスはBLE未対応です", Toast.LENGTH_LONG).show();
         }
 
-//        // API 23以上かのチェック
-//        if (Build.VERSION.SDK_INT >= 23) {
-//            // パーミッションの要求
-//            int p = getPackageManager().checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION, getPackageName());
-//            if(p == PackageManager.PERMISSION_GRANTED) {
-//                // パーミッションあり
-//                Log.d("", "ok");
-//            }
-//            if(p == PackageManager.PERMISSION_DENIED) {
-//                // パーミッションなし
-//                Log.d("", "no");
-//            }
-//
-////            if (checkSelfPermission("android.permission.ACCESS_COARSE_LOCATION") != PackageManager.PERMISSION_GRANTED) {
-////                requestPermissions(new String[]{"android.permission.ACCESS_COARSE_LOCATION"}, 0);
-////            }
-//        }
-        // Android 6, API 23以上でパーミッシンの確認
-        if(Build.VERSION.SDK_INT >= 23){
-            checkPermission();
+        // 権限があるか確認
+        if (RuntimePermission.hasSelfPermissions(MainActivity.this, PERMISSION_CAMERA)) {
+            // 権限がある場合は、そのまま通常処理を行う
+            launchCamera();
+        } else {
+            // 権限がない場合は、パーミッション確認アラートを表示する
+            requestPermissions(PERMISSION_CAMERA, PERMISSION_REQUEST_CODE);
         }
+
+        // Android 6, API 23以上でパーミッシンの確認
+//        if (Build.VERSION.SDK_INT >= 23) {
+//            checkPermission();
+//        }
 //        else{
 //            startLocationActivity();
 //        }
@@ -184,53 +180,83 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer {
 
     }
 
-    // 位置情報許可の確認
-    public void checkPermission() {
-        // 既に許可している
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED){
-
-//            startLocationActivity();
-        }
-        // 拒否していた場合
-        else{
-            requestLocationPermission();
-        }
-    }
-
-    // 許可を求める
-    private void requestLocationPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)) {
-            ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    1000);
-
-        } else {
-            Toast.makeText(this, "許可されないとアプリが実行できません", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    // 結果の受け取り
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == 1000) {
-            // 使用が許可された
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                startLocationActivity();
-            } else {
-                // それでも拒否された時の対応
-                Toast.makeText(this, "許可されないとアプリが実行できません", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
+//    // 位置情報許可の確認
+//    public void checkPermission() {
+//        // 既に許可している
+//        if (ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_FINE_LOCATION)
+//                == PackageManager.PERMISSION_GRANTED) {
+//
+////            startLocationActivity();
+//        }
+//        // 拒否していた場合
+//        else {
+//            requestLocationPermission();
+//        }
+//    }
+//
+//    // 許可を求める
+//    private void requestLocationPermission() {
+//        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                Manifest.permission.ACCESS_FINE_LOCATION)) {
+//            ActivityCompat.requestPermissions(MainActivity.this,
+//                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+//                    1000);
+//
+//        } else {
+//            Toast.makeText(this, "ビーコンの取得には位置情報の許可が必要です", Toast.LENGTH_LONG).show();
+//        }
+//    }
+//
+//    // 結果の受け取り
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode,
+//                                           @NonNull String[] permissions,
+//                                           @NonNull int[] grantResults) {
+//        if (requestCode == 1000) {
+//            // 使用が許可された
+//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+////                startLocationActivity();
+//            } else {
+//                // それでも拒否された時の対応
+//                Toast.makeText(this, "ビーコンの取得には位置情報の許可が必要です", Toast.LENGTH_LONG).show();
+//            }
+//        }
+//    }
 
 //    // Intent でLocation
 //    private void startLocationActivity() {
 //        Intent intent = new Intent(getApplication(), LocationActivity.class);
 //        startActivity(intent);
 //    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // アラート表示中に画面回転すると length ０でコールバックされるのでガードする
+        if (requestCode == PERMISSION_REQUEST_CODE && grantResults.length > 0) {
+            // 失敗した場合
+            if (!RuntimePermission.checkGrantResults(grantResults)) {
+                // 「今後は確認しない」にチェックされているかどうか
+                if (RuntimePermission.shouldShowRequestPermissionRationale(MainActivity.this, PERMISSION_CAMERA[0])) {
+                    Toast.makeText(MainActivity.this, "ビーコンの取得には位置情報の許可が必要です", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    new Handler().post(() -> {
+                        RuntimePermission.showAlertDialog(getSupportFragmentManager(), "位置情報");
+                    });
+                }
+            } else {
+                // 権限が取れた場合は通常の処理を行う
+                launchCamera();
+            }
+        }
+    }
+
+    private void launchCamera() {
+
+//        Intent intent = new Intent();
+//        startActivityForResult(intent, 0);
+    }
 }
