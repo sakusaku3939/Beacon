@@ -1,7 +1,12 @@
 package com.sakusaku.beacon;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -50,13 +55,30 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer {
             Toast.makeText(this, "このデバイスはBLE未対応です", Toast.LENGTH_LONG).show();
         }
 
-        // API 23以上かのチェック
-        if (Build.VERSION.SDK_INT >= 23) {
-            // パーミッションの要求
-            if (checkSelfPermission("android.permission.ACCESS_COARSE_LOCATION") != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{"android.permission.ACCESS_COARSE_LOCATION"}, 0);
-            }
+//        // API 23以上かのチェック
+//        if (Build.VERSION.SDK_INT >= 23) {
+//            // パーミッションの要求
+//            int p = getPackageManager().checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION, getPackageName());
+//            if(p == PackageManager.PERMISSION_GRANTED) {
+//                // パーミッションあり
+//                Log.d("", "ok");
+//            }
+//            if(p == PackageManager.PERMISSION_DENIED) {
+//                // パーミッションなし
+//                Log.d("", "no");
+//            }
+//
+////            if (checkSelfPermission("android.permission.ACCESS_COARSE_LOCATION") != PackageManager.PERMISSION_GRANTED) {
+////                requestPermissions(new String[]{"android.permission.ACCESS_COARSE_LOCATION"}, 0);
+////            }
+//        }
+        // Android 6, API 23以上でパーミッシンの確認
+        if(Build.VERSION.SDK_INT >= 23){
+            checkPermission();
         }
+//        else{
+//            startLocationActivity();
+//        }
 
         beaconManager = BeaconManager.getInstanceForApplication(this);
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(IBEACON_FORMAT));
@@ -161,4 +183,54 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer {
         beaconList.setAdapter(beaconAdapter);
 
     }
+
+    // 位置情報許可の確認
+    public void checkPermission() {
+        // 既に許可している
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED){
+
+//            startLocationActivity();
+        }
+        // 拒否していた場合
+        else{
+            requestLocationPermission();
+        }
+    }
+
+    // 許可を求める
+    private void requestLocationPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    1000);
+
+        } else {
+            Toast.makeText(this, "許可されないとアプリが実行できません", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    // 結果の受け取り
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == 1000) {
+            // 使用が許可された
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                startLocationActivity();
+            } else {
+                // それでも拒否された時の対応
+                Toast.makeText(this, "許可されないとアプリが実行できません", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+//    // Intent でLocation
+//    private void startLocationActivity() {
+//        Intent intent = new Intent(getApplication(), LocationActivity.class);
+//        startActivity(intent);
+//    }
 }
