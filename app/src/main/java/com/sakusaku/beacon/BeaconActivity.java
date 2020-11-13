@@ -96,12 +96,12 @@ public class BeaconActivity extends AppCompatActivity implements BeaconConsumer 
 
         beaconManager.addRangeNotifier((beacons, region) -> {
             count = 0;
-            uuids = new ArrayList<Identifier>();
-            majors = new ArrayList<Identifier>();
-            minors = new ArrayList<Identifier>();
-            rssis = new ArrayList<Integer>();
-            txPowers = new ArrayList<Integer>();
-            distances = new ArrayList<Double>();
+            uuids = new ArrayList<>();
+            majors = new ArrayList<>();
+            minors = new ArrayList<>();
+            rssis = new ArrayList<>();
+            txPowers = new ArrayList<>();
+            distances = new ArrayList<>();
 
             //検出したBeaconの情報を全てlog出力
             for (Beacon beacon : beacons) {
@@ -120,22 +120,19 @@ public class BeaconActivity extends AppCompatActivity implements BeaconConsumer 
 
             count = beacons.size();
             Log.d("Activity", "total:" + count + "台");
+
+            TextView countView = (TextView) findViewById(R.id.result);
+            countView.setText(String.valueOf(count));
+
+            ListView beaconList = (ListView) findViewById(R.id.beacon_list);
+            ArrayList<BeaconListItems> listItems = new ArrayList<>();
+            for (int i = 0; i < count; i++) {
+                BeaconListItems beaconItem = new BeaconListItems(uuids.get(i), majors.get(i),
+                        minors.get(i), rssis.get(i), txPowers.get(i), distances.get(i));
+                listItems.add(beaconItem);
+            }
+            BeaconListAdapter beaconAdapter = new BeaconListAdapter(this, R.layout.beacon_view, listItems);
+            beaconList.setAdapter(beaconAdapter);
         });
-    }
-
-    public void clicked(View view) {
-        TextView countView = (TextView) findViewById(R.id.result);
-        countView.setText(String.valueOf(count));
-
-        ListView beaconList = (ListView) findViewById(R.id.beacon_list);
-        ArrayList<BeaconListItems> listItems = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            BeaconListItems beaconItem = new BeaconListItems(uuids.get(i), majors.get(i),
-                    minors.get(i), rssis.get(i), txPowers.get(i), distances.get(i));
-            listItems.add(beaconItem);
-        }
-        BeaconListAdapter beaconAdapter = new BeaconListAdapter(this, R.layout.beacon_view, listItems);
-        beaconList.setAdapter(beaconAdapter);
-
     }
 }

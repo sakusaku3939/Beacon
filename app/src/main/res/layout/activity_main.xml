@@ -16,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
             app:layout_constraintHorizontal_chainStyle="spread_inside"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -31,6 +32,7 @@
                 android:id="@+id/result"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="0"
                 android:textSize="18sp" />
 
             <TextView
@@ -38,12 +40,6 @@
                 android:layout_height="wrap_content"
                 android:text="@string/text2"
                 android:textSize="18sp" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="clicked"
-                android:text="@string/button" />
 
         </LinearLayout>
 
