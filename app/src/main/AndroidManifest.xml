@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.sakusaku.beacon">
 
     <!-- BLE使用のためのパーミッション -->
@@ -7,6 +8,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission-sdk-23 android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <!-- 対応しない端末へのインストールを禁止 -->
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
@@ -25,7 +27,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".BeaconActivity" />
+        <activity android:name=".BeaconActivity" android:launchMode="singleInstance" />
+        <service android:name=".BeaconService" android:foregroundServiceType="location"/>
     </application>
 
 </manifest>
