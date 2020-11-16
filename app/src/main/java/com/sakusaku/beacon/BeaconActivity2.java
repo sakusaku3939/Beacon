@@ -30,7 +30,7 @@ import org.altbeacon.beacon.startup.RegionBootstrap;
 
 import java.util.ArrayList;
 
-public class BeaconActivity extends AppCompatActivity {
+public class BeaconActivity2 extends AppCompatActivity {
     //iBeacon認識のためのフォーマット設定
     private static final String IBEACON_FORMAT = "m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24";
 

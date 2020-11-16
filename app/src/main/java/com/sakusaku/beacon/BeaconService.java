@@ -7,19 +7,11 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
-import android.view.View;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
@@ -28,8 +20,6 @@ import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.Identifier;
 import org.altbeacon.beacon.MonitorNotifier;
 import org.altbeacon.beacon.Region;
-import org.altbeacon.beacon.startup.BootstrapNotifier;
-import org.altbeacon.beacon.startup.RegionBootstrap;
 
 import java.util.ArrayList;
 
@@ -62,7 +52,7 @@ public class BeaconService extends Service implements BeaconConsumer {
 
         String channelId = "Foreground";
         String title = "ビーコン取得通知";
-        Intent notificationIntent = new Intent(this, BeaconActivity.class);
+        Intent notificationIntent = new Intent(this, BeaconActivity2.class);
 
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(this, 0,
