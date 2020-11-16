@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Beaconアプリβ</string>
+    <string name="app_name">TKG Beacon</string>
     <string name="text1">検知Beacon数：</string>
     <string name="text2">台</string>
     <string name="button">UPDATE</string>
