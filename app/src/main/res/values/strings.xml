@@ -11,6 +11,7 @@
     <string name="item_name_distance">distance:</string>
     <string name="title_activity_beacon">MainActivity</string>
     <string name="title_home">Home</string>
-    <string name="title_search">Search</string>
-    <string name="title_facility">Facility</string>
+    <string name="title_search">検索</string>
+    <string name="title_facility">施設紹介</string>
+    <string name="title_setting">設定</string>
 </resources>
