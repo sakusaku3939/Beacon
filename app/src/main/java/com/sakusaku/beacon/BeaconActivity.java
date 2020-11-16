@@ -30,7 +30,7 @@ import org.altbeacon.beacon.startup.RegionBootstrap;
 
 import java.util.ArrayList;
 
-public class BeaconActivity extends AppCompatActivity{
+public class BeaconActivity extends AppCompatActivity {
     //iBeacon認識のためのフォーマット設定
     private static final String IBEACON_FORMAT = "m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24";
 
@@ -56,9 +56,8 @@ public class BeaconActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-        Intent serviceIntent = new Intent(getApplication(), BeaconService.class);
-        startForegroundService(serviceIntent);
 //
 //        beaconManager = BeaconManager.getInstanceForApplication(this);
 //        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(IBEACON_FORMAT));
@@ -107,7 +106,6 @@ public class BeaconActivity extends AppCompatActivity{
     @Override
     protected void onResume() {
         super.onResume();
-        setContentView(R.layout.activity_main);
     }
 
     @Override
@@ -120,6 +118,16 @@ public class BeaconActivity extends AppCompatActivity{
         super.onDestroy();
 //        beaconManager.unbind(this);
 //        beaconManager.disableForegroundServiceScanning();
+    }
+
+    public void startService(View view) {
+        Intent serviceIntent = new Intent(getApplication(), BeaconService.class);
+        startForegroundService(serviceIntent);
+    }
+
+    public void stopService(View view) {
+        Intent serviceIntent = new Intent(getApplication(), BeaconService.class);
+        stopService(serviceIntent);
     }
 
 //    @Override
@@ -252,9 +260,4 @@ public class BeaconActivity extends AppCompatActivity{
 //            beaconList.setAdapter(beaconAdapter);
 //        });
 //    }
-
-    public void click() {
-        Intent serviceIntent = new Intent(getApplication(), BeaconService.class);
-        stopService(serviceIntent);
-    }
 }

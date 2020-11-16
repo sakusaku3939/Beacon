@@ -60,23 +60,41 @@ public class BeaconService extends Service implements BeaconConsumer {
         beaconManager = BeaconManager.getInstanceForApplication(this);
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(IBEACON_FORMAT));
 
-        Notification.Builder builder = new Notification.Builder(this);
-        builder.setSmallIcon(R.drawable.ic_launcher_background);
-        builder.setContentTitle("Scanning for Beacons");
+        String channelId = "Foreground";
+        String title = "ビーコン取得通知";
         Intent notificationIntent = new Intent(this, BeaconActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
-        );
-        builder.setContentIntent(pendingIntent);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("My Notification Channel ID",
-                    "My Notification Name", NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription("My Notification Channel Description");
-            NotificationManager notificationManager = (NotificationManager) getSystemService(
-                    Context.NOTIFICATION_SERVICE);
+
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(this, 0,
+                        notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // ForegroundにするためNotificationが必要、Contextを設定
+        NotificationManager notificationManager =
+                (NotificationManager) this.
+                        getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Notification　Channel 設定
+        NotificationChannel channel = new NotificationChannel(
+                channelId, title, NotificationManager.IMPORTANCE_DEFAULT);
+        // 通知音を消す
+        channel.setSound(null, null);
+        // 通知ランプを消す
+        channel.enableLights(false);
+        // 通知バイブレーション無し
+        channel.enableVibration(false);
+
+        if (notificationManager != null) {
             notificationManager.createNotificationChannel(channel);
-            builder.setChannelId(channel.getId());
-            startForeground(1, builder.build());
+            Notification notification = new Notification.Builder(this, channelId)
+                    .setContentTitle("ビーコン情報取得中")
+                    // 本来なら衛星のアイコンですがandroid標準アイコンを設定
+                    .setSmallIcon(R.drawable.ic_baseline_wifi_tethering_24)
+                    .setAutoCancel(true)
+                    .setContentIntent(pendingIntent)
+                    .setWhen(System.currentTimeMillis())
+                    .build();
+
+            startForeground(1, notification);
         }
 
 //        beaconManager.enableForegroundServiceScanning(builder.build(), 456);
@@ -95,6 +113,7 @@ public class BeaconService extends Service implements BeaconConsumer {
     @Override
     public void onDestroy() {
         super.onDestroy();
+//        beaconManager.unbind(this);
     }
 
     @Nullable

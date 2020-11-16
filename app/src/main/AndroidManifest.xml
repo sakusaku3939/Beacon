@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.sakusaku.beacon">
 
     <!-- BLE使用のためのパーミッション -->
@@ -27,8 +26,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".BeaconActivity" android:launchMode="singleInstance" />
-        <service android:name=".BeaconService" android:foregroundServiceType="location"/>
+        <activity android:name=".BeaconActivity" />
+        <service android:name=".BeaconService" android:foregroundServiceType="location" />
     </application>
 
 </manifest>
