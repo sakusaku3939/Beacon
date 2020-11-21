@@ -6,6 +6,7 @@
     <color name="blue_700">#4981F2</color>
     <color name="pink_200">#F291BF</color>
     <color name="pink_700">#D982AB</color>
+    <color name="red">#DB4437</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

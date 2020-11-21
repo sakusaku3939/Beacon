@@ -39,17 +39,17 @@ public class BeaconService extends Service implements BeaconConsumer {
 
     String uuidString = "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC";
     Identifier uuid = Identifier.parse(uuidString);
+    final Region mRegion = new Region("iBeacon", null, null, null);
 
     @Override
     public void onCreate() {
         super.onCreate();
+        beaconManager = BeaconManager.getInstanceForApplication(this);
+        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(IBEACON_FORMAT));
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        beaconManager = BeaconManager.getInstanceForApplication(this);
-        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(IBEACON_FORMAT));
-
         String channelId = "Foreground";
         String title = "ビーコン取得通知";
         Intent notificationIntent = new Intent(this, BeaconActivity2.class);
@@ -87,14 +87,6 @@ public class BeaconService extends Service implements BeaconConsumer {
             startForeground(1, notification);
         }
 
-//        beaconManager.enableForegroundServiceScanning(builder.build(), 456);
-        // For the above foreground scanning service to be useful, you need to disable
-        // JobScheduler-based scans (used on Android 8+) and set a fast background scan
-        // cycle that would otherwise be disallowed by the operating system.
-        //
-//        beaconManager.setEnableScheduledScanJobs(false);
-//        beaconManager.setForegroundScanPeriod(1000L);
-
         beaconManager.bind(this);
 
         return START_NOT_STICKY;
@@ -103,7 +95,7 @@ public class BeaconService extends Service implements BeaconConsumer {
     @Override
     public void onDestroy() {
         super.onDestroy();
-//        beaconManager.unbind(this);
+        beaconManager.unbind(this);
     }
 
     @Nullable
@@ -114,8 +106,18 @@ public class BeaconService extends Service implements BeaconConsumer {
 
     @Override
     public void onBeaconServiceConnect() {
-        final Region mRegion = new Region("iBeacon", null, null, null);
-
+        // 二重登録されるので一旦削除
+        beaconManager.removeAllMonitorNotifiers();
+        beaconManager.removeAllRangeNotifiers();
+        beaconManager.getRangedRegions().forEach(region ->
+        {
+            try {
+                beaconManager.stopRangingBeaconsInRegion(region);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        });
+        
         try {
             //Beacon情報の監視を開始
             beaconManager.startMonitoringBeaconsInRegion(mRegion);

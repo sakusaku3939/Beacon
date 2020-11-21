@@ -21,6 +21,7 @@
 
         <service
             android:name=".BeaconService"
+            android:launchMode="singleInstance"
             android:foregroundServiceType="location" />
     </application>
     <!-- 対応しない端末へのインストールを禁止 -->
