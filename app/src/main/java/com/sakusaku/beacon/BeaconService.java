@@ -13,6 +13,8 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.sakusaku.beacon.ui.location.LocationFragment;
+
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
 import org.altbeacon.beacon.BeaconManager;
@@ -38,21 +40,20 @@ public class BeaconService extends Service implements BeaconConsumer {
     ArrayList<Double> distances;
 
     String uuidString = "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC";
-    Identifier uuid = Identifier.parse(uuidString);
-    final Region mRegion = new Region("iBeacon", null, null, null);
 
     @Override
     public void onCreate() {
         super.onCreate();
-        beaconManager = BeaconManager.getInstanceForApplication(this);
-        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(IBEACON_FORMAT));
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        beaconManager = BeaconManager.getInstanceForApplication(this);
+        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(IBEACON_FORMAT));
+
         String channelId = "Foreground";
         String title = "ビーコン取得通知";
-        Intent notificationIntent = new Intent(this, BeaconActivity2.class);
+        Intent notificationIntent = new Intent(this, BeaconActivity.class);
 
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(this, 0,
@@ -117,7 +118,10 @@ public class BeaconService extends Service implements BeaconConsumer {
                 e.printStackTrace();
             }
         });
-        
+
+        final Identifier uuid = Identifier.parse(uuidString);
+        final Region mRegion = new Region("iBeacon", null, null, null);
+
         try {
             //Beacon情報の監視を開始
             beaconManager.startMonitoringBeaconsInRegion(mRegion);
@@ -153,31 +157,15 @@ public class BeaconService extends Service implements BeaconConsumer {
         }
 
         beaconManager.addRangeNotifier((beacons, region) -> {
-            count = 0;
-            uuids = new ArrayList<>();
-            majors = new ArrayList<>();
-            minors = new ArrayList<>();
-            rssis = new ArrayList<>();
-            txPowers = new ArrayList<>();
-            distances = new ArrayList<>();
-
             //検出したBeaconの情報を全てlog出力
             for (Beacon beacon : beacons) {
                 Log.d("MyActivity", "UUID:" + beacon.getId1() + ", major:"
                         + beacon.getId2() + ", minor:" + beacon.getId3() + ", RSSI:"
                         + beacon.getRssi() + ", TxPower:" + beacon.getTxPower()
                         + ", Distance:" + beacon.getDistance());
-
-                uuids.add(beacon.getId1());
-                majors.add(beacon.getId2());
-                minors.add(beacon.getId3());
-                rssis.add(beacon.getRssi());
-                txPowers.add(beacon.getTxPower());
-                distances.add(beacon.getDistance());
             }
 
-            count = beacons.size();
-            Log.d("Activity", "total:" + count + "台");
+            Log.d("Activity", "total:" + beacons.size() + "台");
         });
     }
 }

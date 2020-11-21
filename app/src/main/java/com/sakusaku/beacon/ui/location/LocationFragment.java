@@ -19,7 +19,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sakusaku.beacon.BeaconService;
 import com.sakusaku.beacon.R;
 
-import java.util.Objects;
 
 public class LocationFragment extends Fragment {
 
