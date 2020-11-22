@@ -2,7 +2,6 @@ package com.sakusaku.beacon;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Toast;
@@ -18,13 +17,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // デバイスのBLE対応チェック
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            // 未対応の場合、Toast表示
-            Toast.makeText(this, "このデバイスはBLE未対応です", Toast.LENGTH_LONG).show();
-            finish();
-        }
 
         // 権限があるか確認
         if (RuntimePermission.hasSelfPermissions(MainActivity.this, PERMISSION_LOCATION)) {

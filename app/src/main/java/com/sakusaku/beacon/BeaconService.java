@@ -31,14 +31,6 @@ public class BeaconService extends Service implements BeaconConsumer {
 
     private BeaconManager beaconManager;
 
-    int count;
-    ArrayList<Identifier> uuids;
-    ArrayList<Identifier> majors;
-    ArrayList<Identifier> minors;
-    ArrayList<Integer> rssis;
-    ArrayList<Integer> txPowers;
-    ArrayList<Double> distances;
-
     String uuidString = "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC";
 
     @Override
