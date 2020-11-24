@@ -13,8 +13,6 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.sakusaku.beacon.ui.location.LocationFragment;
-
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
 import org.altbeacon.beacon.BeaconManager;
@@ -22,16 +20,22 @@ import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.Identifier;
 import org.altbeacon.beacon.MonitorNotifier;
 import org.altbeacon.beacon.Region;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
 
-import java.util.ArrayList;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class BeaconService extends Service implements BeaconConsumer {
     //iBeacon認識のためのフォーマット設定
     private static final String IBEACON_FORMAT = "m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24";
 
     private BeaconManager beaconManager;
-
     String uuidString = "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC";
+
+    private myWsClientListener ws;
+    private static final String ServerIP = "192.168.43.127";
+    private static final String ServerPORT = "8081";
 
     @Override
     public void onCreate() {
@@ -40,6 +44,21 @@ public class BeaconService extends Service implements BeaconConsumer {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        //サーバーの接続準備
+        try {
+            ws = new BeaconService.myWsClientListener(new URI("ws://" + ServerIP + ":" + ServerPORT + "/"));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        if(!ws.isOpen()) {
+            ws.connect();
+        }
+
+        if (ws.isOpen()){
+            ws.send("hello");
+        }
+
         beaconManager = BeaconManager.getInstanceForApplication(this);
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(IBEACON_FORMAT));
 
@@ -80,6 +99,8 @@ public class BeaconService extends Service implements BeaconConsumer {
             startForeground(1, notification);
         }
 
+        beaconManager.setBackgroundBetweenScanPeriod(5000L);
+        beaconManager.setForegroundBetweenScanPeriod(5000L);
         beaconManager.bind(this);
 
         return START_NOT_STICKY;
@@ -89,6 +110,7 @@ public class BeaconService extends Service implements BeaconConsumer {
     public void onDestroy() {
         super.onDestroy();
         beaconManager.unbind(this);
+        ws.close();
     }
 
     @Nullable
@@ -157,7 +179,40 @@ public class BeaconService extends Service implements BeaconConsumer {
                         + ", Distance:" + beacon.getDistance());
             }
 
+            Log.d("iBeacon", beacons.iterator().next().getId1().toString());
+
             Log.d("Activity", "total:" + beacons.size() + "台");
         });
+    }
+
+    //WS Lister
+    private static class myWsClientListener extends WebSocketClient {
+        public myWsClientListener(URI serverUri) {
+            super(serverUri);
+        }
+
+        @Override
+        //接続
+        public void onOpen(ServerHandshake serverHandshake) {
+            Log.d("WebSocket", "Connected");
+        }
+
+        @Override
+        //Serverからのメッセージの受信
+        public void onMessage(final String message) {
+            Log.d("WebSocket", message);
+        }
+
+        @Override
+        //Serverの切断
+        public void onClose(int code, String reason, boolean remote) {
+            Log.d("WebSocket", "Disconnected");
+        }
+
+        @Override
+        //エラー
+        public void onError(Exception ex) {
+            Log.d("WebSocket", "error");
+        }
     }
 }
