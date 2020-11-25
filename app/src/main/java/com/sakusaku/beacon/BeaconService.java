@@ -22,6 +22,9 @@ import org.altbeacon.beacon.MonitorNotifier;
 import org.altbeacon.beacon.Region;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,7 +37,7 @@ public class BeaconService extends Service implements BeaconConsumer {
     String uuidString = "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC";
 
     private myWsClientListener ws;
-    private static final String ServerIP = "192.168.1.113";
+    private static final String ServerIP = "192.168.43.127";
     private static final String ServerPORT = "8081";
 
     @Override
@@ -53,10 +56,6 @@ public class BeaconService extends Service implements BeaconConsumer {
 
         if(!ws.isOpen()) {
             ws.connect();
-        }
-
-        if (ws.isOpen()){
-            ws.send("hello");
         }
 
         beaconManager = BeaconManager.getInstanceForApplication(this);
@@ -180,8 +179,24 @@ public class BeaconService extends Service implements BeaconConsumer {
             }
 
             Beacon firstBeacon = beacons.iterator().hasNext() ? beacons.iterator().next() : null;
-            String major = firstBeacon != null ? firstBeacon.getId2().toString() : "None";
-            Log.d("iBeacon", major);
+
+            if (firstBeacon != null) {
+                JSONObject json1 = new JSONObject();
+                try {
+                    json1.put("major", firstBeacon.getId2().toString());
+                    json1.put("minor", firstBeacon.getId2().toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                JSONArray jsonArray = new JSONArray();
+                jsonArray.put(json1);
+                String jsonData = jsonArray.toString();
+
+                if (ws.isOpen()){
+                    ws.send(jsonData);
+                    Log.d("WebSocket", "send:" + jsonData);
+                }
+            }
 
             Log.d("Activity", "total:" + beacons.size() + "台");
         });
