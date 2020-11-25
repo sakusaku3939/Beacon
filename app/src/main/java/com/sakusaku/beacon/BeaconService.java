@@ -34,7 +34,7 @@ public class BeaconService extends Service implements BeaconConsumer {
     String uuidString = "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC";
 
     private myWsClientListener ws;
-    private static final String ServerIP = "192.168.43.127";
+    private static final String ServerIP = "192.168.1.113";
     private static final String ServerPORT = "8081";
 
     @Override
@@ -179,7 +179,9 @@ public class BeaconService extends Service implements BeaconConsumer {
                         + ", Distance:" + beacon.getDistance());
             }
 
-            Log.d("iBeacon", beacons.iterator().next().getId1().toString());
+            Beacon firstBeacon = beacons.iterator().hasNext() ? beacons.iterator().next() : null;
+            String major = firstBeacon != null ? firstBeacon.getId2().toString() : "None";
+            Log.d("iBeacon", major);
 
             Log.d("Activity", "total:" + beacons.size() + "台");
         });

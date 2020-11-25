@@ -1,8 +1,8 @@
 package com.sakusaku.beacon.ui.location;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -30,10 +30,13 @@ public class LocationFragment extends Fragment {
         FloatingActionButton fab = root.findViewById(R.id.fab);
         FloatingActionButton fabPause = root.findViewById(R.id.fab_pauce);
 
-        SharedPreferences pref = requireActivity().getSharedPreferences("preference_data", Context.MODE_PRIVATE);
-        if (pref.getInt("isForeground", 0) == 1) {
-            fabPause.setVisibility(View.VISIBLE);
-            fab.setVisibility(View.GONE);
+        // フォアグラウンド実行中か
+        ActivityManager manager = (ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (BeaconService.class.getName().equals(serviceInfo.service.getClassName())) {
+                fabPause.setVisibility(View.VISIBLE);
+                fab.setVisibility(View.GONE);
+            }
         }
 
         fab.setOnClickListener(v -> {
@@ -44,22 +47,12 @@ public class LocationFragment extends Fragment {
             } else {
                 fabPause.setVisibility(View.VISIBLE);
                 fab.setVisibility(View.GONE);
-
-                SharedPreferences.Editor editor = pref.edit();
-                editor.putInt("isForeground", 1);
-                editor.apply();
-
                 requireActivity().startForegroundService(new Intent(getActivity(), BeaconService.class));
             }
         });
         fabPause.setOnClickListener(v -> {
             fab.setVisibility(View.VISIBLE);
             fabPause.setVisibility(View.GONE);
-
-            SharedPreferences.Editor editor = pref.edit();
-            editor.putInt("isForeground", 0);
-            editor.apply();
-
             requireActivity().stopService(new Intent(getActivity(), BeaconService.class));
         });
 
