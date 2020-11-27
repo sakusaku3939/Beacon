@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.AppLaunchChecker;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,8 +18,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.splash);
+
         new Handler().postDelayed(() -> {
             // 権限があるか確認
             if (RuntimePermission.hasSelfPermissions(MainActivity.this, PERMISSION_LOCATION)) {
@@ -66,9 +67,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startBeaconActivity() {
-        Intent intent = new Intent(getApplication(), BeaconActivity.class);
+        Intent intent = new Intent(getApplication(),
+                (AppLaunchChecker.hasStartedFromLauncher(this) ? BeaconActivity.class : onBoardingActivity.class));
+//        AppLaunchChecker.onActivityCreate(this);
+
         startActivity(intent);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
+
     }
 }

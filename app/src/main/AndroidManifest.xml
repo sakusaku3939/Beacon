@@ -16,9 +16,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".BeaconActivity"
-            android:label="@string/title_activity_beacon" />
+        <activity android:name=".BeaconActivity" />
+        <activity android:name=".onBoardingActivity" />
 
         <service
             android:name=".BeaconService"
