@@ -18,14 +18,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 権限があるか確認
-        if (RuntimePermission.hasSelfPermissions(MainActivity.this, PERMISSION_LOCATION)) {
-            // 権限がある場合は、そのまま通常処理を行う
-            startBeaconActivity();
-        } else {
-            // 権限がない場合は、パーミッション確認アラートを表示する
-            requestPermissions(PERMISSION_LOCATION, PERMISSION_REQUEST_CODE);
-        }
+        setContentView(R.layout.splash);
+        new Handler().postDelayed(() -> {
+            // 権限があるか確認
+            if (RuntimePermission.hasSelfPermissions(MainActivity.this, PERMISSION_LOCATION)) {
+                // 権限がある場合は、そのまま通常処理を行う
+                startBeaconActivity();
+            } else {
+                // 権限がない場合は、パーミッション確認アラートを表示する
+                requestPermissions(PERMISSION_LOCATION, PERMISSION_REQUEST_CODE);
+            }
+        }, 800);
     }
 
     @Override
@@ -65,5 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private void startBeaconActivity() {
         Intent intent = new Intent(getApplication(), BeaconActivity.class);
         startActivity(intent);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        finish();
     }
 }

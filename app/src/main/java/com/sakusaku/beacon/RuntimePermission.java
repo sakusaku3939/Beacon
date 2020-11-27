@@ -73,7 +73,7 @@ public class RuntimePermission {
             final String permission = getArguments().getString(ARG_PERMISSION_NAME);
 
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity())
-                    .setMessage(permission + "の許可が必要です、アプリ情報の「権限」から設定してください")
+                    .setMessage(permission + "の許可が必要です、アプリ情報から設定してください")
                     .setPositiveButton("アプリ情報", (dialog, which) -> {
                         dismiss();
                         // システムのアプリ設定画面
