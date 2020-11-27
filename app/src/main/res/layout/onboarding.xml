@@ -12,7 +12,7 @@
         android:paddingEnd="0dp"
         android:scaleType="centerCrop"
         android:src="@drawable/onboarding_background"
-        android:tint="#6F000000" />
+        android:tint="#7F000000" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/onboarding_fragment"
