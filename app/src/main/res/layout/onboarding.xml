@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <com.jgabrielfreitas.core.BlurImageView
         android:id="@+id/appCompatImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -12,7 +12,8 @@
         android:paddingEnd="0dp"
         android:scaleType="centerCrop"
         android:src="@drawable/onboarding_background"
-        android:tint="#7F000000" />
+        android:tint="#7F000000"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/onboarding_fragment"

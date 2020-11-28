@@ -17,7 +17,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".BeaconActivity" />
-        <activity android:name=".onBoardingActivity" />
+        <activity
+            android:name=".onBoardingActivity"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".BeaconService"
