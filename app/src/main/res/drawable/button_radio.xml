@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 未選択時 -->
+    <item>
+        <selector>
+            <!-- 選択時 -->
+            <item android:state_checked="true">
+                <shape android:shape="rectangle">
+                    <corners android:radius="48dp" />
+                    <solid android:color="@color/pink_200" />
+                </shape>
+            </item>
+
+            <!-- タップ時 -->
+            <item android:state_pressed="true">
+                <shape android:shape="rectangle">
+                    <corners android:radius="48dp" />
+                    <solid android:color="@color/blue_500" />
+                </shape>
+            </item>
+
+            <!-- 未選択時 -->
+            <item>
+                <shape android:shape="rectangle">
+                    <corners android:radius="48dp" />
+                    <solid android:color="@color/blue_500" />
+                </shape>
+            </item>
+        </selector>
+    </item>
+    <item>
+        <selector
+            android:enterFadeDuration="100"
+            android:exitFadeDuration="100">
+            <!-- 選択時 -->
+            <item android:state_checked="true">
+                <shape android:shape="rectangle">
+                    <corners android:radius="48dp" />
+                    <solid android:color="@color/pink_200" />
+                </shape>
+            </item>
+
+            <!-- タップ時 -->
+            <item android:state_pressed="true">
+                <shape android:shape="rectangle">
+                    <corners android:radius="48dp" />
+                    <solid android:color="@color/blue_500" />
+                </shape>
+            </item>
+
+            <!-- 未選択時 -->
+            <item>
+                <shape android:shape="rectangle">
+                    <corners android:radius="48dp" />
+                    <solid android:color="@color/blue_500" />
+                </shape>
+            </item>
+        </selector>
+    </item>
+</layer-list>
