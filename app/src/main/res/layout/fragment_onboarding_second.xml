@@ -11,7 +11,7 @@
         android:gravity="center"
         android:hint="@string/onboarding_name_hint"
         android:maxLength="10"
-        android:inputType="text"
+        android:inputType="textMultiLine"
         android:textColor="@color/white"
         android:textSize="24sp"
         android:theme="@style/EditTextStyleWhite"
