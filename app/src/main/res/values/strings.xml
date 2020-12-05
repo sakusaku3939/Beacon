@@ -25,6 +25,8 @@
     <string name="radio_subject_he">家庭科</string>
     <string name="radio_subject_art">芸術</string>
     <string name="radio_subject_other">その他</string>
+    <string name="onboarding_permission_description">ビーコンを取得するために位置情報のアクセスを許可してください</string>
+    <string name="onboarding_permission_started">始める</string>
     <string name="title_location">位置情報</string>
     <string name="title_search">見つける</string>
     <string name="title_account">アカウント</string>

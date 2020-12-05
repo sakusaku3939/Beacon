@@ -13,23 +13,13 @@ import androidx.core.app.AppLaunchChecker;
 public class MainActivity extends AppCompatActivity {
 
     private final static String[] PERMISSION_LOCATION = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
-    private final static int PERMISSION_REQUEST_CODE = 1;
+    private final static int REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
-
-        new Handler().postDelayed(() -> {
-            // 権限があるか確認
-            if (RuntimePermission.hasSelfPermissions(MainActivity.this, PERMISSION_LOCATION)) {
-                // 権限がある場合は、そのまま通常処理を行う
-                startBeaconActivity();
-            } else {
-                // 権限がない場合は、パーミッション確認アラートを表示する
-                requestPermissions(PERMISSION_LOCATION, PERMISSION_REQUEST_CODE);
-            }
-        }, 800);
+        showSplash();
     }
 
     @Override
@@ -47,12 +37,12 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         // アラート表示中に画面回転すると length ０でコールバックされるのでガードする
-        if (requestCode == PERMISSION_REQUEST_CODE && grantResults.length > 0) {
+        if (requestCode == REQUEST_CODE && grantResults.length > 0) {
             // 失敗した場合
             if (!RuntimePermission.checkGrantResults(grantResults)) {
                 // 「今後は確認しない」にチェックされているかどうか
-                if (RuntimePermission.shouldShowRequestPermissionRationale(MainActivity.this, PERMISSION_LOCATION[0])) {
-                    Toast.makeText(MainActivity.this, "ビーコンの取得には位置情報の許可が必要です", Toast.LENGTH_SHORT).show();
+                if (RuntimePermission.shouldShowRequestPermissionRationale(this, PERMISSION_LOCATION[0])) {
+                    Toast.makeText(this, "ビーコンの取得には位置情報の許可が必要です", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
                     new Handler().post(() -> {
@@ -66,14 +56,39 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void startBeaconActivity() {
-        Intent intent = new Intent(getApplication(),
-                (AppLaunchChecker.hasStartedFromLauncher(this) ? BeaconActivity.class : onBoardingActivity.class));
-//        AppLaunchChecker.onActivityCreate(this);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE) {
+            AppLaunchChecker.onActivityCreate(this);
+            showSplash();
+        }
+    }
 
+    private void showSplash() {
+        if (!AppLaunchChecker.hasStartedFromLauncher(this)) {
+            new Handler().postDelayed(() -> {
+                Intent intent = new Intent(getApplication(), onBoardingActivity.class);
+                startActivityForResult(intent, REQUEST_CODE);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            }, 1200);
+        } else {
+            new Handler().postDelayed(() -> {
+                if (RuntimePermission.hasSelfPermissions(this, PERMISSION_LOCATION)) {
+                    // 権限がある場合は、そのまま通常処理を行う
+                    startBeaconActivity();
+                } else {
+                    // 権限がない場合は、パーミッション確認アラートを表示する
+                    requestPermissions(PERMISSION_LOCATION, REQUEST_CODE);
+                }
+            }, 600);
+        }
+    }
+
+    private void startBeaconActivity() {
+        Intent intent = new Intent(getApplication(), BeaconActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
-
     }
 }
