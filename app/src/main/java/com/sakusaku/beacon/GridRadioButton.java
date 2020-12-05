@@ -37,7 +37,7 @@ public class GridRadioButton extends TableLayout  implements OnClickListener {
     @Override
     public void onClick(View v) {
         final RadioButton rb = (RadioButton) v;
-        if ( activeRadioButton != null ) {
+        if ( activeRadioButton != null && activeRadioButton != rb) {
             activeRadioButton.setChecked(false);
         }
         rb.setChecked(true);
