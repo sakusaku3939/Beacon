@@ -34,7 +34,7 @@
         <item name="android:textColorHint">@color/light_white</item>
     </style>
 
-    <style name="GridRadioButton">
+    <style name="GridRadioGroup">
         <item name="android:layout_width">72dp</item>
         <item name="android:layout_height">32dp</item>
         <item name="android:layout_marginEnd">12dp</item>

@@ -21,23 +21,23 @@
 
         <RadioButton
             android:id="@+id/radioRegionIT"
-            style="@style/GridRadioButton"
+            style="@style/GridRadioGroup"
             android:checked="true"
             android:text="@string/radio_region_IT" />
 
         <RadioButton
             android:id="@+id/radioRegionET"
-            style="@style/GridRadioButton"
+            style="@style/GridRadioGroup"
             android:text="@string/radio_region_ET" />
 
         <RadioButton
             android:id="@+id/radioRegionBT"
-            style="@style/GridRadioButton"
+            style="@style/GridRadioGroup"
             android:text="@string/radio_region_BT" />
 
         <RadioButton
             android:id="@+id/radioRegionNT"
-            style="@style/GridRadioButton"
+            style="@style/GridRadioGroup"
             android:text="@string/radio_region_NT" />
     </RadioGroup>
 
@@ -48,7 +48,7 @@
         android:text="@string/subject"
         android:textColor="@color/blue_500" />
 
-    <com.sakusaku.beacon.GridRadioButton
+    <com.sakusaku.beacon.GridRadioGroup
         android:id="@+id/radioSubject"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -58,23 +58,22 @@
 
             <RadioButton
                 android:id="@+id/radioSubjectPhysics"
-                style="@style/GridRadioButton"
-                android:checked="true"
+                style="@style/GridRadioGroup"
                 android:text="@string/radio_subject_physics" />
 
             <RadioButton
                 android:id="@+id/radioSubjectScience"
-                style="@style/GridRadioButton"
+                style="@style/GridRadioGroup"
                 android:text="@string/radio_subject_science" />
 
             <RadioButton
                 android:id="@+id/radioSubjectBiology"
-                style="@style/GridRadioButton"
+                style="@style/GridRadioGroup"
                 android:text="@string/radio_subject_biology" />
 
             <RadioButton
                 android:id="@+id/radioSubjectMath"
-                style="@style/GridRadioButton"
+                style="@style/GridRadioGroup"
                 android:text="@string/radio_subject_math" />
         </TableRow>
 
@@ -82,22 +81,22 @@
 
             <RadioButton
                 android:id="@+id/radioSubjectEnglish"
-                style="@style/GridRadioButton"
+                style="@style/GridRadioGroup"
                 android:text="@string/radio_subject_english" />
 
             <RadioButton
                 android:id="@+id/radioSubjectModern"
-                style="@style/GridRadioButton"
+                style="@style/GridRadioGroup"
                 android:text="@string/radio_subject_modern" />
 
             <RadioButton
                 android:id="@+id/radioSubjectGeography"
-                style="@style/GridRadioButton"
+                style="@style/GridRadioGroup"
                 android:text="@string/radio_subject_geography" />
 
             <RadioButton
                 android:id="@+id/radioSubjectPE"
-                style="@style/GridRadioButton"
+                style="@style/GridRadioGroup"
                 android:text="@string/radio_subject_pe" />
         </TableRow>
 
@@ -105,18 +104,18 @@
 
             <RadioButton
                 android:id="@+id/radioSubjectHE"
-                style="@style/GridRadioButton"
+                style="@style/GridRadioGroup"
                 android:text="@string/radio_subject_he" />
 
             <RadioButton
                 android:id="@+id/radioSubjectArt"
-                style="@style/GridRadioButton"
+                style="@style/GridRadioGroup"
                 android:text="@string/radio_subject_art" />
 
             <RadioButton
                 android:id="@+id/radioSubjectOther"
-                style="@style/GridRadioButton"
+                style="@style/GridRadioGroup"
                 android:text="@string/radio_subject_other" />
         </TableRow>
-    </com.sakusaku.beacon.GridRadioButton>
+    </com.sakusaku.beacon.GridRadioGroup>
 </LinearLayout>
