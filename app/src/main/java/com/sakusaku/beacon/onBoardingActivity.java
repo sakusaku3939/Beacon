@@ -13,9 +13,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.AppLaunchChecker;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.PreferenceManager;
 
 import com.jgabrielfreitas.core.BlurImageView;
 import com.sakusaku.beacon.onBoarding.FirstFragment;
@@ -28,6 +28,11 @@ public class onBoardingActivity extends AppCompatActivity {
     private int fragment_state;
     private final static String[] PERMISSION_LOCATION = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
     private final static int PERMISSION_REQUEST_CODE = 1;
+
+    private String name = "";
+    private String position = "";
+    private String region = "";
+    private String subject = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +77,13 @@ public class onBoardingActivity extends AppCompatActivity {
                     });
                 }
             } else {
+                PreferenceManager.getDefaultSharedPreferences(this)
+                        .edit()
+                        .putString("name", name)
+                        .putString("position", position)
+                        .putString("region", region)
+                        .putString("subject", subject)
+                        .apply();
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
                 finish();
@@ -108,13 +120,15 @@ public class onBoardingActivity extends AppCompatActivity {
         switch (fragment_state) {
             case 2:
                 EditText text = findViewById(R.id.appCompatEditText);
-                if (text.getText().toString().isEmpty()) {
+                name = text.getText().toString();
+                if (name.isEmpty()) {
                     text.setError("文字を入力してください");
                 } else {
                     RadioGroup radioGroup = findViewById(R.id.onboardingRadio);
                     int id = radioGroup.getCheckedRadioButtonId();
                     RadioButton radioButton = findViewById(id);
-                    if (radioButton.getText().toString().equals("先生")) {
+                    position = radioButton.getText().toString();
+                    if (position.equals("先生")) {
                         FragmentTransaction(new ThirdFragment(), 3);
                         new Handler().postDelayed(() -> {
                             GridRadioGroup radioSubject = findViewById(R.id.radioSubject);
@@ -130,7 +144,8 @@ public class onBoardingActivity extends AppCompatActivity {
                 RadioButton radioRegionSelect = findViewById((int)radioRegion.getCheckedRadioButtonId());
                 GridRadioGroup radioSubject = findViewById(R.id.radioSubject);
                 RadioButton radioSubjectSelect = findViewById((int)radioSubject.getCheckedRadioButtonId());
-                Log.d("radio", radioRegionSelect.getText().toString() + ", " + radioSubjectSelect.getText().toString());
+                region = radioRegionSelect.getText().toString();
+                subject = radioSubjectSelect.getText().toString();
                 FragmentTransaction(new FourthFragment(), 4);
                 break;
         }

@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 
 import com.sakusaku.beacon.R;
 
@@ -27,7 +28,7 @@ public class AccountFragment extends Fragment {
         accountViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
-                textView.setText(s);
+                textView.setText(PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("name", "null"));
             }
         });
         return root;
