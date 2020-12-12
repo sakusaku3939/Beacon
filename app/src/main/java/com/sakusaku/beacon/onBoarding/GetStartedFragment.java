@@ -10,10 +10,10 @@ import androidx.fragment.app.Fragment;
 
 import com.sakusaku.beacon.R;
 
-public class FirstFragment extends Fragment {
+public class GetStartedFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_onboarding_first, container, false);
+        return inflater.inflate(R.layout.fragment_onboarding_get_started, container, false);
     }
 }

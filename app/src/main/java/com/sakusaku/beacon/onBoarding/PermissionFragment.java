@@ -10,10 +10,10 @@ import androidx.fragment.app.Fragment;
 
 import com.sakusaku.beacon.R;
 
-public class ThirdFragment extends Fragment {
+public class PermissionFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_onboarding_third, container, false);
+        return inflater.inflate(R.layout.fragment_onboarding_permission, container, false);
     }
 }

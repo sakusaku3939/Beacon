@@ -13,11 +13,11 @@ import androidx.fragment.app.Fragment;
 
 import com.sakusaku.beacon.R;
 
-public class SecondFragment extends Fragment {
+public class NameEntryFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_onboarding_second, container, false);
+        return inflater.inflate(R.layout.fragment_onboarding_name_entry, container, false);
     }
 
     @Override
