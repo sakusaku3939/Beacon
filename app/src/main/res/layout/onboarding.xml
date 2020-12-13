@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <com.jgabrielfreitas.core.BlurImageView
-        android:id="@+id/appCompatImageView"
+        android:id="@+id/BlurImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingStart="120dp"

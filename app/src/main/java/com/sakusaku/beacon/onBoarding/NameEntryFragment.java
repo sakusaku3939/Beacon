@@ -6,10 +6,15 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.PreferenceManager;
 
 import com.sakusaku.beacon.R;
 
@@ -17,13 +22,41 @@ public class NameEntryFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_onboarding_name_entry, container, false);
+        View view = inflater.inflate(R.layout.fragment_onboarding_name_entry, container, false);
+
+        Button navigationNext = view.findViewById(R.id.navigationNext);
+        navigationNext.setOnClickListener(v -> {
+            EditText text = view.findViewById(R.id.nameEntry);
+            String name = text.getText().toString();
+            if (!name.isEmpty()) {
+                RadioGroup radioGroup = view.findViewById(R.id.onboardingRadio);
+                int id = radioGroup.getCheckedRadioButtonId();
+                RadioButton radioButton = view.findViewById(id);
+
+                String position = radioButton.getText().toString();
+                PreferenceManager.getDefaultSharedPreferences(requireContext())
+                        .edit()
+                        .putString("name", name)
+                        .putString("position", position)
+                        .apply();
+                replaceFragment(position.equals("先生") ? new RegionSelectFragment() : new PermissionFragment());
+            } else {
+                text.setError("文字を入力してください");
+            }
+        });
+
+        Button navigationBack = view.findViewById(R.id.navigationBack);
+        navigationBack.setOnClickListener(v -> {
+            requireActivity().getSupportFragmentManager().popBackStack();
+        });
+
+        return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        EditText edittext = requireActivity().findViewById(R.id.appCompatEditText);
+        EditText edittext = requireActivity().findViewById(R.id.nameEntry);
         edittext.addTextChangedListener(new TextWatcher() {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
@@ -38,5 +71,13 @@ public class NameEntryFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void replaceFragment(Fragment fragment) {
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.fragment_close_enter, R.anim.fragment_close_exit);
+        transaction.addToBackStack(null);
+        transaction.replace(R.id.onboarding_fragment, fragment);
+        transaction.commit();
     }
 }

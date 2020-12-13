@@ -49,7 +49,7 @@ dependencies {
     implementation "org.java-websocket:Java-WebSocket:1.5.1"
     implementation 'com.github.jgabrielfreitas:BlurImageView:1.0.1'
     implementation 'androidx.preference:preference:1.1.1'
-    implementation platform('com.google.firebase:firebase-bom:26.1.0')
+    implementation 'com.google.firebase:firebase-bom:26.1.1'
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
 }

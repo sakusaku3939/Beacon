@@ -4,6 +4,11 @@
     <string name="back">戻る</string>
     <string name="onboarding_description">多摩科学技術高校のビーコン型位置情報共有アプリ</string>
     <string name="onboarding_get_started">生徒 または 先生 で始める</string>
+    <string name="onboarding_email_hint">メールアドレスを入力</string>
+    <string name="onboarding_email_description">パスワードなしでサインインできるメールリンクを送信します</string>
+    <string name="onboarding_email_send_overview">メールを確認</string>
+    <string name="onboarding_email_send_description"> に送信したメールに記載されているリンクをタップしてください</string>
+    <string name="onboarding_email_send_launch">メールアプリを起動</string>
     <string name="onboarding_name_hint">名前を入力</string>
     <string name="onboarding_radio_student">生徒</string>
     <string name="onboarding_radio_teacher">先生</string>
@@ -25,7 +30,8 @@
     <string name="radio_subject_he">家庭科</string>
     <string name="radio_subject_art">芸術</string>
     <string name="radio_subject_other">その他</string>
-    <string name="onboarding_permission_description">ビーコンを取得するために位置情報のアクセスを許可してください</string>
+    <string name="onboarding_permission_overview">位置情報の許可</string>
+    <string name="onboarding_permission_description">ビーコン情報を取得するために位置情報へのアクセスを許可してください</string>
     <string name="onboarding_permission_started">始める</string>
     <string name="title_location">位置情報</string>
     <string name="title_search">見つける</string>

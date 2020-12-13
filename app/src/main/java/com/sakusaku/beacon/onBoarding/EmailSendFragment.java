@@ -1,33 +1,31 @@
 package com.sakusaku.beacon.onBoarding;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.jgabrielfreitas.core.BlurImageView;
 import com.sakusaku.beacon.R;
 
-public class GetStartedFragment extends Fragment {
+public class EmailSendFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_onboarding_get_started, container, false);
-        BlurImageView blurImage = requireActivity().findViewById(R.id.BlurImage);
-        blurImage.setBlur(0);
+        View view = inflater.inflate(R.layout.fragment_onboarding_email_send, container, false);
 
-        Button getStarted = view.findViewById(R.id.getStartedButton);
-        getStarted.setOnClickListener(v -> {
-            new Handler().postDelayed(() -> {
-                blurImage.setBlur(5);
-            }, 100);
-            replaceFragment(new EmailEntryFragment());
+        String email = getArguments().getString("email");
+        TextView description = view.findViewById(R.id.emailSendDescription);
+        description.setText((email + " " + description.getText()));
+
+        Button emailSendButton = view.findViewById(R.id.emailSendButton);
+        emailSendButton.setOnClickListener(v -> {
+            replaceFragment(new NameEntryFragment());
         });
 
         return view;

@@ -1,43 +1,40 @@
 package com.sakusaku.beacon.onBoarding;
 
 import android.os.Bundle;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.preference.PreferenceManager;
 
-import com.sakusaku.beacon.GridRadioGroup;
 import com.sakusaku.beacon.R;
 
-public class RegionSelectFragment extends Fragment {
+public class EmailEntryFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_onboarding_region_select, container, false);
-
-        GridRadioGroup radioSubject = view.findViewById(R.id.radioSubject);
-        radioSubject.check(R.id.radioSubjectPhysics);
+        View view = inflater.inflate(R.layout.fragment_onboarding_email_entry, container, false);
 
         Button navigationNext = view.findViewById(R.id.navigationNext);
         navigationNext.setOnClickListener(v -> {
-            RadioGroup radioRegion = view.findViewById(R.id.radioRegion);
-            RadioButton radioRegionSelect = view.findViewById((int) radioRegion.getCheckedRadioButtonId());
-            RadioButton radioSubjectSelect = view.findViewById((int) radioSubject.getCheckedRadioButtonId());
-            String region = radioRegionSelect.getText().toString();
-            String subject = radioSubjectSelect.getText().toString();
-            PreferenceManager.getDefaultSharedPreferences(requireContext())
-                    .edit()
-                    .putString("region", region)
-                    .putString("subject", subject)
-                    .apply();
-            replaceFragment(new PermissionFragment());
+            EditText text = view.findViewById(R.id.emailEntry);
+            String email = text.getText().toString();
+            if (email.isEmpty()) {
+                text.setError("文字を入力してください");
+            } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                text.setError("正しいメールアドレスを入力してください");
+            } else {
+                Fragment fragment = new EmailSendFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("email", email);
+                fragment.setArguments(bundle);
+                replaceFragment(fragment);
+            }
         });
 
         Button navigationBack = view.findViewById(R.id.navigationBack);
