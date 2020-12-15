@@ -11,7 +11,9 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.PreferenceManager;
 
+import com.sakusaku.beacon.FirebaseUtils;
 import com.sakusaku.beacon.R;
 
 public class EmailEntryFragment extends Fragment {
@@ -29,11 +31,14 @@ public class EmailEntryFragment extends Fragment {
             } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 text.setError("正しいメールアドレスを入力してください");
             } else {
-                Fragment fragment = new EmailSendFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("email", email);
-                fragment.setArguments(bundle);
-                replaceFragment(fragment);
+                FirebaseUtils.sendSignInLink(email, FirebaseUtils.buildActionCodeSettings(), (task) -> {
+                });
+
+                PreferenceManager.getDefaultSharedPreferences(requireContext())
+                        .edit()
+                        .putString("email", email)
+                        .apply();
+                replaceFragment(new EmailSendFragment());
             }
         });
 

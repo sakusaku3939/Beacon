@@ -1,5 +1,6 @@
 package com.sakusaku.beacon;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,10 +15,12 @@ public class onBoardingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.onboarding);
 
+        Intent intent = getIntent();
+        if (intent.getData() != null) FirebaseUtils.verifySignInLink(this, intent);
+
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.onboarding_fragment, new GetStartedFragment());
         transaction.commit();
-
     }
 
     @Override
