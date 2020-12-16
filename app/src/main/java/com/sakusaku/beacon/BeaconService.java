@@ -30,7 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class BeaconService extends Service implements BeaconConsumer {
-    //iBeacon認識のためのフォーマット設定
+    // iBeacon認識のためのフォーマット設定
     private static final String IBEACON_FORMAT = "m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24";
 
     private BeaconManager beaconManager;
@@ -47,7 +47,7 @@ public class BeaconService extends Service implements BeaconConsumer {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //サーバーの接続準備
+        // サーバーの接続準備
         try {
             ws = new BeaconService.myWsClientListener(new URI("ws://" + ServerIP + ":" + ServerPORT + "/"));
         } catch (URISyntaxException e) {
@@ -61,6 +61,7 @@ public class BeaconService extends Service implements BeaconConsumer {
         beaconManager = BeaconManager.getInstanceForApplication(this);
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(IBEACON_FORMAT));
 
+        // フォアグラウンド通知設定
         String channelId = "Foreground";
         String title = "ビーコン取得通知";
         Intent notificationIntent = new Intent(this, BeaconActivity.class);
@@ -69,26 +70,20 @@ public class BeaconService extends Service implements BeaconConsumer {
                 PendingIntent.getActivity(this, 0,
                         notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        // ForegroundにするためNotificationが必要、Contextを設定
         NotificationManager notificationManager =
                 (NotificationManager) this.
                         getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // Notification　Channel 設定
         NotificationChannel channel = new NotificationChannel(
                 channelId, title, NotificationManager.IMPORTANCE_DEFAULT);
-        // 通知音を消す
         channel.setSound(null, null);
-        // 通知ランプを消す
         channel.enableLights(false);
-        // 通知バイブレーション無し
         channel.enableVibration(false);
 
         if (notificationManager != null) {
             notificationManager.createNotificationChannel(channel);
             Notification notification = new Notification.Builder(this, channelId)
                     .setContentTitle("ビーコン情報取得中")
-                    // 本来なら衛星のアイコンですがandroid標準アイコンを設定
                     .setSmallIcon(R.drawable.ic_baseline_wifi_tethering_24)
                     .setAutoCancel(true)
                     .setContentIntent(pendingIntent)
@@ -145,19 +140,16 @@ public class BeaconService extends Service implements BeaconConsumer {
         beaconManager.addMonitorNotifier(new MonitorNotifier() {
             @Override
             public void didEnterRegion(Region region) {
-                //領域への入場を検知
                 Log.d("iBeacon", "Enter Region");
             }
 
             @Override
             public void didExitRegion(Region region) {
-                //領域からの退場を検知
                 Log.d("iBeacon", "Exit Region");
             }
 
             @Override
             public void didDetermineStateForRegion(int i, Region region) {
-                //領域への入退場のステータス変化を検知
                 Log.d("MyActivity", "Determine State" + i);
             }
 
@@ -170,9 +162,8 @@ public class BeaconService extends Service implements BeaconConsumer {
         }
 
         beaconManager.addRangeNotifier((beacons, region) -> {
-            //検出したBeaconの情報を全てlog出力
             for (Beacon beacon : beacons) {
-                Log.d("MyActivity", "UUID:" + beacon.getId1() + ", major:"
+                Log.d("BeaconInfo", "UUID:" + beacon.getId1() + ", major:"
                         + beacon.getId2() + ", minor:" + beacon.getId3() + ", RSSI:"
                         + beacon.getRssi() + ", TxPower:" + beacon.getTxPower()
                         + ", Distance:" + beacon.getDistance());
@@ -180,6 +171,7 @@ public class BeaconService extends Service implements BeaconConsumer {
 
             Beacon firstBeacon = beacons.iterator().hasNext() ? beacons.iterator().next() : null;
 
+            // WebSocketによるビーコンデータ送信
             if (firstBeacon != null) {
                 JSONObject json1 = new JSONObject();
                 try {
@@ -198,36 +190,31 @@ public class BeaconService extends Service implements BeaconConsumer {
                 }
             }
 
-            Log.d("Activity", "total:" + beacons.size() + "台");
+            Log.d("BeaconInfo", "total:" + beacons.size() + "台");
         });
     }
 
-    //WS Lister
     private static class myWsClientListener extends WebSocketClient {
         public myWsClientListener(URI serverUri) {
             super(serverUri);
         }
 
         @Override
-        //接続
         public void onOpen(ServerHandshake serverHandshake) {
             Log.d("WebSocket", "Connected");
         }
 
         @Override
-        //Serverからのメッセージの受信
         public void onMessage(final String message) {
             Log.d("WebSocket", message);
         }
 
         @Override
-        //Serverの切断
         public void onClose(int code, String reason, boolean remote) {
             Log.d("WebSocket", "Disconnected");
         }
 
         @Override
-        //エラー
         public void onError(Exception ex) {
             Log.d("WebSocket", "error");
         }

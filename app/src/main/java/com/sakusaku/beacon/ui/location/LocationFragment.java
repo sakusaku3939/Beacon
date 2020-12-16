@@ -42,7 +42,6 @@ public class LocationFragment extends Fragment {
         fab.setOnClickListener(v -> {
             // デバイスのBLE対応チェック
             if (!requireActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                // 未対応の場合、Toast表示
                 Toast.makeText(getActivity(), "このデバイスはBLE未対応です", Toast.LENGTH_LONG).show();
             } else {
                 fabPause.setVisibility(View.VISIBLE);
