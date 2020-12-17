@@ -24,7 +24,6 @@ class EmailSendFragment : Fragment() {
         val sb = StringBuilder(description.text)
         sb.insert(0, email)
         description.text = sb.toString()
-//        description.text = String.format("%c " + getString(R.string.onboarding_email_send_description), email)
         val emailSendButton = view.findViewById<Button?>(R.id.emailSendButton)
         emailSendButton.setOnClickListener {
             // メールアプリへの遷移

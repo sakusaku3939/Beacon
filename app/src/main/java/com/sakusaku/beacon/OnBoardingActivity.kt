@@ -12,17 +12,21 @@ class OnBoardingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.onboarding)
-        if (intent.data != null) FirebaseUtils.verifySignInLink(this, intent) { task ->
-            if (task.isSuccessful) {
-                val transaction = supportFragmentManager.beginTransaction()
-                transaction.setCustomAnimations(R.anim.fragment_close_enter, R.anim.fragment_close_exit)
-                transaction.addToBackStack(null)
-                transaction.replace(R.id.onboarding_fragment, NameEntryFragment())
-                transaction.commit()
-            } else {
-                Toast.makeText(this, "メールリンクが無効です", Toast.LENGTH_LONG).show()
+
+        intent.data?.let {
+            FirebaseUtils.verifySignInLink(this, intent) { task ->
+                if (task.isSuccessful) {
+                    val transaction = supportFragmentManager.beginTransaction()
+                    transaction.setCustomAnimations(R.anim.fragment_close_enter, R.anim.fragment_close_exit)
+                    transaction.addToBackStack(null)
+                    transaction.replace(R.id.onboarding_fragment, NameEntryFragment())
+                    transaction.commit()
+                } else {
+                    Toast.makeText(this, "メールリンクが無効です", Toast.LENGTH_LONG).show()
+                }
             }
         }
+
         val transaction = supportFragmentManager.beginTransaction()
         transaction.add(R.id.onboarding_fragment, GetStartedFragment())
         transaction.commit()

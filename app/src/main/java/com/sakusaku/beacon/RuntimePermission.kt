@@ -8,7 +8,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.fragment.app.DialogFragment
@@ -16,9 +15,6 @@ import androidx.fragment.app.FragmentManager
 
 object RuntimePermission {
     fun hasSelfPermissions(context: Context, vararg permissions: String): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true
-        }
         for (permission in permissions) {
             if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
                 return false
@@ -38,9 +34,7 @@ object RuntimePermission {
     }
 
     fun shouldShowRequestPermissionRationale(activity: Activity, permission: String): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity.shouldShowRequestPermissionRationale(permission)
-        } else true
+        return activity.shouldShowRequestPermissionRationale(permission)
     }
 
     // ダイアログ表示
