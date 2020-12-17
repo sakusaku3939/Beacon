@@ -1,67 +1,54 @@
-package com.sakusaku.beacon.ui.location;
+package com.sakusaku.beacon.ui.location
 
-import android.app.ActivityManager;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.app.ActivityManager
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.sakusaku.beacon.BeaconService
+import com.sakusaku.beacon.R
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.sakusaku.beacon.BeaconService;
-import com.sakusaku.beacon.R;
-
-public class LocationFragment extends Fragment {
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        LocationViewModel locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_location, container, false);
-
-        FloatingActionButton fab = root.findViewById(R.id.fab);
-        FloatingActionButton fabPause = root.findViewById(R.id.fab_pauce);
+class LocationFragment : Fragment() {
+    override fun onCreateView(inflater: LayoutInflater,
+                              container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val locationViewModel = ViewModelProvider(this).get(LocationViewModel::class.java)
+        val root = inflater.inflate(R.layout.fragment_location, container, false)
+        val fab: FloatingActionButton = root.findViewById(R.id.fab)
+        val fabPause: FloatingActionButton = root.findViewById(R.id.fab_pauce)
 
         // フォアグラウンド実行中か
-        ActivityManager manager = (ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (BeaconService.class.getName().equals(serviceInfo.service.getClassName())) {
-                fabPause.setVisibility(View.VISIBLE);
-                fab.setVisibility(View.GONE);
+        val manager = requireActivity().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (serviceInfo in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (BeaconService::class.java.name == serviceInfo.service.className) {
+                fabPause.visibility = View.VISIBLE
+                fab.visibility = View.GONE
             }
         }
-
-        fab.setOnClickListener(v -> {
+        fab.setOnClickListener {
             // デバイスのBLE対応チェック
-            if (!requireActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                Toast.makeText(getActivity(), "このデバイスはBLE未対応です", Toast.LENGTH_LONG).show();
+            if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+                Toast.makeText(activity, "このデバイスはBLE未対応です", Toast.LENGTH_LONG).show()
             } else {
-                fabPause.setVisibility(View.VISIBLE);
-                fab.setVisibility(View.GONE);
-                requireActivity().startForegroundService(new Intent(getActivity(), BeaconService.class));
+                fabPause.visibility = View.VISIBLE
+                fab.visibility = View.GONE
+                requireActivity().startForegroundService(Intent(activity, BeaconService::class.java))
             }
-        });
-        fabPause.setOnClickListener(v -> {
-            fab.setVisibility(View.VISIBLE);
-            fabPause.setVisibility(View.GONE);
-            requireActivity().stopService(new Intent(getActivity(), BeaconService.class));
-        });
-
-        final TextView textView = root.findViewById(R.id.text_location);
-        locationViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
-        return root;
+        }
+        fabPause.setOnClickListener {
+            fab.visibility = View.VISIBLE
+            fabPause.visibility = View.GONE
+            requireActivity().stopService(Intent(activity, BeaconService::class.java))
+        }
+        val textView = root.findViewById<TextView?>(R.id.text_location)
+        locationViewModel.getText()?.observe(viewLifecycleOwner) { s -> textView.text = s }
+        return root
     }
 }

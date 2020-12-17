@@ -1,94 +1,86 @@
-package com.sakusaku.beacon;
+package com.sakusaku.beacon
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
+import android.app.Activity
+import android.app.AlertDialog
+import android.app.Dialog
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.provider.Settings
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
-
-
-public class RuntimePermission {
-    private RuntimePermission() {
-    }
-
-    public static boolean hasSelfPermissions(@NonNull Context context, @NonNull String... permissions) {
+object RuntimePermission {
+    fun hasSelfPermissions(context: Context, vararg permissions: String): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
+            return true
         }
-        for (String permission : permissions) {
+        for (permission in permissions) {
             if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-                return false;
+                return false
             }
         }
-        return true;
+        return true
     }
 
-    public static boolean checkGrantResults(@NonNull int... grantResults) {
-        if (grantResults.length == 0) throw new IllegalArgumentException("grantResults is empty");
-        for (int result : grantResults) {
+    fun checkGrantResults(vararg grantResults: Int): Boolean {
+        require(grantResults.isNotEmpty()) { "grantResults is empty" }
+        for (result in grantResults) {
             if (result != PackageManager.PERMISSION_GRANTED) {
-                return false;
+                return false
             }
         }
-        return true;
+        return true
     }
 
-    public static boolean shouldShowRequestPermissionRationale(@NonNull Activity activity, @NonNull String permission) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return activity.shouldShowRequestPermissionRationale(permission);
-        }
-        return true;
+    fun shouldShowRequestPermissionRationale(activity: Activity, permission: String): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            activity.shouldShowRequestPermissionRationale(permission)
+        } else true
     }
 
     // ダイアログ表示
-    public static void showAlertDialog(FragmentManager fragmentManager, String permission) {
-        RuntimePermissionAlertDialogFragment dialog = RuntimePermissionAlertDialogFragment.newInstance(permission);
-        dialog.show(fragmentManager, RuntimePermissionAlertDialogFragment.TAG);
+    fun showAlertDialog(fragmentManager: FragmentManager, permission: String) {
+        val dialog = RuntimePermissionAlertDialogFragment.newInstance(permission)
+        dialog.show(fragmentManager, RuntimePermissionAlertDialogFragment.TAG)
     }
 
     // ダイアログ本体
-    public static class RuntimePermissionAlertDialogFragment extends DialogFragment {
-        public static final String TAG = "RuntimePermissionApplicationSettingsDialogFragment";
-        private static final String ARG_PERMISSION_NAME = "permissionName";
-
-        public static RuntimePermissionAlertDialogFragment newInstance(@NonNull String permission) {
-            RuntimePermissionAlertDialogFragment fragment = new RuntimePermissionAlertDialogFragment();
-            Bundle args = new Bundle();
-            args.putString(ARG_PERMISSION_NAME, permission);
-            fragment.setArguments(args);
-            return fragment;
+    class RuntimePermissionAlertDialogFragment : DialogFragment() {
+        companion object {
+            const val TAG: String = "RuntimePermissionApplicationSettingsDialogFragment"
+            private const val ARG_PERMISSION_NAME: String = "permissionName"
+            fun newInstance(permission: String): RuntimePermissionAlertDialogFragment {
+                val fragment = RuntimePermissionAlertDialogFragment()
+                val args = Bundle()
+                args.putString(ARG_PERMISSION_NAME, permission)
+                fragment.arguments = args
+                return fragment
+            }
         }
 
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final String permission = getArguments().getString(ARG_PERMISSION_NAME);
-
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity())
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            val permission = arguments?.getString(ARG_PERMISSION_NAME)
+            val dialogBuilder = AlertDialog.Builder(activity)
                     .setMessage(permission + "の許可が必要です、アプリ情報から設定してください")
-                    .setPositiveButton("アプリ情報", (dialog, which) -> {
-                        dismiss();
+                    .setPositiveButton("アプリ情報") { _: DialogInterface, _: Int ->
+                        dismiss()
                         // システムのアプリ設定画面
-                        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getActivity().getPackageName()));
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        getActivity().startActivity(intent);
-                        getActivity().finish();
-                    })
-                    .setNegativeButton("終了", (dialog, which) -> {
-                        dismiss();
-                        getActivity().finish();
-                    });
-            this.setCancelable(false);
-
-            return dialogBuilder.create();
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + activity?.packageName))
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        activity?.startActivity(intent)
+                        activity?.finish()
+                    }
+                    .setNegativeButton("終了") { _: DialogInterface?, _: Int ->
+                        dismiss()
+                        activity?.finish()
+                    }
+            this.isCancelable = false
+            return dialogBuilder.create()
         }
     }
 }

@@ -1,19 +1,17 @@
-package com.sakusaku.beacon.ui.location;
+package com.sakusaku.beacon.ui.location
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 
-public class LocationViewModel extends ViewModel {
-
-    private MutableLiveData<String> mText;
-
-    public LocationViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is location fragment");
+class LocationViewModel : ViewModel() {
+    private val mText: MutableLiveData<String?>?
+    fun getText(): LiveData<String?>? {
+        return mText
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    init {
+        mText = MutableLiveData()
+        mText.setValue("This is location fragment")
     }
 }

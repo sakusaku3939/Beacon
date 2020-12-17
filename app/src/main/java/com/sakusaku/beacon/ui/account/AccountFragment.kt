@@ -1,36 +1,22 @@
-package com.sakusaku.beacon.ui.account;
+package com.sakusaku.beacon.ui.account
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
+import com.sakusaku.beacon.R
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.preference.PreferenceManager;
-
-import com.sakusaku.beacon.R;
-
-public class AccountFragment extends Fragment {
-
-    private AccountViewModel accountViewModel;
-
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        accountViewModel =
-                new ViewModelProvider(this).get(AccountViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_account, container, false);
-        final TextView textView = root.findViewById(R.id.text_account);
-        accountViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("name", "null"));
-            }
-        });
-        return root;
+class AccountFragment : Fragment() {
+    override fun onCreateView(inflater: LayoutInflater,
+                              container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val accountViewModel = ViewModelProvider(this).get(AccountViewModel::class.java)
+        val root = inflater.inflate(R.layout.fragment_account, container, false)
+        val textView = root.findViewById<TextView?>(R.id.text_account)
+        accountViewModel.getText()?.observe(viewLifecycleOwner, { textView.text = PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("name", "null") })
+        return root
     }
 }

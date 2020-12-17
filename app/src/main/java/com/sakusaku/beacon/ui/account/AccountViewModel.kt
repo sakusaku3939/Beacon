@@ -1,19 +1,17 @@
-package com.sakusaku.beacon.ui.account;
+package com.sakusaku.beacon.ui.account
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 
-public class AccountViewModel extends ViewModel {
-
-    private MutableLiveData<String> mText;
-
-    public AccountViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is account fragment");
+class AccountViewModel : ViewModel() {
+    private val mText: MutableLiveData<String?>?
+    fun getText(): LiveData<String?>? {
+        return mText
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    init {
+        mText = MutableLiveData()
+        mText.setValue("This is account fragment")
     }
 }

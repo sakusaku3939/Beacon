@@ -1,221 +1,165 @@
-package com.sakusaku.beacon;
+package com.sakusaku.beacon
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
-import android.content.Context;
-import android.content.Intent;
-import android.os.IBinder;
-import android.os.RemoteException;
-import android.util.Log;
+import android.app.*
+import android.content.Intent
+import android.os.*
+import android.util.Log
+import org.altbeacon.beacon.*
+import org.java_websocket.client.WebSocketClient
+import org.java_websocket.handshake.ServerHandshake
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
+import java.net.URI
+import java.net.URISyntaxException
+import java.util.function.Consumer
 
-import androidx.annotation.Nullable;
+class BeaconService : Service(), BeaconConsumer {
+    private lateinit var beaconManager: BeaconManager
+    private lateinit var ws: WsClientListener
 
-import org.altbeacon.beacon.Beacon;
-import org.altbeacon.beacon.BeaconConsumer;
-import org.altbeacon.beacon.BeaconManager;
-import org.altbeacon.beacon.BeaconParser;
-import org.altbeacon.beacon.Identifier;
-import org.altbeacon.beacon.MonitorNotifier;
-import org.altbeacon.beacon.Region;
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-
-public class BeaconService extends Service implements BeaconConsumer {
-    // iBeacon認識のためのフォーマット設定
-    private static final String IBEACON_FORMAT = "m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24";
-
-    private BeaconManager beaconManager;
-    private static final String uuidString = "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC";
-
-    private WsClientListener ws;
-    private static final String ServerIP = "192.168.43.127";
-    private static final String ServerPORT = "8081";
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
+    companion object {
+        // iBeacon認識のためのフォーマット設定
+        private const val IBEACON_FORMAT: String = "m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"
+        private const val uuidString: String = "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC"
+        private const val ServerIP: String = "192.168.43.127"
+        private const val ServerPORT: String = "8081"
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // サーバーの接続準備
         try {
-            ws = new WsClientListener(new URI("ws://" + ServerIP + ":" + ServerPORT + "/"));
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+            ws = WsClientListener(URI("ws://$ServerIP:$ServerPORT/"))
+        } catch (e: URISyntaxException) {
+            e.printStackTrace()
         }
-
-        if(!ws.isOpen()) {
-            ws.connect();
+        if (!ws.isOpen()) {
+            ws.connect()
         }
 
         // ビーコン取得ライブラリのセットアップ
-        beaconManager = BeaconManager.getInstanceForApplication(this);
-        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(IBEACON_FORMAT));
+        beaconManager = BeaconManager.getInstanceForApplication(this)
+        beaconManager.beaconParsers.add(BeaconParser().setBeaconLayout(IBEACON_FORMAT))
 
         // フォアグラウンド通知設定
-        String channelId = "Foreground";
-        String title = "ビーコン取得通知";
-        Intent notificationIntent = new Intent(this, BeaconActivity.class);
-
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(this, 0,
-                        notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationManager notificationManager =
-                (NotificationManager) this.
-                        getSystemService(Context.NOTIFICATION_SERVICE);
-
-        NotificationChannel channel = new NotificationChannel(
-                channelId, title, NotificationManager.IMPORTANCE_DEFAULT);
-        channel.setSound(null, null);
-        channel.enableLights(false);
-        channel.enableVibration(false);
-
-        if (notificationManager != null) {
-            notificationManager.createNotificationChannel(channel);
-            Notification notification = new Notification.Builder(this, channelId)
-                    .setContentTitle("ビーコン情報取得中")
-                    .setSmallIcon(R.drawable.ic_baseline_wifi_tethering_24)
-                    .setAutoCancel(true)
-                    .setContentIntent(pendingIntent)
-                    .setWhen(System.currentTimeMillis())
-                    .build();
-
-            startForeground(1, notification);
-        }
-
-        beaconManager.setBackgroundBetweenScanPeriod(5000L);
-        beaconManager.setForegroundBetweenScanPeriod(5000L);
-        beaconManager.bind(this);
-
-        return START_NOT_STICKY;
+        val channelId = "Foreground"
+        val title = "ビーコン取得通知"
+        val notificationIntent = Intent(this, BeaconActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this, 0,
+                notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val notificationManager = this.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val channel = NotificationChannel(
+                channelId, title, NotificationManager.IMPORTANCE_DEFAULT)
+        channel.setSound(null, null)
+        channel.enableLights(false)
+        channel.enableVibration(false)
+        notificationManager.createNotificationChannel(channel)
+        val notification = Notification.Builder(this, channelId)
+                .setContentTitle("ビーコン情報取得中")
+                .setSmallIcon(R.drawable.ic_baseline_wifi_tethering_24)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .setWhen(System.currentTimeMillis())
+                .build()
+        startForeground(1, notification)
+        beaconManager.backgroundBetweenScanPeriod = 5000L
+        beaconManager.foregroundBetweenScanPeriod = 5000L
+        beaconManager.bind(this)
+        return START_NOT_STICKY
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        beaconManager.unbind(this);
-        ws.close();
+    override fun onDestroy() {
+        super.onDestroy()
+        beaconManager.unbind(this)
+        ws.close()
     }
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
     }
 
-    @Override
-    public void onBeaconServiceConnect() {
+    override fun onBeaconServiceConnect() {
         // 二重登録されるので一旦削除
-        beaconManager.removeAllMonitorNotifiers();
-        beaconManager.removeAllRangeNotifiers();
-        beaconManager.getRangedRegions().forEach(region ->
-        {
+        beaconManager.removeAllMonitorNotifiers()
+        beaconManager.removeAllRangeNotifiers()
+        beaconManager.rangedRegions.forEach(Consumer { region: Region ->
             try {
-                beaconManager.stopRangingBeaconsInRegion(region);
-            } catch (RemoteException e) {
-                e.printStackTrace();
+                beaconManager.stopRangingBeaconsInRegion(region)
+            } catch (e: RemoteException) {
+                e.printStackTrace()
             }
-        });
-
-        final Identifier uuid = Identifier.parse(uuidString);
-        final Region mRegion = new Region("iBeacon", null, null, null);
-
+        })
+        val uuid = Identifier.parse(uuidString)
+        val mRegion = Region("iBeacon", null, null, null)
         try {
             //Beacon情報の監視を開始
-            beaconManager.startMonitoringBeaconsInRegion(mRegion);
-        } catch (RemoteException e) {
-            e.printStackTrace();
+            beaconManager.startMonitoringBeaconsInRegion(mRegion)
+        } catch (e: RemoteException) {
+            e.printStackTrace()
         }
-
-        beaconManager.addMonitorNotifier(new MonitorNotifier() {
-            @Override
-            public void didEnterRegion(Region region) {
-                Log.d("iBeacon", "Enter Region");
+        beaconManager.addMonitorNotifier(object : MonitorNotifier {
+            override fun didEnterRegion(region: Region?) {
+                Log.d("iBeacon", "Enter Region")
             }
 
-            @Override
-            public void didExitRegion(Region region) {
-                Log.d("iBeacon", "Exit Region");
+            override fun didExitRegion(region: Region?) {
+                Log.d("iBeacon", "Exit Region")
             }
 
-            @Override
-            public void didDetermineStateForRegion(int i, Region region) {
-                Log.d("iBeacon", "Determine State" + i);
+            override fun didDetermineStateForRegion(i: Int, region: Region?) {
+                Log.d("iBeacon", "Determine State$i")
             }
-        });
-
+        })
         try {
-            beaconManager.startRangingBeaconsInRegion(mRegion);
-        } catch (RemoteException e) {
-            e.printStackTrace();
+            beaconManager.startRangingBeaconsInRegion(mRegion)
+        } catch (e: RemoteException) {
+            e.printStackTrace()
         }
-
-        beaconManager.addRangeNotifier((beacons, region) -> {
-            for (Beacon beacon : beacons) {
+        beaconManager.addRangeNotifier { beacons: MutableCollection<Beacon>, region: Region ->
+            for (beacon in beacons) {
                 Log.d("BeaconInfo", "UUID:" + beacon.getId1() + ", major:"
                         + beacon.getId2() + ", minor:" + beacon.getId3() + ", RSSI:"
                         + beacon.getRssi() + ", TxPower:" + beacon.getTxPower()
-                        + ", Distance:" + beacon.getDistance());
+                        + ", Distance:" + beacon.getDistance())
             }
-
-            Beacon firstBeacon = beacons.iterator().hasNext() ? beacons.iterator().next() : null;
+            val firstBeacon = if (beacons.iterator().hasNext()) beacons.iterator().next() else null
 
             // WebSocketによるビーコンデータ送信
             if (firstBeacon != null) {
-                JSONObject json1 = new JSONObject();
+                val json1 = JSONObject()
                 try {
-                    json1.put("major", firstBeacon.getId2().toString());
-                    json1.put("minor", firstBeacon.getId2().toString());
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    json1.put("major", firstBeacon.id2.toString())
+                    json1.put("minor", firstBeacon.id2.toString())
+                } catch (e: JSONException) {
+                    e.printStackTrace()
                 }
-                JSONArray jsonArray = new JSONArray();
-                jsonArray.put(json1);
-                String jsonData = jsonArray.toString();
-
-                if (ws.isOpen()){
-                    ws.send(jsonData);
-                    Log.d("WebSocket", "send:" + jsonData);
+                val jsonArray = JSONArray()
+                jsonArray.put(json1)
+                val jsonData = jsonArray.toString()
+                if (ws.isOpen) {
+                    ws.send(jsonData)
+                    Log.d("WebSocket", "send:$jsonData")
                 }
             }
-
-            Log.d("BeaconInfo", "total:" + beacons.size() + "台");
-        });
+            Log.d("BeaconInfo", "total:" + beacons.size + "台")
+        }
     }
 
-    private static class WsClientListener extends WebSocketClient {
-        public WsClientListener(URI serverUri) {
-            super(serverUri);
+    private class WsClientListener(serverUri: URI?) : WebSocketClient(serverUri) {
+        override fun onOpen(serverHandshake: ServerHandshake?) {
+            Log.d("WebSocket", "Connected")
         }
 
-        @Override
-        public void onOpen(ServerHandshake serverHandshake) {
-            Log.d("WebSocket", "Connected");
+        override fun onMessage(message: String) {
+            Log.d("WebSocket", message)
         }
 
-        @Override
-        public void onMessage(final String message) {
-            Log.d("WebSocket", message);
+        override fun onClose(code: Int, reason: String, remote: Boolean) {
+            Log.d("WebSocket", "Disconnected")
         }
 
-        @Override
-        public void onClose(int code, String reason, boolean remote) {
-            Log.d("WebSocket", "Disconnected");
-        }
-
-        @Override
-        public void onError(Exception ex) {
-            Log.d("WebSocket", "error");
+        override fun onError(ex: Exception) {
+            Log.d("WebSocket", "error")
         }
     }
 }

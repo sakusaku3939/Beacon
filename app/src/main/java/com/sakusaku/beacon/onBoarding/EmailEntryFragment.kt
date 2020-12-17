@@ -1,60 +1,49 @@
-package com.sakusaku.beacon.onBoarding;
+package com.sakusaku.beacon.onBoarding
 
-import android.os.Bundle;
-import android.util.Patterns;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
+import android.os.Bundle
+import android.util.Patterns
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
+import com.sakusaku.beacon.FirebaseUtils
+import com.sakusaku.beacon.R
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.preference.PreferenceManager;
-
-import com.sakusaku.beacon.FirebaseUtils;
-import com.sakusaku.beacon.R;
-
-public class EmailEntryFragment extends Fragment {
-
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_onboarding_email_entry, container, false);
-
-        Button navigationNext = view.findViewById(R.id.navigationNext);
-        navigationNext.setOnClickListener(v -> {
+class EmailEntryFragment : Fragment() {
+    override fun onCreateView(inflater: LayoutInflater,
+                              container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(R.layout.fragment_onboarding_email_entry, container, false)
+        val navigationNext = view.findViewById<Button?>(R.id.navigationNext)
+        navigationNext.setOnClickListener {
             // 有効なメールアドレスかチェック
-            EditText text = view.findViewById(R.id.emailEntry);
-            String email = text.getText().toString();
+            val text = view.findViewById<EditText?>(R.id.emailEntry)
+            val email = text.text.toString()
             if (email.isEmpty()) {
-                text.setError("文字を入力してください");
+                text.error = "文字を入力してください"
             } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                text.setError("正しいメールアドレスを入力してください");
+                text.error = "正しいメールアドレスを入力してください"
             } else {
-                FirebaseUtils.sendSignInLink(email, getActivity(), FirebaseUtils.buildActionCodeSettings());
-
+                FirebaseUtils.sendSignInLink(email, requireActivity(), FirebaseUtils.buildActionCodeSettings())
                 PreferenceManager.getDefaultSharedPreferences(requireContext())
                         .edit()
                         .putString("email", email)
-                        .apply();
-                replaceFragment(new EmailSendFragment());
+                        .apply()
+                replaceFragment(EmailSendFragment())
             }
-        });
-
-        Button navigationBack = view.findViewById(R.id.navigationBack);
-        navigationBack.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager().popBackStack();
-        });
-
-        return view;
+        }
+        val navigationBack = view.findViewById<Button?>(R.id.navigationBack)
+        navigationBack.setOnClickListener { requireActivity().supportFragmentManager.popBackStack() }
+        return view
     }
 
-    private void replaceFragment(Fragment fragment) {
-        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-        transaction.setCustomAnimations(R.anim.fragment_close_enter, R.anim.fragment_close_exit);
-        transaction.addToBackStack(null);
-        transaction.replace(R.id.onboarding_fragment, fragment);
-        transaction.commit();
+    private fun replaceFragment(fragment: Fragment) {
+        val transaction = requireActivity().supportFragmentManager.beginTransaction()
+        transaction.setCustomAnimations(R.anim.fragment_close_enter, R.anim.fragment_close_exit)
+        transaction.addToBackStack(null)
+        transaction.replace(R.id.onboarding_fragment, fragment)
+        transaction.commit()
     }
 }
