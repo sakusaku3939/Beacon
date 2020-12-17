@@ -36,12 +36,4 @@ public class EmailSendFragment extends Fragment {
 
         return view;
     }
-
-    private void replaceFragment(Fragment fragment) {
-        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-        transaction.setCustomAnimations(R.anim.fragment_close_enter, R.anim.fragment_close_exit);
-        transaction.addToBackStack(null);
-        transaction.replace(R.id.onboarding_fragment, fragment);
-        transaction.commit();
-    }
 }

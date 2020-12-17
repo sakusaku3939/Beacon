@@ -32,7 +32,7 @@ public class EmailEntryFragment extends Fragment {
             } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 text.setError("正しいメールアドレスを入力してください");
             } else {
-                FirebaseUtils.sendSignInLink(email, FirebaseUtils.buildActionCodeSettings());
+                FirebaseUtils.sendSignInLink(email, getActivity(), FirebaseUtils.buildActionCodeSettings());
 
                 PreferenceManager.getDefaultSharedPreferences(requireContext())
                         .edit()

@@ -10,6 +10,7 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.PreferenceManager;
 
 import com.jgabrielfreitas.core.BlurImageView;
 import com.sakusaku.beacon.R;
@@ -28,7 +29,12 @@ public class GetStartedFragment extends Fragment {
             new Handler().postDelayed(() -> {
                 blurImage.setBlur(5);
             }, 100);
-            replaceFragment(new EmailEntryFragment());
+
+            if (PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("email", "").equals("")) {
+                replaceFragment(new EmailEntryFragment());
+            } else {
+                replaceFragment(new NameEntryFragment());
+            }
         });
 
         return view;
