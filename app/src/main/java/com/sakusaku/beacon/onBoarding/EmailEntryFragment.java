@@ -24,6 +24,7 @@ public class EmailEntryFragment extends Fragment {
 
         Button navigationNext = view.findViewById(R.id.navigationNext);
         navigationNext.setOnClickListener(v -> {
+            // 有効なメールアドレスかチェック
             EditText text = view.findViewById(R.id.emailEntry);
             String email = text.getText().toString();
             if (email.isEmpty()) {
@@ -31,8 +32,7 @@ public class EmailEntryFragment extends Fragment {
             } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 text.setError("正しいメールアドレスを入力してください");
             } else {
-                FirebaseUtils.sendSignInLink(email, FirebaseUtils.buildActionCodeSettings(), (task) -> {
-                });
+                FirebaseUtils.sendSignInLink(email, FirebaseUtils.buildActionCodeSettings());
 
                 PreferenceManager.getDefaultSharedPreferences(requireContext())
                         .edit()

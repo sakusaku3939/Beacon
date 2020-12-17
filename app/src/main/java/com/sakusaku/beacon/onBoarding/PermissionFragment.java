@@ -29,6 +29,7 @@ public class PermissionFragment extends Fragment {
 
         Button requestPermissionButton = view.findViewById(R.id.requestPermissionButton);
         requestPermissionButton.setOnClickListener(v -> {
+            // 位置情報のリクエスト
             requestPermissions(PERMISSION_LOCATION, PERMISSION_REQUEST_CODE);
         });
 
@@ -39,7 +40,9 @@ public class PermissionFragment extends Fragment {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
+        // アラート表示中に画面回転すると length 0でコールバックされるのでガードする
         if (requestCode == PERMISSION_REQUEST_CODE && grantResults.length > 0) {
+            // 失敗した場合
             if (!RuntimePermission.checkGrantResults(grantResults)) {
                 if (RuntimePermission.shouldShowRequestPermissionRationale(requireActivity(), PERMISSION_LOCATION[0])) {
                     Toast.makeText(requireContext(), "ビーコンの取得には位置情報の許可が必要です", Toast.LENGTH_SHORT).show();
@@ -48,6 +51,7 @@ public class PermissionFragment extends Fragment {
                         RuntimePermission.showAlertDialog(requireActivity().getSupportFragmentManager(), "位置情報");
                     });
                 }
+            // 成功した場合
             } else {
                 requireActivity().setResult(Activity.RESULT_OK, new Intent());
                 requireActivity().finish();

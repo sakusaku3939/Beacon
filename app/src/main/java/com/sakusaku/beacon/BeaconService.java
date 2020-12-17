@@ -34,9 +34,9 @@ public class BeaconService extends Service implements BeaconConsumer {
     private static final String IBEACON_FORMAT = "m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24";
 
     private BeaconManager beaconManager;
-    String uuidString = "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC";
+    private static final String uuidString = "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC";
 
-    private myWsClientListener ws;
+    private WsClientListener ws;
     private static final String ServerIP = "192.168.43.127";
     private static final String ServerPORT = "8081";
 
@@ -49,7 +49,7 @@ public class BeaconService extends Service implements BeaconConsumer {
     public int onStartCommand(Intent intent, int flags, int startId) {
         // サーバーの接続準備
         try {
-            ws = new BeaconService.myWsClientListener(new URI("ws://" + ServerIP + ":" + ServerPORT + "/"));
+            ws = new WsClientListener(new URI("ws://" + ServerIP + ":" + ServerPORT + "/"));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -58,6 +58,7 @@ public class BeaconService extends Service implements BeaconConsumer {
             ws.connect();
         }
 
+        // ビーコン取得ライブラリのセットアップ
         beaconManager = BeaconManager.getInstanceForApplication(this);
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(IBEACON_FORMAT));
 
@@ -69,7 +70,6 @@ public class BeaconService extends Service implements BeaconConsumer {
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(this, 0,
                         notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
         NotificationManager notificationManager =
                 (NotificationManager) this.
                         getSystemService(Context.NOTIFICATION_SERVICE);
@@ -150,9 +150,8 @@ public class BeaconService extends Service implements BeaconConsumer {
 
             @Override
             public void didDetermineStateForRegion(int i, Region region) {
-                Log.d("MyActivity", "Determine State" + i);
+                Log.d("iBeacon", "Determine State" + i);
             }
-
         });
 
         try {
@@ -194,8 +193,8 @@ public class BeaconService extends Service implements BeaconConsumer {
         });
     }
 
-    private static class myWsClientListener extends WebSocketClient {
-        public myWsClientListener(URI serverUri) {
+    private static class WsClientListener extends WebSocketClient {
+        public WsClientListener(URI serverUri) {
             super(serverUri);
         }
 

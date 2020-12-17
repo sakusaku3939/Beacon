@@ -24,6 +24,7 @@ public class GetStartedFragment extends Fragment {
 
         Button getStarted = view.findViewById(R.id.getStartedButton);
         getStarted.setOnClickListener(v -> {
+            // 画像にぼかしを入れる
             new Handler().postDelayed(() -> {
                 blurImage.setBlur(5);
             }, 100);

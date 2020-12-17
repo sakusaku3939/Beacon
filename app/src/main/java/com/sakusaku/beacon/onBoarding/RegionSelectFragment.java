@@ -27,6 +27,7 @@ public class RegionSelectFragment extends Fragment {
 
         Button navigationNext = view.findViewById(R.id.navigationNext);
         navigationNext.setOnClickListener(v -> {
+            // 領域、教科のチェック
             RadioGroup radioRegion = view.findViewById(R.id.radioRegion);
             RadioButton radioRegionSelect = view.findViewById((int) radioRegion.getCheckedRadioButtonId());
             RadioButton radioSubjectSelect = view.findViewById((int) radioSubject.getCheckedRadioButtonId());

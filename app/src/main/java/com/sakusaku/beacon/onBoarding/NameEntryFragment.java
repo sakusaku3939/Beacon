@@ -26,13 +26,14 @@ public class NameEntryFragment extends Fragment {
 
         Button navigationNext = view.findViewById(R.id.navigationNext);
         navigationNext.setOnClickListener(v -> {
+            // 入力された名前のチェック
             EditText text = view.findViewById(R.id.nameEntry);
             String name = text.getText().toString();
             if (!name.isEmpty()) {
+                // 生徒か先生かチェック
                 RadioGroup radioGroup = view.findViewById(R.id.onboardingRadio);
                 int id = radioGroup.getCheckedRadioButtonId();
                 RadioButton radioButton = view.findViewById(id);
-
                 String position = radioButton.getText().toString();
                 PreferenceManager.getDefaultSharedPreferences(requireContext())
                         .edit()
