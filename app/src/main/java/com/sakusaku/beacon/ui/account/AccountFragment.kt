@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
+import com.sakusaku.beacon.FirebaseUtils
 import com.sakusaku.beacon.R
 
 class AccountFragment : Fragment() {
@@ -16,7 +17,9 @@ class AccountFragment : Fragment() {
         val accountViewModel = ViewModelProvider(this).get(AccountViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_account, container, false)
         val textView = root.findViewById<TextView?>(R.id.text_account)
-        accountViewModel.getText()?.observe(viewLifecycleOwner, { textView.text = PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("name", "null") })
+        accountViewModel.getText()?.observe(viewLifecycleOwner, {
+            textView.text = FirebaseUtils.getUserProfile()["name"].toString()
+        })
         return root
     }
 }

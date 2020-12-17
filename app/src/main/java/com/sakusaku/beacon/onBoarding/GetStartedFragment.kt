@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import androidx.preference.PreferenceManager
 import com.jgabrielfreitas.core.BlurImageView
+import com.sakusaku.beacon.FirebaseUtils
 import com.sakusaku.beacon.R
 
 class GetStartedFragment : Fragment() {
@@ -21,11 +21,8 @@ class GetStartedFragment : Fragment() {
         getStarted.setOnClickListener {
             // 画像にぼかしを入れる
             Handler().postDelayed({ blurImage.setBlur(5) }, 100)
-            if (PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("isEmailCheck", false)) {
-                replaceFragment(NameEntryFragment())
-            } else {
-                replaceFragment(EmailEntryFragment())
-            }
+            val isEmailVerified = FirebaseUtils.getUserProfile()["emailVerified"]
+            isEmailVerified?.let { replaceFragment(EmailEntryFragment()) } ?: replaceFragment(NameEntryFragment())
         }
         return view
     }

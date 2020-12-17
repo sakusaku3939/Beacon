@@ -11,6 +11,7 @@ import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.actionCodeSettings
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.ktx.Firebase
 
 object FirebaseUtils {
@@ -52,4 +53,29 @@ object FirebaseUtils {
                     }
         }
     }
+
+    fun updateProfile(name: String) {
+        val user = Firebase.auth.currentUser
+
+        val profileUpdates = userProfileChangeRequest {
+            displayName = name
+        }
+
+        user!!.updateProfile(profileUpdates)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d(TAG, "User profile updated.")
+                    }
+                }
+    }
+
+    fun getUserProfile(): Map<String, Any?> {
+        val user = Firebase.auth.currentUser
+        return mapOf(
+                "name" to user?.displayName,
+                "email" to user?.email,
+                "emailVerified" to user?.isEmailVerified,
+                "uid" to user?.uid)
+    }
+
 }

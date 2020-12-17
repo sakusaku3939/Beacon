@@ -19,11 +19,6 @@ class NameEntryFragment : Fragment() {
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_onboarding_name_entry, container, false)
 
-        PreferenceManager.getDefaultSharedPreferences(requireContext())
-                .edit()
-                .putBoolean("isEmailCheck", true)
-                .apply()
-
         val navigationNext = view.findViewById<Button?>(R.id.navigationNext)
         navigationNext.setOnClickListener {
             // 入力された名前のチェック

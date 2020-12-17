@@ -11,6 +11,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
+import com.sakusaku.beacon.FirebaseUtils
 import com.sakusaku.beacon.R
 import com.sakusaku.beacon.RuntimePermission
 
@@ -45,6 +47,14 @@ class PermissionFragment : Fragment() {
                 }
                 // 成功した場合
             } else {
+                val pref = PreferenceManager.getDefaultSharedPreferences(requireContext())
+                val name = pref.getString("name", "").toString()
+                val email = pref.getString("email", "").toString()
+                val position = pref.getString("position", "").toString()
+                val region = pref.getString("region", "").toString()
+                val subject = pref.getString("subject", "").toString()
+                FirebaseUtils.updateProfile(name)
+
                 requireActivity().setResult(Activity.RESULT_OK, Intent())
                 requireActivity().finish()
             }
