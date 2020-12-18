@@ -1,10 +1,8 @@
 package com.sakusaku.beacon
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import android.widget.Toast
 import androidx.preference.PreferenceManager
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.ActionCodeSettings
@@ -14,8 +12,9 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.ktx.Firebase
 
-object FirebaseUtils {
+object FirebaseAuthUtils {
     private const val TAG: String = "Firebase"
+
     fun buildActionCodeSettings(): ActionCodeSettings {
         return actionCodeSettings {
             setAndroidPackageName("com.sakusaku.beacon", true, null).handleCodeInApp = true
@@ -23,19 +22,19 @@ object FirebaseUtils {
         }
     }
 
-    fun sendSignInLink(email: String, activity: Activity, actionCodeSettings: ActionCodeSettings) {
+    fun sendSignInLink(email: String, actionCodeSettings: ActionCodeSettings, afterSend: (Task<Void>) -> (Unit) = {}) {
         Firebase.auth.sendSignInLinkToEmail(email, actionCodeSettings)
                 .addOnCompleteListener { task ->
+                    afterSend(task)
                     if (task.isSuccessful) {
                         Log.d(TAG, "Email sent.")
                     } else {
                         Log.d(TAG, "Email sending failed")
-                        Toast.makeText(activity, "メールの送信に失敗しました", Toast.LENGTH_LONG).show()
                     }
                 }
     }
 
-    fun verifySignInLink(context: Context, intent: Intent, afterSignIn: (Task<AuthResult>) -> (Unit)) {
+    fun verifySignInLink(context: Context, intent: Intent, afterSignIn: (Task<AuthResult>) -> (Unit) = {}) {
         val auth = Firebase.auth
         val emailLink = intent.data.toString()
 
@@ -54,7 +53,7 @@ object FirebaseUtils {
         }
     }
 
-    fun updateProfile(name: String) {
+    fun updateProfile(name: String, afterUpdate: (Task<Void>) -> (Unit) = {}) {
         val user = Firebase.auth.currentUser
 
         val profileUpdates = userProfileChangeRequest {
@@ -63,6 +62,7 @@ object FirebaseUtils {
 
         user!!.updateProfile(profileUpdates)
                 .addOnCompleteListener { task ->
+                    afterUpdate(task)
                     if (task.isSuccessful) {
                         Log.d(TAG, "User profile updated.")
                     }
