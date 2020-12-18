@@ -53,20 +53,22 @@ object FirebaseAuthUtils {
         }
     }
 
-    fun updateProfile(name: String, afterUpdate: (Task<Void>) -> (Unit) = {}) {
+    fun updateProfile(name: String?, afterUpdate: (Task<Void>) -> (Unit) = {}) {
         val user = Firebase.auth.currentUser
 
-        val profileUpdates = userProfileChangeRequest {
-            displayName = name
-        }
+        name?.let {
+            val profileUpdates = userProfileChangeRequest {
+                displayName = name
+            }
 
-        user!!.updateProfile(profileUpdates)
-                .addOnCompleteListener { task ->
-                    afterUpdate(task)
-                    if (task.isSuccessful) {
-                        Log.d(TAG, "User profile updated.")
+            user!!.updateProfile(profileUpdates)
+                    .addOnCompleteListener { task ->
+                        afterUpdate(task)
+                        if (task.isSuccessful) {
+                            Log.d(TAG, "User profile updated.")
+                        }
                     }
-                }
+        }
     }
 
     fun getUserProfile(): Map<String, Any?> {

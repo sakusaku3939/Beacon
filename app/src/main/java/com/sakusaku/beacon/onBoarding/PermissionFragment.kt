@@ -49,10 +49,10 @@ class PermissionFragment : Fragment() {
             } else {
                 // ユーザー情報の登録
                 val pref = PreferenceManager.getDefaultSharedPreferences(requireContext())
-                val name = pref.getString("name", "").toString()
-                val position = pref.getString("position", "").toString()
-                val region = pref.getString("region", "").toString()
-                val subject = pref.getString("subject", "").toString()
+                val name = pref.getString("name", null)
+                val position = pref.getString("position", null)
+                val region = pref.getString("region", null)
+                val subject = pref.getString("subject", null)
 
                 FirebaseAuthUtils.updateProfile(name)
                 FirestoreUtils.updateUser(position, region, subject) { isSuccess ->
@@ -71,7 +71,7 @@ class PermissionFragment : Fragment() {
                         .remove("subject")
                         .apply()
 
-//                requireActivity().setResult(Activity.RESULT_OK, Intent())
+                requireActivity().setResult(Activity.RESULT_OK, Intent())
                 requireActivity().finish()
             }
         }

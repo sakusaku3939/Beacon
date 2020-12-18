@@ -35,6 +35,8 @@ class NameEntryFragment : Fragment() {
                         .edit()
                         .putString("name", name)
                         .putString("position", position)
+                        .putString("region", "")
+                        .putString("subject", "")
                         .apply()
                 FragmentUtil.replaceFragment(requireActivity(),
                         if (position == "先生") RegionSelectFragment() else PermissionFragment())
