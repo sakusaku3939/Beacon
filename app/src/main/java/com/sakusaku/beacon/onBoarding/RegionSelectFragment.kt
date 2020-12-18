@@ -9,6 +9,7 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import com.sakusaku.beacon.FragmentUtil
 import com.sakusaku.beacon.GridRadioGroup
 import com.sakusaku.beacon.R
 
@@ -31,18 +32,10 @@ class RegionSelectFragment : Fragment() {
                     .putString("region", region)
                     .putString("subject", subject)
                     .apply()
-            replaceFragment(PermissionFragment())
+            FragmentUtil.replaceFragment(requireActivity(), PermissionFragment())
         }
         val navigationBack = view.findViewById<Button?>(R.id.navigationBack)
         navigationBack.setOnClickListener { requireActivity().supportFragmentManager.popBackStack() }
         return view
-    }
-
-    private fun replaceFragment(fragment: Fragment) {
-        val transaction = requireActivity().supportFragmentManager.beginTransaction()
-        transaction.setCustomAnimations(R.anim.fragment_close_enter, R.anim.fragment_close_exit)
-        transaction.addToBackStack(null)
-        transaction.replace(R.id.onboarding_fragment, fragment)
-        transaction.commit()
     }
 }

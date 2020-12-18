@@ -12,6 +12,7 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import com.sakusaku.beacon.FragmentUtil
 import com.sakusaku.beacon.R
 
 class NameEntryFragment : Fragment() {
@@ -35,7 +36,8 @@ class NameEntryFragment : Fragment() {
                         .putString("name", name)
                         .putString("position", position)
                         .apply()
-                replaceFragment(if (position == "先生") RegionSelectFragment() else PermissionFragment())
+                FragmentUtil.replaceFragment(requireActivity(),
+                        if (position == "先生") RegionSelectFragment() else PermissionFragment())
             } else {
                 text.error = "文字を入力してください"
             }
@@ -60,13 +62,5 @@ class NameEntryFragment : Fragment() {
                 }
             }
         })
-    }
-
-    private fun replaceFragment(fragment: Fragment) {
-        val transaction = requireActivity().supportFragmentManager.beginTransaction()
-        transaction.setCustomAnimations(R.anim.fragment_close_enter, R.anim.fragment_close_exit)
-        transaction.addToBackStack(null)
-        transaction.replace(R.id.onboarding_fragment, fragment)
-        transaction.commit()
     }
 }

@@ -12,7 +12,8 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import com.sakusaku.beacon.FirebaseUtils
+import com.sakusaku.beacon.FirebaseAuthUtils
+import com.sakusaku.beacon.FirestoreUtils
 import com.sakusaku.beacon.R
 import com.sakusaku.beacon.RuntimePermission
 
@@ -38,24 +39,39 @@ class PermissionFragment : Fragment() {
 
         // アラート表示中に画面回転すると length 0でコールバックされるのでガードする
         if (requestCode == PERMISSION_REQUEST_CODE && grantResults.isNotEmpty()) {
-            // 失敗した場合
             if (!RuntimePermission.checkGrantResults(*grantResults)) {
-                if (RuntimePermission.shouldShowRequestPermissionRationale(requireActivity(), PERMISSION_LOCATION.get(0))) {
+                // 「今後は確認しない」にチェックされているかどうか
+                if (RuntimePermission.shouldShowRequestPermissionRationale(requireActivity(), PERMISSION_LOCATION[0])) {
                     Toast.makeText(requireContext(), "ビーコンの取得には位置情報の許可が必要です", Toast.LENGTH_SHORT).show()
                 } else {
                     Handler().post { RuntimePermission.showAlertDialog(requireActivity().supportFragmentManager, "位置情報") }
                 }
-                // 成功した場合
             } else {
+                // ユーザー情報の登録
                 val pref = PreferenceManager.getDefaultSharedPreferences(requireContext())
                 val name = pref.getString("name", "").toString()
-                val email = pref.getString("email", "").toString()
                 val position = pref.getString("position", "").toString()
                 val region = pref.getString("region", "").toString()
                 val subject = pref.getString("subject", "").toString()
-                FirebaseUtils.updateProfile(name)
 
-                requireActivity().setResult(Activity.RESULT_OK, Intent())
+                FirebaseAuthUtils.updateProfile(name)
+                FirestoreUtils.updateUser(position, region, subject) { isSuccess ->
+                    if (!isSuccess) {
+                        Toast.makeText(requireContext(), "ユーザー情報の登録に失敗しました", Toast.LENGTH_SHORT).show()
+                        activity?.finish()
+                    }
+                }
+
+                // 仮保存データの削除
+                pref.edit()
+                        .remove("name")
+                        .remove("email")
+                        .remove("position")
+                        .remove("region")
+                        .remove("subject")
+                        .apply()
+
+//                requireActivity().setResult(Activity.RESULT_OK, Intent())
                 requireActivity().finish()
             }
         }

@@ -7,9 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import com.sakusaku.beacon.FirebaseUtils
+import com.sakusaku.beacon.FirebaseAuthUtils
+import com.sakusaku.beacon.FragmentUtil
 import com.sakusaku.beacon.R
 
 class EmailEntryFragment : Fragment() {
@@ -26,24 +28,20 @@ class EmailEntryFragment : Fragment() {
             } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 text.error = "正しいメールアドレスを入力してください"
             } else {
-                FirebaseUtils.sendSignInLink(email, requireActivity(), FirebaseUtils.buildActionCodeSettings())
+                FirebaseAuthUtils.sendSignInLink(email, FirebaseAuthUtils.buildActionCodeSettings()) { task ->
+                    if (!task.isSuccessful) {
+                        Toast.makeText(activity, "メールの送信に失敗しました", Toast.LENGTH_LONG).show()
+                    }
+                }
                 PreferenceManager.getDefaultSharedPreferences(requireContext())
                         .edit()
                         .putString("email", email)
                         .apply()
-                replaceFragment(EmailSendFragment())
+                FragmentUtil.replaceFragment(requireActivity(), EmailSendFragment())
             }
         }
         val navigationBack = view.findViewById<Button?>(R.id.navigationBack)
         navigationBack.setOnClickListener { requireActivity().supportFragmentManager.popBackStack() }
         return view
-    }
-
-    private fun replaceFragment(fragment: Fragment) {
-        val transaction = requireActivity().supportFragmentManager.beginTransaction()
-        transaction.setCustomAnimations(R.anim.fragment_close_enter, R.anim.fragment_close_exit)
-        transaction.addToBackStack(null)
-        transaction.replace(R.id.onboarding_fragment, fragment)
-        transaction.commit()
     }
 }
