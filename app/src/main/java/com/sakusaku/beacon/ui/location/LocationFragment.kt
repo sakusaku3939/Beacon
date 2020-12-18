@@ -4,7 +4,9 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import be.rijckaert.tim.animatedvector.FloatingMusicActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.sakusaku.beacon.BeaconService
 import com.sakusaku.beacon.R
@@ -21,32 +24,50 @@ class LocationFragment : Fragment() {
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val locationViewModel = ViewModelProvider(this).get(LocationViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_location, container, false)
+
         val fab: FloatingActionButton = root.findViewById(R.id.fab)
-        val fabPause: FloatingActionButton = root.findViewById(R.id.fab_pauce)
+        val customFab = fab as FloatingMusicActionButton
 
         // フォアグラウンド実行中か
         val manager = requireActivity().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (serviceInfo in manager.getRunningServices(Int.MAX_VALUE)) {
             if (BeaconService::class.java.name == serviceInfo.service.className) {
-                fabPause.visibility = View.VISIBLE
-                fab.visibility = View.GONE
+                customFab.changeMode(FloatingMusicActionButton.Mode.PAUSE_TO_PLAY)
+                fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.red)))
             }
         }
-        fab.setOnClickListener {
-            // デバイスのBLE対応チェック
-            if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                Toast.makeText(activity, "このデバイスはBLE未対応です", Toast.LENGTH_LONG).show()
-            } else {
-                fabPause.visibility = View.VISIBLE
-                fab.visibility = View.GONE
-                requireActivity().startForegroundService(Intent(activity, BeaconService::class.java))
-            }
-        }
-        fabPause.setOnClickListener {
-            fab.visibility = View.VISIBLE
-            fabPause.visibility = View.GONE
-            requireActivity().stopService(Intent(activity, BeaconService::class.java))
-        }
+
+        fab.setOnMusicFabClickListener(object : FloatingMusicActionButton.OnMusicFabClickListener {
+            override fun onClick(view: View) {
+                    when (customFab.getOppositeMode()) {
+                        // ビーコン取得開始
+                        FloatingMusicActionButton.Mode.PAUSE_TO_PLAY -> {
+                            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.red)))
+                            // デバイスのBLE対応チェック
+                            if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+                                Toast.makeText(activity, "このデバイスはBLE未対応です", Toast.LENGTH_LONG).show()
+                            } else {
+                                requireActivity().startForegroundService(Intent(activity, BeaconService::class.java))
+                            }
+                        }
+                        // ビーコン取得停止
+                        FloatingMusicActionButton.Mode.PLAY_TO_PAUSE -> {
+                            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.blue_500)))
+                            requireActivity().stopService(Intent(activity, BeaconService::class.java))
+                        }
+                        else -> {
+                        }
+                    }
+
+                    // 連続クリックを無効化
+                    customFab.isClickable = false
+                    Handler().postDelayed({
+                        customFab.isClickable = true
+                    }, 400)
+                }
+        })
+
+
         val textView = root.findViewById<TextView?>(R.id.text_location)
         locationViewModel.getText()?.observe(viewLifecycleOwner) { s -> textView.text = s }
         return root
