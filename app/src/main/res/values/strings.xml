@@ -36,4 +36,11 @@
     <string name="title_location">位置情報</string>
     <string name="title_search">見つける</string>
     <string name="title_account">アカウント</string>
+    <string name="preference_status">ステータスを設定</string>
+    <string name="preference_scan_period">スキャンの間隔</string>
+    <string name="preference_notice">お知らせ</string>
+    <string name="preference_about">このアプリについて</string>
+    <string name="preference_send_feedback">フィードバックを送る</string>
+    <string name="preference_privacy_policy">プライバシーポリシー</string>
+    <string name="preference_oss_license">オープンソースライセンス</string>
 </resources>

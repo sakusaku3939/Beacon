@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory>
+        <PreferenceScreen
+            android:key="preference_setting_status"
+            android:title="@string/preference_status"
+            android:summary="オンライン" />
+
+        <PreferenceScreen
+            android:key="preference_scan_period"
+            android:title="@string/preference_scan_period"
+            android:summary="短い" />
+    </PreferenceCategory>
+</PreferenceScreen>
