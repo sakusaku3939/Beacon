@@ -1,14 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceScreen
+        android:key="preference_account"
+        android:layout="@layout/preference_account"
+        android:title="@string/preference_notice" />
+
+    <PreferenceCategory>
+        <ListPreference
+            android:defaultValue="オンライン"
+            android:entries="@array/entries_preference_status"
+            android:entryValues="@array/entry_values_preference_status"
+            android:key="preference_setting_status"
+            android:layout="@layout/custom_preference"
+            android:summary="オンライン"
+            android:title="@string/preference_status" />
+
+        <ListPreference
+            android:defaultValue="短い"
+            android:entries="@array/entries_preference_status"
+            android:entryValues="@array/entry_values_preference_status"
+            android:key="preference_scan_period"
+            android:layout="@layout/custom_preference"
+            android:summary="短い"
+            android:title="@string/preference_scan_period" />
+    </PreferenceCategory>
+
     <PreferenceCategory>
         <PreferenceScreen
-            android:key="preference_setting_status"
-            android:title="@string/preference_status"
-            android:summary="オンライン" />
+            android:key="preference_notice"
+            android:layout="@layout/custom_preference"
+            android:title="@string/preference_notice" />
 
         <PreferenceScreen
-            android:key="preference_scan_period"
-            android:title="@string/preference_scan_period"
-            android:summary="短い" />
+            android:key="preference_about"
+            android:layout="@layout/custom_preference"
+            android:title="@string/preference_about" />
+
+        <PreferenceScreen
+            android:key="preference_send_feedback"
+            android:layout="@layout/custom_preference"
+            android:title="@string/preference_send_feedback" />
+
+        <PreferenceScreen
+            android:key="preference_privacy_policy"
+            android:layout="@layout/custom_preference"
+            android:title="@string/preference_privacy_policy" />
+
+        <PreferenceScreen
+            android:key="preference_oss_license"
+            android:layout="@layout/custom_preference"
+            android:title="@string/preference_oss_license" />
     </PreferenceCategory>
+
+    <PreferenceCategory />
 </PreferenceScreen>

@@ -36,6 +36,7 @@
     <string name="title_location">位置情報</string>
     <string name="title_search">見つける</string>
     <string name="title_account">アカウント</string>
+    <string name="preference_logout">ログアウト</string>
     <string name="preference_status">ステータスを設定</string>
     <string name="preference_scan_period">スキャンの間隔</string>
     <string name="preference_notice">お知らせ</string>

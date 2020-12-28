@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="entries_preference_status">
+        <item>オンライン</item>
+        <item>オンライン状態を隠す</item>
+    </string-array>
+    <string-array name="entry_values_preference_status">
+        <item>online</item>
+        <item>offline</item>
+    </string-array>
+</resources>
