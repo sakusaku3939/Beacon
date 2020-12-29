@@ -3,9 +3,13 @@
     <PreferenceScreen
         android:key="preference_account"
         android:layout="@layout/preference_account"
-        android:title="@string/preference_notice" />
+        android:title="undefined"
+        android:summary="undefined" />
 
-    <PreferenceCategory>
+    <PreferenceScreen
+        android:layout="@layout/preference_diver"
+        android:selectable="false" />
+
         <ListPreference
             android:defaultValue="オンライン"
             android:entries="@array/entries_preference_status"
@@ -23,9 +27,11 @@
             android:layout="@layout/custom_preference"
             android:summary="短い"
             android:title="@string/preference_scan_period" />
-    </PreferenceCategory>
 
-    <PreferenceCategory>
+    <PreferenceScreen
+        android:layout="@layout/preference_diver"
+        android:selectable="false" />
+
         <PreferenceScreen
             android:key="preference_notice"
             android:layout="@layout/custom_preference"
@@ -50,7 +56,8 @@
             android:key="preference_oss_license"
             android:layout="@layout/custom_preference"
             android:title="@string/preference_oss_license" />
-    </PreferenceCategory>
 
-    <PreferenceCategory />
+    <PreferenceScreen
+        android:layout="@layout/preference_diver"
+        android:selectable="false" />
 </PreferenceScreen>

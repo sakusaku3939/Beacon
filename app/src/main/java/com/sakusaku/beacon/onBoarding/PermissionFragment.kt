@@ -66,7 +66,6 @@ class PermissionFragment : Fragment() {
                 pref.edit()
                         .remove("name")
                         .remove("email")
-                        .remove("position")
                         .remove("region")
                         .remove("subject")
                         .apply()
