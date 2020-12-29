@@ -44,4 +44,5 @@
     <string name="preference_send_feedback">フィードバックを送る</string>
     <string name="preference_privacy_policy">プライバシーポリシー</string>
     <string name="preference_oss_license">オープンソースライセンス</string>
+    <string name="preference_footer">©2020 sakusaku3939</string>
 </resources>

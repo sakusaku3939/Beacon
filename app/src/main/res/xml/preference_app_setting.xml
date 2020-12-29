@@ -3,61 +3,61 @@
     <PreferenceScreen
         android:key="preference_account"
         android:layout="@layout/preference_account"
-        android:title="undefined"
-        android:summary="undefined" />
+        android:summary="undefined"
+        android:title="undefined" />
 
     <PreferenceScreen
         android:layout="@layout/preference_diver"
         android:selectable="false" />
 
-        <ListPreference
-            android:defaultValue="オンライン"
-            android:entries="@array/entries_preference_status"
-            android:entryValues="@array/entry_values_preference_status"
-            android:key="preference_setting_status"
-            android:layout="@layout/custom_preference"
-            android:summary="オンライン"
-            android:title="@string/preference_status" />
+    <ListPreference
+        android:defaultValue="オンライン"
+        android:entries="@array/array_preference_status"
+        android:entryValues="@array/array_values_preference_status"
+        android:key="preference_status"
+        android:layout="@layout/custom_preference"
+        android:summary="オンライン"
+        android:title="@string/preference_status" />
 
-        <ListPreference
-            android:defaultValue="短い"
-            android:entries="@array/entries_preference_status"
-            android:entryValues="@array/entry_values_preference_status"
-            android:key="preference_scan_period"
-            android:layout="@layout/custom_preference"
-            android:summary="短い"
-            android:title="@string/preference_scan_period" />
+    <ListPreference
+        android:defaultValue="短い"
+        android:entries="@array/array_preference_scan_period"
+        android:entryValues="@array/array_values_preference_scan_period"
+        android:key="preference_scan_period"
+        android:layout="@layout/custom_preference"
+        android:summary="短い"
+        android:title="@string/preference_scan_period" />
 
     <PreferenceScreen
         android:layout="@layout/preference_diver"
         android:selectable="false" />
 
-        <PreferenceScreen
-            android:key="preference_notice"
-            android:layout="@layout/custom_preference"
-            android:title="@string/preference_notice" />
-
-        <PreferenceScreen
-            android:key="preference_about"
-            android:layout="@layout/custom_preference"
-            android:title="@string/preference_about" />
-
-        <PreferenceScreen
-            android:key="preference_send_feedback"
-            android:layout="@layout/custom_preference"
-            android:title="@string/preference_send_feedback" />
-
-        <PreferenceScreen
-            android:key="preference_privacy_policy"
-            android:layout="@layout/custom_preference"
-            android:title="@string/preference_privacy_policy" />
-
-        <PreferenceScreen
-            android:key="preference_oss_license"
-            android:layout="@layout/custom_preference"
-            android:title="@string/preference_oss_license" />
+    <PreferenceScreen
+        android:key="preference_notice"
+        android:layout="@layout/custom_preference"
+        android:title="@string/preference_notice" />
 
     <PreferenceScreen
-        android:layout="@layout/preference_diver"
+        android:key="preference_about"
+        android:layout="@layout/custom_preference"
+        android:title="@string/preference_about" />
+
+    <PreferenceScreen
+        android:key="preference_send_feedback"
+        android:layout="@layout/custom_preference"
+        android:title="@string/preference_send_feedback" />
+
+    <PreferenceScreen
+        android:key="preference_privacy_policy"
+        android:layout="@layout/custom_preference"
+        android:title="@string/preference_privacy_policy" />
+
+    <PreferenceScreen
+        android:key="preference_oss_license"
+        android:layout="@layout/custom_preference"
+        android:title="@string/preference_oss_license" />
+
+    <PreferenceScreen
+        android:layout="@layout/preference_footer"
         android:selectable="false" />
 </PreferenceScreen>
