@@ -23,9 +23,11 @@ class AccountFragment : PreferenceFragmentCompat() {
         val view = super.onCreateView(inflater, container, savedInstanceState)
         view?.setBackgroundColor(Color.parseColor("#F5F5F5"))
 
+        // 名前の表示
         val account = findPreference<PreferenceScreen>("preference_account")!!
         account.title = FirebaseAuthUtils.getUserProfile()["name"].toString()
 
+        // 先生or生徒の表示
         PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("position", null)?.let {
             account.summary = it
         } ?: run {
