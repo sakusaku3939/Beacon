@@ -115,12 +115,12 @@ class BeaconService : Service(), BeaconConsumer {
         } catch (e: RemoteException) {
             e.printStackTrace()
         }
-        beaconManager.addRangeNotifier { beacons: MutableCollection<Beacon>, region: Region ->
+        beaconManager.addRangeNotifier { beacons: MutableCollection<Beacon>, _: Region ->
             for (beacon in beacons) {
-                Log.d("BeaconInfo", "UUID:" + beacon.getId1() + ", major:"
-                        + beacon.getId2() + ", minor:" + beacon.getId3() + ", RSSI:"
-                        + beacon.getRssi() + ", TxPower:" + beacon.getTxPower()
-                        + ", Distance:" + beacon.getDistance())
+                Log.d("BeaconInfo", "UUID:" + beacon.id1 + ", major:"
+                        + beacon.id2 + ", minor:" + beacon.id3 + ", RSSI:"
+                        + beacon.rssi + ", TxPower:" + beacon.txPower
+                        + ", Distance:" + beacon.distance)
             }
             val firstBeacon = if (beacons.iterator().hasNext()) beacons.iterator().next() else null
 
