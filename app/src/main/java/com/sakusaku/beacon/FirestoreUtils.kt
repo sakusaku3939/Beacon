@@ -6,7 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 object FirestoreUtils {
     private const val TAG: String = "Firestore"
 
-    fun updateUser(position: String? = null, region: String? = null, subject: String? = null, afterUpdate: (isSuccess: Boolean) -> (Unit) = {}) {
+    fun updateUser(position: String? = null, region: String? = null, subject: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
         val db = FirebaseFirestore.getInstance()
         val user = hashMapOf(
                 "position" to position,
@@ -15,21 +15,21 @@ object FirestoreUtils {
         ).filter { it.value != null }
 
         val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
-        uid?.let {
+        uid?.takeIf { user.isNotEmpty() }?.let {
             db.collection("users").document(it)
                     .set(user)
                     .addOnSuccessListener {
                         Log.d(TAG, "DocumentSnapshot successfully written!")
-                        afterUpdate(true)
+                        callback(true)
                     }
                     .addOnFailureListener {
                         e -> Log.w(TAG, "Error writing document", e)
-                        afterUpdate(false)
+                        callback(false)
                     }
-        } ?: afterUpdate(false)
+        } ?: callback(false)
     }
 
-    fun getUserData(success: (data: Map<String, Any>?) -> (Unit), failed: () -> (Unit)) {
+    fun getUserData(callback: (data: Map<String, Any>?) -> (Unit)) {
         val db = FirebaseFirestore.getInstance()
         val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
         uid?.let {
@@ -38,16 +38,16 @@ object FirestoreUtils {
                     .addOnSuccessListener { document ->
                         if (document != null) {
                             Log.d(TAG, "DocumentSnapshot data: ${document.data}")
-                            success(document.data)
+                            callback(document.data)
                         } else {
                             Log.d(TAG, "No such document")
-                            success(null)
+                            callback(null)
                         }
                     }
                     .addOnFailureListener { exception ->
                         Log.d(TAG, "get failed with ", exception)
-                        failed()
+                        callback(null)
                     }
-        } ?: failed()
+        } ?: callback(null)
     }
 }
