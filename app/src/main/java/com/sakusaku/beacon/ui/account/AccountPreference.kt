@@ -2,10 +2,12 @@ package com.sakusaku.beacon.ui.account
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
+import androidx.appcompat.app.AlertDialog
 import androidx.preference.Preference
+import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceViewHolder
 import com.sakusaku.beacon.R
+
 
 class AccountPreference @JvmOverloads constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int = 0) : Preference(context, attrs, defStyleAttr) {
     init {
@@ -14,9 +16,17 @@ class AccountPreference @JvmOverloads constructor(context: Context?, attrs: Attr
 
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
-        // holder.itemView.setClickable(false);
         val button = holder.findViewById(R.id.logout)
         button.isClickable = true
-        button.setOnClickListener { Log.d("test", "ok") }
+        button.setOnClickListener {
+            AlertDialog.Builder(context)
+                    .setTitle("ログアウト")
+                    .setMessage("この端末からログアウトします。よろしいですか？")
+                    .setPositiveButton("はい") { _, _ ->
+                        android.os.Process.killProcess(android.os.Process.myPid())
+                    }
+                    .setNegativeButton("キャンセル") { _, _ -> }
+                    .show()
+        }
     }
 }

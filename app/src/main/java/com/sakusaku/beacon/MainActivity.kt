@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.AppLaunchChecker
+import androidx.preference.PreferenceManager
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -44,13 +44,15 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE) {
-            AppLaunchChecker.onActivityCreate(this)
+            PreferenceManager.getDefaultSharedPreferences(this).edit()
+                    .putBoolean("isAppFirstLaunch", false)
+                    .apply()
             showSplash()
         }
     }
 
     private fun showSplash() {
-        if (!AppLaunchChecker.hasStartedFromLauncher(this)) {
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("isAppFirstLaunch", true)) {
             Handler().postDelayed({
                 val intent = Intent(application, OnBoardingActivity::class.java)
                 startActivityForResult(intent, REQUEST_CODE)
