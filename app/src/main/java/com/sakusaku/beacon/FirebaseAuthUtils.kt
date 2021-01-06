@@ -15,6 +15,12 @@ import com.google.firebase.ktx.Firebase
 object FirebaseAuthUtils {
     private const val TAG: String = "Firebase"
 
+    fun isSignIn(): Boolean = Firebase.auth.currentUser != null
+
+    fun signOut() {
+        Firebase.auth.signOut()
+    }
+
     fun buildActionCodeSettings(): ActionCodeSettings {
         return actionCodeSettings {
             setAndroidPackageName("com.sakusaku.beacon", true, null).handleCodeInApp = true
@@ -61,8 +67,8 @@ object FirebaseAuthUtils {
                 displayName = name
             }
 
-            user!!.updateProfile(profileUpdates)
-                    .addOnCompleteListener { task ->
+            user?.updateProfile(profileUpdates)
+                    ?.addOnCompleteListener { task ->
                         afterUpdate(task)
                         if (task.isSuccessful) {
                             Log.d(TAG, "User profile updated.")

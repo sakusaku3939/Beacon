@@ -6,13 +6,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceScreen
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.sakusaku.beacon.FirebaseAuthUtils
 import com.sakusaku.beacon.FirestoreUtils
+import com.sakusaku.beacon.MainActivity
 import com.sakusaku.beacon.R
 
 class AccountFragment : PreferenceFragmentCompat() {
@@ -22,8 +22,22 @@ class AccountFragment : PreferenceFragmentCompat() {
         view?.setBackgroundColor(Color.parseColor("#F5F5F5"))
 
         // 名前の表示
-        val account = findPreference<Preference>("preference_account")!!
+        val account = findPreference<AccountPreference>("preference_account")!!
         account.title = FirebaseAuthUtils.getUserProfile()["name"].toString()
+
+        // ログアウト押下時の処理
+        account.setOnLogoutClickListener(object : AccountPreference.OnLogoutClickListener {
+            override fun onLogoutClickListener(view: View) {
+                FirebaseAuthUtils.signOut()
+
+                val restartIntent = Intent(Intent.ACTION_MAIN)
+                restartIntent.setClassName(requireContext().packageName, MainActivity::class.java.name)
+                restartIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                requireContext().startActivity(restartIntent)
+
+                requireActivity().finish()
+            }
+        })
 
         // 先生or生徒の表示
         PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("position", null)?.let {

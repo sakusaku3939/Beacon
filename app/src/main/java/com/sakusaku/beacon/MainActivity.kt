@@ -44,21 +44,12 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE) {
-            PreferenceManager.getDefaultSharedPreferences(this).edit()
-                    .putBoolean("isAppFirstLaunch", false)
-                    .apply()
             showSplash()
         }
     }
 
     private fun showSplash() {
-        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("isAppFirstLaunch", true)) {
-            Handler().postDelayed({
-                val intent = Intent(application, OnBoardingActivity::class.java)
-                startActivityForResult(intent, REQUEST_CODE)
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
-            }, 1200)
-        } else {
+        if (FirebaseAuthUtils.isSignIn()) {
             Handler().postDelayed({
                 if (RuntimePermission.hasSelfPermissions(this, *PERMISSION_LOCATION)) {
                     // 権限がある場合は、そのまま通常処理を行う
@@ -68,6 +59,12 @@ class MainActivity : AppCompatActivity() {
                     requestPermissions(PERMISSION_LOCATION, REQUEST_CODE)
                 }
             }, 600)
+        } else {
+            Handler().postDelayed({
+                val intent = Intent(application, OnBoardingActivity::class.java)
+                startActivityForResult(intent, REQUEST_CODE)
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+            }, 1200)
         }
     }
 
