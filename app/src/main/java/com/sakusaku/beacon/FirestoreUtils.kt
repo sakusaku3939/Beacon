@@ -5,6 +5,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 object FirestoreUtils {
     private const val TAG: String = "Firestore"
+    var user: Map<String, Any>? = null
 
     fun updateUser(position: String? = null, region: String? = null, subject: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
         val db = FirebaseFirestore.getInstance()
@@ -38,6 +39,7 @@ object FirestoreUtils {
                     .addOnSuccessListener { document ->
                         if (document != null) {
                             Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+                            user = document.data
                             callback(document.data)
                         } else {
                             Log.d(TAG, "No such document")

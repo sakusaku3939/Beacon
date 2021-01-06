@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,13 +59,15 @@ class PermissionFragment : Fragment() {
                 FirestoreUtils.updateUser(position, region, subject) { isSuccess ->
                     if (!isSuccess) {
                         Toast.makeText(requireContext(), "ユーザー情報の登録に失敗しました", Toast.LENGTH_SHORT).show()
-                        activity?.finish()
+                        requireActivity().setResult(Activity.RESULT_CANCELED, Intent())
+                        requireActivity().finish()
                     }
                 }
 
                 // 仮保存データの削除
                 pref.edit()
                         .remove("name")
+                        .remove("position")
                         .remove("email")
                         .remove("region")
                         .remove("subject")

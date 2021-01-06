@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceScreen
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.sakusaku.beacon.FirebaseAuthUtils
@@ -40,16 +39,12 @@ class AccountFragment : PreferenceFragmentCompat() {
         })
 
         // 先生or生徒の表示
-        PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("position", null)?.let {
-            account.summary = it
+        FirestoreUtils.user?.let {
+            account.summary = it["position"].toString()
         } ?: run {
             FirestoreUtils.getUserData { data ->
                 data?.let {
                     account.summary = it["position"].toString()
-                    PreferenceManager.getDefaultSharedPreferences(requireContext())
-                            .edit()
-                            .putString("position", it["position"].toString())
-                            .apply()
                 }
             }
         }

@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE) {
+        if (resultCode == RESULT_OK) {
             showSplash()
         }
     }
@@ -59,6 +59,9 @@ class MainActivity : AppCompatActivity() {
                     requestPermissions(PERMISSION_LOCATION, REQUEST_CODE)
                 }
             }, 600)
+
+            // ユーザーデータの読み込み
+            FirestoreUtils.getUserData {}
         } else {
             Handler().postDelayed({
                 val intent = Intent(application, OnBoardingActivity::class.java)
