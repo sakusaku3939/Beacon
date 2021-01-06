@@ -27,7 +27,7 @@ object FirestoreUtils {
                         e -> Log.w(TAG, "Error writing document", e)
                         callback(false)
                     }
-        } ?: callback(false)
+        } ?: callback(true)
     }
 
     fun getUserData(callback: (data: Map<String, Any>?) -> (Unit)) {

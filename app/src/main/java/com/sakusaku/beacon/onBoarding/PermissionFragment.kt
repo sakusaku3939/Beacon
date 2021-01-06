@@ -13,10 +13,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import com.sakusaku.beacon.FirebaseAuthUtils
-import com.sakusaku.beacon.FirestoreUtils
-import com.sakusaku.beacon.R
-import com.sakusaku.beacon.RuntimePermission
+import com.sakusaku.beacon.*
 
 class PermissionFragment : Fragment() {
     companion object {
@@ -57,10 +54,11 @@ class PermissionFragment : Fragment() {
 
                 FirebaseAuthUtils.updateProfile(name)
                 FirestoreUtils.updateUser(position, region, subject) { isSuccess ->
-                    if (!isSuccess) {
-                        Toast.makeText(requireContext(), "ユーザー情報の登録に失敗しました", Toast.LENGTH_SHORT).show()
-                        requireActivity().setResult(Activity.RESULT_CANCELED, Intent())
+                    if (isSuccess) {
                         requireActivity().finish()
+                    } else {
+                        Toast.makeText(requireContext(), "ユーザー情報の登録に失敗しました", Toast.LENGTH_SHORT).show()
+                        FirebaseAuthUtils.signOut()
                     }
                 }
 
@@ -72,9 +70,6 @@ class PermissionFragment : Fragment() {
                         .remove("region")
                         .remove("subject")
                         .apply()
-
-                requireActivity().setResult(Activity.RESULT_OK, Intent())
-                requireActivity().finish()
             }
         }
     }
