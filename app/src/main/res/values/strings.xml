@@ -36,6 +36,11 @@
     <string name="title_location">位置情報</string>
     <string name="title_search">見つける</string>
     <string name="title_account">アカウント</string>
+    <string name="floor_tab_1F">1F</string>
+    <string name="floor_tab_2F">2F</string>
+    <string name="floor_tab_3F">3F</string>
+    <string name="floor_tab_4F">4F</string>
+    <string name="floor_tab_5F">5F</string>
     <string name="preference_logout">ログアウト</string>
     <string name="preference_status">ステータスを設定</string>
     <string name="preference_scan_period">スキャンの間隔</string>
