@@ -10,8 +10,7 @@ import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import be.rijckaert.tim.animatedvector.FloatingMusicActionButton
@@ -22,8 +21,22 @@ import com.sakusaku.beacon.R
 class LocationFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val locationViewModel = ViewModelProvider(this).get(LocationViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_location, container, false)
+
+        // 校内図
+        val floorTab = root.findViewById<RadioGroup>(R.id.floorTab)
+        floorTab.setOnCheckedChangeListener { _, checkedId ->
+            val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
+            val imageResource = when (checkedId) {
+                R.id.floorTab1F -> R.drawable.school_map_1f
+                R.id.floorTab2F -> R.drawable.school_map_2f
+                R.id.floorTab3F -> R.drawable.school_map_3f
+                R.id.floorTab4F -> R.drawable.school_map_4f
+                R.id.floorTab5F -> R.drawable.school_map_5f
+                else -> null
+            }
+            imageResource?.let { floorMapImage.setImageResource(it) }
+        }
 
         val fab: FloatingActionButton = root.findViewById(R.id.fab)
         val customFab = fab as FloatingMusicActionButton
@@ -67,9 +80,6 @@ class LocationFragment : Fragment() {
                 }
         })
 
-
-        val textView = root.findViewById<TextView?>(R.id.text_location)
-        locationViewModel.getText()?.observe(viewLifecycleOwner) { s -> textView.text = s }
         return root
     }
 }

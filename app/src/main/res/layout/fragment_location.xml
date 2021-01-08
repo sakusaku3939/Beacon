@@ -7,6 +7,7 @@
     tools:context=".ui.location.LocationFragment">
 
     <HorizontalScrollView
+        android:id="@+id/horizontalScrollView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -49,22 +50,26 @@
                 style="@style/FloorTab"
                 android:text="@string/floor_tab_5F" />
         </RadioGroup>
-
     </HorizontalScrollView>
 
-    <TextView
-        android:id="@+id/text_location"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView2">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/floorMapImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="centerInside"
+            android:src="@drawable/school_map_1f" />
+    </LinearLayout>
 
     <be.rijckaert.tim.animatedvector.FloatingMusicActionButton
         android:id="@+id/fab"
