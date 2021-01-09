@@ -12,7 +12,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import be.rijckaert.tim.animatedvector.FloatingMusicActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.sakusaku.beacon.BeaconService
@@ -37,6 +38,27 @@ class LocationFragment : Fragment() {
             }
             imageResource?.let { floorMapImage.setImageResource(it) }
         }
+
+        val layoutManager = GridLayoutManager(requireContext(), 5, GridLayoutManager.VERTICAL, false)
+        val peopleGridRecyclerView = root.findViewById<RecyclerView>(R.id.peopleGridRecyclerView)
+        val peopleList = listOf(
+                PeopleGrid(R.drawable.user, "Name1", "101"),
+                PeopleGrid(R.drawable.user, "Name2", "102"),
+                PeopleGrid(R.drawable.user, "Name3", "103"),
+                PeopleGrid(R.drawable.user, "Name4", "104"),
+                PeopleGrid(R.drawable.user, "Name5", "105"),
+                PeopleGrid(R.drawable.user, "Name6", "106"),
+        )
+        val adapter = PeopleGridAdapter(peopleList, object : PeopleGridAdapter.ListListener {
+            override fun onClickItem(tappedView: View, name: String, location: String) {
+
+            }
+        })
+
+        peopleGridRecyclerView.layoutManager = layoutManager
+        peopleGridRecyclerView.isNestedScrollingEnabled = false
+        peopleGridRecyclerView.setHasFixedSize(true)
+        peopleGridRecyclerView.adapter = adapter
 
         val fab: FloatingActionButton = root.findViewById(R.id.fab)
         val customFab = fab as FloatingMusicActionButton

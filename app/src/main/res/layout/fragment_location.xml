@@ -1,85 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.location.LocationFragment">
+    android:layout_height="match_parent">
 
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollView2"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:scrollbars="none"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="match_parent">
 
-        <RadioGroup
-            android:id="@+id/floorTab"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="0dp">
+            android:orientation="vertical">
 
-            <RadioButton
-                android:id="@+id/floorTab1F"
-                style="@style/FloorTab"
-                android:checked="true"
-                android:text="@string/floor_tab_1F" />
+            <HorizontalScrollView
+                android:id="@+id/horizontalScrollView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:scrollbars="none">
 
-            <RadioButton
-                android:id="@+id/floorTab2F"
-                style="@style/FloorTab"
-                android:text="@string/floor_tab_2F" />
+                <RadioGroup
+                    android:id="@+id/floorTab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="0dp">
 
-            <RadioButton
-                android:id="@+id/floorTab3F"
-                style="@style/FloorTab"
-                android:text="@string/floor_tab_3F" />
+                    <RadioButton
+                        android:id="@+id/floorTab1F"
+                        style="@style/FloorTab"
+                        android:checked="true"
+                        android:text="@string/floor_tab_1F" />
 
-            <RadioButton
-                android:id="@+id/floorTab4F"
-                style="@style/FloorTab"
-                android:text="@string/floor_tab_4F" />
+                    <RadioButton
+                        android:id="@+id/floorTab2F"
+                        style="@style/FloorTab"
+                        android:text="@string/floor_tab_2F" />
 
-            <RadioButton
-                android:id="@+id/floorTab5F"
-                style="@style/FloorTab"
-                android:text="@string/floor_tab_5F" />
-        </RadioGroup>
-    </HorizontalScrollView>
+                    <RadioButton
+                        android:id="@+id/floorTab3F"
+                        style="@style/FloorTab"
+                        android:text="@string/floor_tab_3F" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView2">
+                    <RadioButton
+                        android:id="@+id/floorTab4F"
+                        style="@style/FloorTab"
+                        android:text="@string/floor_tab_4F" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/floorMapImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:scaleType="centerInside"
-            android:src="@drawable/school_map_1f" />
-    </LinearLayout>
+                    <RadioButton
+                        android:id="@+id/floorTab5F"
+                        style="@style/FloorTab"
+                        android:text="@string/floor_tab_5F" />
+                </RadioGroup>
+            </HorizontalScrollView>
+
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="16dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/floorMapImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/school_map_1f" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/peopleGridRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="16dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <be.rijckaert.tim.animatedvector.FloatingMusicActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
         app:backgroundTint="@color/blue_500"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:mode="playToPause" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
