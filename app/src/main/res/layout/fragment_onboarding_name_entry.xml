@@ -38,7 +38,7 @@
             android:layout_marginEnd="12dp"
             android:buttonTint="#DDF291BF"
             android:checked="true"
-            android:text="@string/onboarding_radio_student"
+            android:text="@string/student"
             android:textColor="@color/white" />
 
         <RadioButton
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:buttonTint="#DDF291BF"
-            android:text="@string/onboarding_radio_teacher"
+            android:text="@string/teacher"
             android:textColor="@color/white" />
     </RadioGroup>
 

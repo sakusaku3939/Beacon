@@ -2,6 +2,8 @@
     <string name="app_name">TKG Beacon</string>
     <string name="next">次へ</string>
     <string name="back">戻る</string>
+    <string name="student">生徒</string>
+    <string name="teacher">先生</string>
     <string name="onboarding_description">多摩科学技術高校のビーコン型位置情報共有アプリ</string>
     <string name="onboarding_get_started">生徒 または 先生 で始める</string>
     <string name="onboarding_email_hint">メールアドレスを入力</string>
@@ -10,8 +12,6 @@
     <string name="onboarding_email_send_description"> に送信したメールに記載されているリンクをタップしてください</string>
     <string name="onboarding_email_send_launch">メールアプリを起動</string>
     <string name="onboarding_name_hint">名前を入力</string>
-    <string name="onboarding_radio_student">生徒</string>
-    <string name="onboarding_radio_teacher">先生</string>
     <string name="onboarding_radio_hint">領域・科目を選択</string>
     <string name="region">領域</string>
     <string name="radio_region_IT">IT</string>

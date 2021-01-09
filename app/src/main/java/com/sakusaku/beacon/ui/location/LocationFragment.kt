@@ -39,9 +39,8 @@ class LocationFragment : Fragment() {
             imageResource?.let { floorMapImage.setImageResource(it) }
         }
 
-        val layoutManager = GridLayoutManager(requireContext(), 5, GridLayoutManager.VERTICAL, false)
-        val peopleGridRecyclerView = root.findViewById<RecyclerView>(R.id.peopleGridRecyclerView)
-        val peopleList = listOf(
+        // 同じ階にいる先生の表示
+        val teacherList = listOf(
                 PeopleGrid(R.drawable.user, "Name1", "101"),
                 PeopleGrid(R.drawable.user, "Name2", "102"),
                 PeopleGrid(R.drawable.user, "Name3", "103"),
@@ -49,17 +48,17 @@ class LocationFragment : Fragment() {
                 PeopleGrid(R.drawable.user, "Name5", "105"),
                 PeopleGrid(R.drawable.user, "Name6", "106"),
         )
-        val adapter = PeopleGridAdapter(peopleList, object : PeopleGridAdapter.ListListener {
-            override fun onClickItem(tappedView: View, name: String, location: String) {
+        setPeopleGrid(teacherList, root.findViewById(R.id.teacherPeopleGrid))
 
-            }
-        })
+        // 同じ階にいる生徒の表示
+        val studentList = listOf(
+                PeopleGrid(R.drawable.user, "Name1", "101"),
+                PeopleGrid(R.drawable.user, "Name2", "102"),
+                PeopleGrid(R.drawable.user, "Name3", "103"),
+        )
+        setPeopleGrid(studentList, root.findViewById(R.id.studentPeopleGrid))
 
-        peopleGridRecyclerView.layoutManager = layoutManager
-        peopleGridRecyclerView.isNestedScrollingEnabled = false
-        peopleGridRecyclerView.setHasFixedSize(true)
-        peopleGridRecyclerView.adapter = adapter
-
+        // FABの設定
         val fab: FloatingActionButton = root.findViewById(R.id.fab)
         val customFab = fab as FloatingMusicActionButton
 
@@ -74,34 +73,49 @@ class LocationFragment : Fragment() {
 
         fab.setOnMusicFabClickListener(object : FloatingMusicActionButton.OnMusicFabClickListener {
             override fun onClick(view: View) {
-                    when (customFab.getOppositeMode()) {
-                        // ビーコン取得開始
-                        FloatingMusicActionButton.Mode.PAUSE_TO_PLAY -> {
-                            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.red)))
-                            // デバイスのBLE対応チェック
-                            if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                                Toast.makeText(activity, "このデバイスはBLE未対応です", Toast.LENGTH_LONG).show()
-                            } else {
-                                requireActivity().startForegroundService(Intent(activity, BeaconService::class.java))
-                            }
-                        }
-                        // ビーコン取得停止
-                        FloatingMusicActionButton.Mode.PLAY_TO_PAUSE -> {
-                            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.blue_500)))
-                            requireActivity().stopService(Intent(activity, BeaconService::class.java))
-                        }
-                        else -> {
+                when (customFab.getOppositeMode()) {
+                    // ビーコン取得開始
+                    FloatingMusicActionButton.Mode.PAUSE_TO_PLAY -> {
+                        fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.red)))
+                        // デバイスのBLE対応チェック
+                        if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+                            Toast.makeText(activity, "このデバイスはBLE未対応です", Toast.LENGTH_LONG).show()
+                        } else {
+                            requireActivity().startForegroundService(Intent(activity, BeaconService::class.java))
                         }
                     }
-
-                    // 連続クリックを無効化
-                    customFab.isClickable = false
-                    Handler().postDelayed({
-                        customFab.isClickable = true
-                    }, 400)
+                    // ビーコン取得停止
+                    FloatingMusicActionButton.Mode.PLAY_TO_PAUSE -> {
+                        fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.blue_500)))
+                        requireActivity().stopService(Intent(activity, BeaconService::class.java))
+                    }
+                    else -> {
+                    }
                 }
+
+                // 連続クリックを無効化
+                customFab.isClickable = false
+                Handler().postDelayed({
+                    customFab.isClickable = true
+                }, 400)
+            }
         })
 
         return root
+    }
+
+    private fun setPeopleGrid(list: List<PeopleGrid>, peopleRecyclerView: RecyclerView?) {
+        val customAdapter = PeopleGridAdapter(list, object : PeopleGridAdapter.ListListener {
+            override fun onClickItem(tappedView: View, name: String, location: String) {
+
+            }
+        })
+
+        peopleRecyclerView?.apply {
+            layoutManager = GridLayoutManager(requireContext(), 5, GridLayoutManager.VERTICAL, false)
+            isNestedScrollingEnabled = false
+            adapter = customAdapter
+            setHasFixedSize(true)
+        }
     }
 }
