@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.rijckaert.tim.animatedvector.FloatingMusicActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -112,7 +113,9 @@ class LocationFragment : Fragment() {
         })
 
         peopleRecyclerView?.apply {
-            layoutManager = GridLayoutManager(requireContext(), 5, GridLayoutManager.VERTICAL, false)
+            val manager = LinearLayoutManager(requireContext())
+            manager.orientation = LinearLayoutManager.HORIZONTAL
+            layoutManager = manager
             isNestedScrollingEnabled = false
             adapter = customAdapter
             setHasFixedSize(true)
