@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
@@ -18,7 +19,7 @@ class AccountFragment : PreferenceFragmentCompat() {
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
-        view?.setBackgroundColor(Color.parseColor("#F5F5F5"))
+        view?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
 
         // 名前の表示
         val account = findPreference<AccountPreference>("preference_account")!!

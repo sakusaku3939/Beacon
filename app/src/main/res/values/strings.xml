@@ -41,6 +41,7 @@
     <string name="floor_tab_3F">3F</string>
     <string name="floor_tab_4F">4F</string>
     <string name="floor_tab_5F">5F</string>
+    <string name="search_hint">Search people</string>
     <string name="preference_logout">ログアウト</string>
     <string name="preference_status">ステータスを設定</string>
     <string name="preference_scan_period">スキャンの間隔</string>
