@@ -35,7 +35,10 @@
             android:singleLine="true"
             android:textColor="@color/black"
             android:textColorHint="@color/gray"
-            android:textSize="20sp" />
+            android:textSize="20sp">
+
+            <requestFocus />
+        </androidx.appcompat.widget.AppCompatEditText>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
