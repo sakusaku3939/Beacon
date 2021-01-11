@@ -1,5 +1,6 @@
 package com.sakusaku.beacon.ui.search
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,6 +21,14 @@ class SearchFragment : Fragment() {
 
         val radioSubject: GridRadioGroup = root.findViewById(R.id.radioSubject)
         radioSubject.check(R.id.radioSubjectPhysics)
+
+        // 検索画面への遷移
+        val searchBar = root.findViewById<LinearLayout>(R.id.searchBar)
+        searchBar.setOnClickListener {
+            val intent = Intent(requireActivity(), SearchActivity::class.java)
+            startActivity(intent)
+            requireActivity().overridePendingTransition(0, 0)
+        }
 
         // フィルターメニュー表示・非表示の切り替え
         val accordion = root.findViewById<LinearLayout>(R.id.accordion)

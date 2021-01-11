@@ -17,6 +17,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".BeaconActivity" />
+        <activity android:name=".ui.search.SearchActivity" />
         <activity
             android:name=".OnBoardingActivity"
             android:screenOrientation="portrait">
