@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
                     // 権限がない場合は、パーミッション確認アラートを表示する
                     requestPermissions(PERMISSION_LOCATION, REQUEST_CODE)
                 }
-            }, 600)
+            }, 400)
 
             // ユーザーデータの読み込み
             FirestoreUtils.getUserData {}
