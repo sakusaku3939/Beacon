@@ -7,12 +7,16 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Handler
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.RadioGroup
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.rijckaert.tim.animatedvector.FloatingMusicActionButton
@@ -67,8 +71,8 @@ class LocationFragment : Fragment() {
         val manager = requireActivity().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (serviceInfo in manager.getRunningServices(Int.MAX_VALUE)) {
             if (BeaconService::class.java.name == serviceInfo.service.className) {
+                fabToggle(fab, FloatingMusicActionButton.Mode.PAUSE_TO_PLAY)
                 customFab.changeMode(FloatingMusicActionButton.Mode.PAUSE_TO_PLAY)
-                fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.red)))
             }
         }
 
@@ -77,21 +81,24 @@ class LocationFragment : Fragment() {
                 when (customFab.getOppositeMode()) {
                     // ビーコン取得開始
                     FloatingMusicActionButton.Mode.PAUSE_TO_PLAY -> {
-                        fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.red)))
                         // デバイスのBLE対応チェック
                         if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
                             Toast.makeText(activity, "このデバイスはBLE未対応です", Toast.LENGTH_LONG).show()
+                            Handler().postDelayed({
+                                customFab.changeMode(FloatingMusicActionButton.Mode.PLAY_TO_PAUSE)
+                                fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.blue_500))
+                            }, 300)
                         } else {
+                            fabToggle(fab, FloatingMusicActionButton.Mode.PAUSE_TO_PLAY)
                             requireActivity().startForegroundService(Intent(activity, BeaconService::class.java))
                         }
                     }
                     // ビーコン取得停止
                     FloatingMusicActionButton.Mode.PLAY_TO_PAUSE -> {
-                        fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.blue_500)))
+                        fabToggle(fab, FloatingMusicActionButton.Mode.PLAY_TO_PAUSE)
                         requireActivity().stopService(Intent(activity, BeaconService::class.java))
                     }
-                    else -> {
-                    }
+                    else -> {}
                 }
 
                 // 連続クリックを無効化
@@ -108,7 +115,6 @@ class LocationFragment : Fragment() {
     private fun setPeopleGrid(list: List<PeopleGrid>, peopleRecyclerView: RecyclerView?) {
         val customAdapter = PeopleGridAdapter(list, object : PeopleGridAdapter.ListListener {
             override fun onClickItem(tappedView: View, name: String, location: String) {
-
             }
         })
 
@@ -119,6 +125,28 @@ class LocationFragment : Fragment() {
             isNestedScrollingEnabled = false
             adapter = customAdapter
             setHasFixedSize(true)
+        }
+    }
+
+    private fun fabToggle(fab: FloatingActionButton, fabMode: FloatingMusicActionButton.Mode) {
+        val toolbar = requireActivity().findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        val progress = requireActivity().findViewById<ProgressBar>(R.id.progress)
+        val actionBarHeight = resources.getDimension(R.dimen.mtrl_toolbar_default_height).toInt()
+
+        when (fabMode) {
+            FloatingMusicActionButton.Mode.PAUSE_TO_PLAY -> {
+                progress.visibility = View.VISIBLE
+                toolbar.layoutParams.height = actionBarHeight + 12
+                toolbar.subtitle = "現在位置: test"
+                fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.red))
+            }
+            FloatingMusicActionButton.Mode.PLAY_TO_PAUSE -> {
+                progress.visibility = View.GONE
+                toolbar.subtitle = ""
+                toolbar.layoutParams.height = actionBarHeight
+                fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.blue_500))
+            }
+            else -> {}
         }
     }
 }

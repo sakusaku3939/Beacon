@@ -17,12 +17,16 @@
         <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
     </style>
 
-    <style name="NoActionBarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
+    <style name="ActionBarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="title">@string/app_name</item>
         <item name="logo">@mipmap/ic_launcher</item>
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryDark">@color/white</item>
         <item name="android:textColorPrimary">@color/black</item>
+    </style>
+
+    <style name="ActionBarSubtitleAppearance" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="EditTextStyleWhite">
