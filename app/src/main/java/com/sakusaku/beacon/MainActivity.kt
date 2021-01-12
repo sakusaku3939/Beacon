@@ -16,7 +16,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.splash)
         showSplash()
     }
 
@@ -25,7 +24,6 @@ class MainActivity : AppCompatActivity() {
 
         // アラート表示中に画面回転すると length ０でコールバックされるのでガードする
         if (requestCode == REQUEST_CODE && grantResults.isNotEmpty()) {
-            // 失敗した場合
             if (!RuntimePermission.checkGrantResults(*grantResults)) {
                 // 「今後は確認しない」にチェックされているかどうか
                 if (RuntimePermission.shouldShowRequestPermissionRationale(this, PERMISSION_LOCATION[0])) {
@@ -35,7 +33,6 @@ class MainActivity : AppCompatActivity() {
                     Handler().post { RuntimePermission.showAlertDialog(supportFragmentManager, "位置情報") }
                 }
             } else {
-                // 権限が取れた場合は通常の処理を行う
                 startBeaconActivity()
             }
         }
@@ -50,24 +47,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun showSplash() {
         if (FirebaseAuthUtils.isSignIn()) {
-            Handler().postDelayed({
-                if (RuntimePermission.hasSelfPermissions(this, *PERMISSION_LOCATION)) {
-                    // 権限がある場合は、そのまま通常処理を行う
-                    startBeaconActivity()
-                } else {
-                    // 権限がない場合は、パーミッション確認アラートを表示する
-                    requestPermissions(PERMISSION_LOCATION, REQUEST_CODE)
-                }
-            }, 400)
-
             // ユーザーデータの読み込み
             FirestoreUtils.getUserData {}
+
+            // パーミッションチェック
+            if (RuntimePermission.hasSelfPermissions(this, *PERMISSION_LOCATION)) {
+                startBeaconActivity()
+            } else {
+                requestPermissions(PERMISSION_LOCATION, REQUEST_CODE)
+            }
         } else {
             Handler().postDelayed({
                 val intent = Intent(application, OnBoardingActivity::class.java)
                 startActivityForResult(intent, REQUEST_CODE)
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
-            }, 1200)
+            }, 800)
         }
     }
 
