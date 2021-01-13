@@ -29,10 +29,12 @@ class LocationFragment : Fragment() {
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_location, container, false)
 
+        val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
+//        Log.d("test", "${it.x}, ${it.y}")
+
         // 校内図
         val floorTab = root.findViewById<RadioGroup>(R.id.floorTab)
         floorTab.setOnCheckedChangeListener { _, checkedId ->
-            val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
             val imageResource = when (checkedId) {
                 R.id.floorTab1F -> R.drawable.school_map_1f
                 R.id.floorTab2F -> R.drawable.school_map_2f
@@ -41,6 +43,10 @@ class LocationFragment : Fragment() {
                 R.id.floorTab5F -> R.drawable.school_map_5f
                 else -> null
             }
+
+            val floorMapMargin = floorMapImage.layoutParams as ViewGroup.MarginLayoutParams
+            floorMapMargin.leftMargin = 40
+            floorMapMargin.topMargin = 40
             imageResource?.let { floorMapImage.setImageResource(it) }
         }
 
