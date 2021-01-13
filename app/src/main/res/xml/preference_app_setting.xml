@@ -4,7 +4,7 @@
     <com.sakusaku.beacon.ui.account.AccountPreference
         android:key="preference_account"
         android:layout="@layout/preference_account"
-        android:summary="undefined"
+        android:summary="loading..."
         android:title="undefined" />
 
     <PreferenceScreen

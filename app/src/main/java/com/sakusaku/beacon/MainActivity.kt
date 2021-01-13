@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -48,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     private fun showSplash() {
         if (FirebaseAuthUtils.isSignIn()) {
             // ユーザーデータの読み込み
-            FirestoreUtils.getUserData {}
+            FirestoreUtils.loadUserData()
 
             // パーミッションチェック
             if (RuntimePermission.hasSelfPermissions(this, *PERMISSION_LOCATION)) {

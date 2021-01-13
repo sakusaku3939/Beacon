@@ -53,7 +53,7 @@ object FragmentUtil {
     }
 
     fun existsUserData(activity: FragmentActivity, blurImage: BlurImageView) {
-        FirestoreUtils.getUserData { data ->
+        FirestoreUtils.loadUserData { data ->
             Handler().postDelayed({ blurImage.setBlur(5) }, 100)
             replaceFragment(activity, if (data != null) PermissionFragment() else NameEntryFragment())
         }

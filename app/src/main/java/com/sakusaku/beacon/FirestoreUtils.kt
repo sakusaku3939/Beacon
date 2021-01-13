@@ -30,7 +30,7 @@ object FirestoreUtils {
         } ?: callback(true)
     }
 
-    fun getUserData(callback: (data: Map<String, Any>?) -> (Unit)) {
+    fun loadUserData(callback: (data: Map<String, Any>?) -> (Unit) = {}) {
         val db = FirebaseFirestore.getInstance()
         val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
         uid?.let {

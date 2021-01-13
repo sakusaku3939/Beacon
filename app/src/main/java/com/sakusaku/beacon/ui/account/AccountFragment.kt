@@ -1,7 +1,6 @@
 package com.sakusaku.beacon.ui.account
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -43,7 +42,7 @@ class AccountFragment : PreferenceFragmentCompat() {
         FirestoreUtils.user?.let {
             account.summary = it["position"].toString()
         } ?: run {
-            FirestoreUtils.getUserData { data ->
+            FirestoreUtils.loadUserData { data ->
                 data?.let {
                     account.summary = it["position"].toString()
                 }
