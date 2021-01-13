@@ -4,6 +4,7 @@ import android.app.*
 import android.content.Intent
 import android.os.*
 import android.util.Log
+import androidx.preference.PreferenceManager
 import org.altbeacon.beacon.*
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -62,8 +63,17 @@ class BeaconService : Service(), BeaconConsumer {
                 .setWhen(System.currentTimeMillis())
                 .build()
         startForeground(1, notification)
-        beaconManager.backgroundBetweenScanPeriod = 5000L
-        beaconManager.foregroundBetweenScanPeriod = 5000L
+
+        // スキャンの間隔を設定
+        val scanPeriod = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+                .getString("preference_scan_period", "short")
+        beaconManager.foregroundBetweenScanPeriod = when (scanPeriod) {
+            "short" -> 5000L
+            "middle" -> 10000L
+            "long" -> 20000L
+            else -> 5000L
+        }
+
         beaconManager.bind(this)
         return START_NOT_STICKY
     }
