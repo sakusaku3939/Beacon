@@ -1,5 +1,6 @@
 package com.sakusaku.beacon.ui.location
 
+import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
@@ -7,8 +8,9 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Handler
-import android.util.TypedValue
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -23,14 +25,38 @@ import be.rijckaert.tim.animatedvector.FloatingMusicActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.sakusaku.beacon.BeaconService
 import com.sakusaku.beacon.R
+import com.skyfishjy.library.RippleBackground
+
 
 class LocationFragment : Fragment() {
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_location, container, false)
 
         val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
-//        Log.d("test", "${it.x}, ${it.y}")
+        val mapPin = root.findViewById<View>(R.id.mapPin)
+        val mapPinRipple = root.findViewById<RippleBackground>(R.id.mapPinRipple)
+        mapPinRipple.startRippleAnimation()
+        floorMapImage.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                Log.d("test", "${event.x - floorMapImage.x - floorMapImage.width / 2}, ${event.y - floorMapImage.y - floorMapImage.height / 2}")
+                floorMapImage.translationX = -(event.x - floorMapImage.x - floorMapImage.width / 2) * 1.5F
+                floorMapImage.translationY = -(event.y - floorMapImage.y - floorMapImage.height / 2) * 1.5F
+                floorMapImage.scaleX = 1.5F
+                floorMapImage.scaleY = 1.5F
+                mapPin.visibility = View.VISIBLE
+                mapPinRipple.visibility = View.VISIBLE
+            } else if (event.action == MotionEvent.ACTION_UP) {
+                floorMapImage.translationX = 0F
+                floorMapImage.translationY = 0F
+                floorMapImage.scaleX = 1.0F
+                floorMapImage.scaleY = 1.0F
+                mapPin.visibility = View.GONE
+                mapPinRipple.visibility = View.GONE
+            }
+            true
+        }
 
         // 校内図
         val floorTab = root.findViewById<RadioGroup>(R.id.floorTab)
@@ -43,10 +69,6 @@ class LocationFragment : Fragment() {
                 R.id.floorTab5F -> R.drawable.school_map_5f
                 else -> null
             }
-
-            val floorMapMargin = floorMapImage.layoutParams as ViewGroup.MarginLayoutParams
-            floorMapMargin.leftMargin = 40
-            floorMapMargin.topMargin = 40
             imageResource?.let { floorMapImage.setImageResource(it) }
         }
 
@@ -104,7 +126,8 @@ class LocationFragment : Fragment() {
                         fabToggle(fab, FloatingMusicActionButton.Mode.PLAY_TO_PAUSE)
                         requireActivity().stopService(Intent(activity, BeaconService::class.java))
                     }
-                    else -> {}
+                    else -> {
+                    }
                 }
 
                 // 連続クリックを無効化
@@ -152,7 +175,8 @@ class LocationFragment : Fragment() {
                 toolbar.layoutParams.height = actionBarHeight
                 fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.blue_500))
             }
-            else -> {}
+            else -> {
+            }
         }
     }
 }
