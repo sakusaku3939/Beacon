@@ -37,17 +37,18 @@ class LocationFragment : Fragment() {
         val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
         val mapPin = root.findViewById<View>(R.id.mapPin)
         val mapPinRipple = root.findViewById<RippleBackground>(R.id.mapPinRipple)
-        mapPinRipple.startRippleAnimation()
         floorMapImage.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_DOWN) {
-                Log.d("test", "${event.x - floorMapImage.x - floorMapImage.width / 2}, ${event.y - floorMapImage.y - floorMapImage.height / 2}")
-                floorMapImage.translationX = -(event.x - floorMapImage.x - floorMapImage.width / 2) * 1.5F
-                floorMapImage.translationY = -(event.y - floorMapImage.y - floorMapImage.height / 2) * 1.5F
+                Log.d("test", "${event.x}F, ${event.y}F")
+                mapPinRipple.startRippleAnimation()
+                floorMapImage.translationX = convertCoordinateToTranslation(event.x, floorMapImage.x, floorMapImage.width)
+                floorMapImage.translationY = convertCoordinateToTranslation(event.y, floorMapImage.y, floorMapImage.height)
                 floorMapImage.scaleX = 1.5F
                 floorMapImage.scaleY = 1.5F
                 mapPin.visibility = View.VISIBLE
                 mapPinRipple.visibility = View.VISIBLE
             } else if (event.action == MotionEvent.ACTION_UP) {
+                mapPinRipple.stopRippleAnimation()
                 floorMapImage.translationX = 0F
                 floorMapImage.translationY = 0F
                 floorMapImage.scaleX = 1.0F
@@ -178,5 +179,37 @@ class LocationFragment : Fragment() {
             else -> {
             }
         }
+    }
+
+    private fun convertCoordinateToTranslation(coordinate: Float, imageCoordinate: Float, imageWidth: Int): Float {
+        return -(coordinate - imageCoordinate - imageWidth / 2) * 1.5F
+    }
+
+    private fun classroomToCoordinateMap() : Map<String, Pair<Float, Float>> {
+        return mapOf(
+                "図書室" to Pair(162.97949F, 263.9375F),
+                "司書室" to Pair(292.96973F, 405.96875F),
+                "小講義室" to Pair(147.9502F, 546.90625F),
+                "保険室" to Pair(120.96777F, 687.9219F),
+                "環境整備準備室" to Pair(40.987305F, 817.9219F),
+                "カウンセリング室" to Pair(292.96973F, 779.9531F),
+                "アドバイザー室" to Pair(495.95312F, 683.9375F),
+                "NT準備室" to Pair(376.94922F, 1015.8906F),
+                "材料実験室" to Pair(495.95312F, 870.8906F),
+                "精密加工室" to Pair(498.9414F, 1015.8906F),
+                "NT基礎実習室1" to Pair(659.95703F, 943.9375F),
+                "NT基礎実習室2" to Pair(827.95996F, 946.90625F),
+                "NT標本室" to Pair(953.9512F, 874.9531F),
+                "材料顕微鏡室" to Pair(1033.9316F, 882.9219F),
+                "ミニレーザー室" to Pair(995.9629F, 1019.875F),
+                "経営企画室" to Pair(914.92773F, 84.953125F),
+                "サイエンスホール" to Pair(869.9717F, 546.90625F),
+                "保護者控室" to Pair(1128.9414F, 84.953125F),
+                "メモリアルルーム" to Pair(1212.9209F, 88.9375F),
+                "新素材実習室1" to Pair(1201.9346F, 821.90625F),
+                "新素材実習室2" to Pair(1205.9336F, 717.9219F),
+                "101ゼミ室" to Pair(1201.9346F, 1015.8906F),
+                "102ゼミ室" to Pair(1117.9551F, 1015.8906F),
+        )
     }
 }
