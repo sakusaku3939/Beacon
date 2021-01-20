@@ -37,24 +37,34 @@ class LocationFragment : Fragment() {
         val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
         val mapPin = root.findViewById<View>(R.id.mapPin)
         val mapPinRipple = root.findViewById<RippleBackground>(R.id.mapPinRipple)
+        val coordinate1F = coordinate1F()
+        mapPin.visibility = View.VISIBLE
+//        mapPin.translationX = convertCoordinateToTranslation(
+//                coordinate1F["図書室"]?.first ?: 0F, floorMapImage.x, floorMapImage.width)
+//        mapPin.translationY = convertCoordinateToTranslation(
+//                coordinate1F["図書室"]?.second ?: 0F, floorMapImage.y, floorMapImage.height)
+//        mapPin.translationX = (coordinate1F["経営企画室"]?.first ?: 0F) / 1.43F
+//        Log.d("test", mapPin.translationX.toString())
+//        mapPin.translationX = 90F
+        mapPin.translationX = 645F
+//        mapPin.animate().translationX(0F).translationXBy(1000F).duration = 10000
+
         floorMapImage.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_DOWN) {
-                Log.d("test", "${event.x}F, ${event.y}F")
-                mapPinRipple.startRippleAnimation()
-                floorMapImage.translationX = convertCoordinateToTranslation(event.x, floorMapImage.x, floorMapImage.width)
-                floorMapImage.translationY = convertCoordinateToTranslation(event.y, floorMapImage.y, floorMapImage.height)
-                floorMapImage.scaleX = 1.5F
-                floorMapImage.scaleY = 1.5F
-                mapPin.visibility = View.VISIBLE
-                mapPinRipple.visibility = View.VISIBLE
+//                Log.d("test", "${event.x}F, ${event.y}F")
+//                mapPinRipple.startRippleAnimation()
+//                floorMapImage.translationX = convertCoordinateToTranslation(event.x, floorMapImage.x, floorMapImage.width)
+//                floorMapImage.translationY = convertCoordinateToTranslation(event.y, floorMapImage.y, floorMapImage.height)
+//                floorMapImage.scaleX = 1.5F
+//                floorMapImage.scaleY = 1.5F
+//                mapPin.visibility = View.VISIBLE
             } else if (event.action == MotionEvent.ACTION_UP) {
-                mapPinRipple.stopRippleAnimation()
-                floorMapImage.translationX = 0F
-                floorMapImage.translationY = 0F
-                floorMapImage.scaleX = 1.0F
-                floorMapImage.scaleY = 1.0F
-                mapPin.visibility = View.GONE
-                mapPinRipple.visibility = View.GONE
+//                mapPinRipple.stopRippleAnimation()
+//                floorMapImage.translationX = 0F
+//                floorMapImage.translationY = 0F
+//                floorMapImage.scaleX = 1.0F
+//                floorMapImage.scaleY = 1.0F
+//                mapPin.visibility = View.GONE
             }
             true
         }
@@ -185,7 +195,7 @@ class LocationFragment : Fragment() {
         return -(coordinate - imageCoordinate - imageWidth / 2) * 1.5F
     }
 
-    private fun classroomToCoordinateMap() : Map<String, Pair<Float, Float>> {
+    private fun coordinate1F() : Map<String, Pair<Float, Float>> {
         return mapOf(
                 "図書室" to Pair(162.97949F, 263.9375F),
                 "司書室" to Pair(292.96973F, 405.96875F),
