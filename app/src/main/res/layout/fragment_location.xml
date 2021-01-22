@@ -74,40 +74,30 @@
                     android:scaleType="centerInside"
                     android:src="@drawable/school_map_1f" />
 
-                <com.skyfishjy.library.RippleBackground
-                    android:id="@+id/mapPinRipple"
-                    android:layout_width="match_parent"
-                    android:layout_height="96dp"
-                    android:layout_gravity="center"
-                    android:alpha="0.7"
-                    app:rb_color="@color/blue_500"
-                    app:rb_duration="3000"
-                    app:rb_radius="8dp"
-                    app:rb_rippleAmount="2"
-                    app:rb_scale="4" />
-
-                <View
+                <include
                     android:id="@+id/mapPin"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:visibility="gone"
-                    android:background="@drawable/location_marker" />
+                    layout="@layout/map_pin"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp" />
 
-<!--                <androidx.cardview.widget.CardView-->
-<!--                    android:layout_width="32dp"-->
-<!--                    android:layout_height="32dp"-->
+<!--                <com.skyfishjy.library.RippleBackground-->
+<!--                    android:id="@+id/mapPinRipple"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="96dp"-->
 <!--                    android:layout_gravity="center"-->
-<!--                    app:cardCornerRadius="16dp"-->
-<!--                    app:cardElevation="0dp">-->
+<!--                    android:alpha="0.7"-->
+<!--                    app:rb_color="@color/blue_500"-->
+<!--                    app:rb_duration="3000"-->
+<!--                    app:rb_radius="8dp"-->
+<!--                    app:rb_rippleAmount="2"-->
+<!--                    app:rb_scale="4" />-->
 
-<!--                    <androidx.appcompat.widget.AppCompatImageView-->
-<!--                        android:id="@+id/mapPin"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="match_parent"-->
-<!--                        android:adjustViewBounds="true"-->
-<!--                        android:scaleType="centerInside"-->
-<!--                        android:src="@drawable/user" />-->
-<!--                </androidx.cardview.widget.CardView>-->
+<!--                <View-->
+<!--                    android:id="@+id/mapPin"-->
+<!--                    android:layout_width="24dp"-->
+<!--                    android:layout_height="24dp"-->
+<!--                    android:visibility="gone"-->
+<!--                    android:background="@drawable/location_marker" />-->
             </FrameLayout>
 
             <TextView
