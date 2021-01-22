@@ -1,6 +1,5 @@
 package com.sakusaku.beacon.ui.location
 
-import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
@@ -10,7 +9,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -41,7 +39,7 @@ class LocationFragment : Fragment() {
         mapPinMargin.marginStart = convertPositionToMargin(position1F.getValue("図書室").x).dp().toInt()
 
         FloorMapPositionTest.onTouchListener(floorMapImage, ACTION_DOWN = {
-            event -> Log.d("test", "${event.x}F, ${event.y}F")
+            event -> Log.d("onTouchPosition", "${event.x}F, ${event.y}F")
         })
 
         // 校内図
