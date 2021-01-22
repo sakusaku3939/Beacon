@@ -28,16 +28,18 @@ class LocationFragment : Fragment() {
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_location, container, false)
 
-        val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
         val mapPin = root.findViewById<FrameLayout>(R.id.mapPin)
-        val mapPinRipple = root.findViewById<RippleBackground>(R.id.mapPinRipple)
-        val position1F = position1F()
         mapPin.visibility = View.VISIBLE
-        mapPinRipple.startRippleAnimation()
+
         val mapPinMargin = mapPin.layoutParams as ViewGroup.MarginLayoutParams
+        val position1F = FloorMapPosition.P_1F.map
         mapPinMargin.topMargin = convertPositionToMargin(position1F.getValue("図書室").y).dp().toInt()
         mapPinMargin.marginStart = convertPositionToMargin(position1F.getValue("図書室").x).dp().toInt()
 
+        val mapPinRipple = root.findViewById<RippleBackground>(R.id.mapPinRipple)
+        mapPinRipple.startRippleAnimation()
+
+        val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
         FloorMapPositionTest.onTouchListener(floorMapImage, ACTION_DOWN = {
             event -> Log.d("onTouchPosition", "${event.x}F, ${event.y}F")
         })
@@ -197,6 +199,4 @@ class LocationFragment : Fragment() {
                 "102ゼミ室" to Position(1117.9551F, 1015.8906F),
         )
     }
-
-    data class Position(val x: Float, val y: Float)
 }
