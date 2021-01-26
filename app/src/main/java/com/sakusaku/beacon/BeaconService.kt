@@ -66,11 +66,11 @@ class BeaconService : Service(), BeaconConsumer {
 
         // スキャンの間隔を設定
         val scanPeriod = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-                .getString("preference_scan_period", "short")
+                .getString("preference_scan_period", "短い")
         beaconManager.foregroundBetweenScanPeriod = when (scanPeriod) {
-            "short" -> 5000L
-            "middle" -> 10000L
-            "long" -> 20000L
+            "短い" -> 5000L
+            "中間" -> 10000L
+            "長い" -> 20000L
             else -> 5000L
         }
 

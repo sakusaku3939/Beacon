@@ -12,21 +12,30 @@
         android:selectable="false" />
 
     <ListPreference
-        android:defaultValue="online"
-        android:entries="@array/array_preference_status"
-        android:entryValues="@array/array_values_preference_status"
-        android:key="preference_status"
-        android:layout="@layout/custom_preference"
-        android:title="@string/preference_status"
-        app:useSimpleSummaryProvider="true" />
-
-    <ListPreference
-        android:defaultValue="short"
+        android:defaultValue="短い"
         android:entries="@array/array_preference_scan_period"
-        android:entryValues="@array/array_values_preference_scan_period"
+        android:entryValues="@array/array_preference_scan_period"
         android:key="preference_scan_period"
         android:layout="@layout/custom_preference"
         android:title="@string/preference_scan_period"
+        app:useSimpleSummaryProvider="true" />
+
+    <ListPreference
+        android:defaultValue="全体に公開"
+        android:entries="@array/array_preference_disclosure_range"
+        android:entryValues="@array/array_preference_disclosure_range"
+        android:key="preference_disclosure_range"
+        android:layout="@layout/custom_preference"
+        android:title="@string/preference_disclosure_range"
+        app:useSimpleSummaryProvider="true" />
+
+    <ListPreference
+        android:defaultValue="オンライン"
+        android:entries="@array/array_preference_status"
+        android:entryValues="@array/array_preference_status"
+        android:key="preference_status"
+        android:layout="@layout/custom_preference"
+        android:title="@string/preference_status"
         app:useSimpleSummaryProvider="true" />
 
     <PreferenceScreen
