@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,24 +27,14 @@ class LocationFragment : Fragment() {
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_location, container, false)
 
-        val mapPin = root.findViewById<FrameLayout>(R.id.mapPin)
-        mapPin.visibility = View.VISIBLE
-
-        val mapPinMargin = mapPin.layoutParams as ViewGroup.MarginLayoutParams
-        val position1F = FloorMapPosition.P_1F.map
-        mapPinMargin.topMargin = convertPositionToMargin(position1F.getValue("図書室").y).dp().toInt()
-        mapPinMargin.marginStart = convertPositionToMargin(position1F.getValue("図書室").x).dp().toInt()
-
-        val mapPinRipple = root.findViewById<RippleBackground>(R.id.mapPinRipple)
-        mapPinRipple.startRippleAnimation()
-
-        val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
-        FloorMapPositionTest.onTouchListener(floorMapImage, ACTION_DOWN = {
-            event -> Log.d("onTouchPosition", "${event.x}F, ${event.y}F")
-        })
+        // ユーザーピンを追加
+        val mapPinLayout = root.findViewById<FrameLayout>(R.id.mapPinLayout)
+        addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "図書室")
+        addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "経営企画室")
 
         // 校内図
         val floorTab = root.findViewById<RadioGroup>(R.id.floorTab)
+        val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
         floorTab.setOnCheckedChangeListener { _, checkedId ->
             val imageResource = when (checkedId) {
                 R.id.floorTab1F -> R.drawable.school_map_1f
@@ -57,6 +46,9 @@ class LocationFragment : Fragment() {
             }
             imageResource?.let { floorMapImage.setImageResource(it) }
         }
+
+        // タッチ座標をログに書き出し
+        // FloorMapPositionTest.logTouchPosition(floorMapImage)
 
         // 同じ階にいる先生の表示
         val teacherList = listOf(
@@ -166,37 +158,21 @@ class LocationFragment : Fragment() {
         }
     }
 
+    private fun addUserMapPin(mapPinLayout: FrameLayout, positionMap: Map<String, Position>, positionName: String) {
+        val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        params.marginStart = convertPositionToMargin(positionMap[positionName]?.x ?: -120F).dp()
+        params.topMargin = convertPositionToMargin(positionMap[positionName]?.y ?: -120F).dp()
+
+        val view = layoutInflater.inflate(R.layout.map_pin, FrameLayout(requireContext()))
+        val mapPinRipple = view.findViewById<RippleBackground>(R.id.mapPinRipple)
+        mapPinRipple.startRippleAnimation()
+
+        mapPinLayout.addView(view, params)
+    }
+
     private fun convertPositionToMargin(position: Float): Float {
         return -(102.98F - position) / 3.53F
     }
 
-    private fun Float.dp() = this * resources.displayMetrics.density
-
-    private fun position1F() : Map<String, Position> {
-        return mapOf(
-                "図書室" to Position(162.97949F, 263.9375F),
-                "司書室" to Position(292.96973F, 405.96875F),
-                "小講義室" to Position(147.9502F, 546.90625F),
-                "保険室" to Position(120.96777F, 687.9219F),
-                "環境整備準備室" to Position(40.987305F, 817.9219F),
-                "カウンセリング室" to Position(292.96973F, 779.9531F),
-                "アドバイザー室" to Position(495.95312F, 683.9375F),
-                "NT準備室" to Position(376.94922F, 1015.8906F),
-                "材料実験室" to Position(495.95312F, 870.8906F),
-                "精密加工室" to Position(498.9414F, 1015.8906F),
-                "NT基礎実習室1" to Position(659.95703F, 943.9375F),
-                "NT基礎実習室2" to Position(827.95996F, 946.90625F),
-                "NT標本室" to Position(953.9512F, 874.9531F),
-                "材料顕微鏡室" to Position(1033.9316F, 882.9219F),
-                "ミニレーザー室" to Position(995.9629F, 1019.875F),
-                "経営企画室" to Position(914.92773F, 84.953125F),
-                "サイエンスホール" to Position(869.9717F, 546.90625F),
-                "保護者控室" to Position(1128.9414F, 84.953125F),
-                "メモリアルルーム" to Position(1212.9209F, 88.9375F),
-                "新素材実習室1" to Position(1201.9346F, 821.90625F),
-                "新素材実習室2" to Position(1205.9336F, 717.9219F),
-                "101ゼミ室" to Position(1201.9346F, 1015.8906F),
-                "102ゼミ室" to Position(1117.9551F, 1015.8906F),
-        )
-    }
+    private fun Float.dp() = (this * resources.displayMetrics.density).toInt()
 }

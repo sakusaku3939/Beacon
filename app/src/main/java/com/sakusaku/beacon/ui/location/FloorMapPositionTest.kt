@@ -1,6 +1,7 @@
 package com.sakusaku.beacon.ui.location
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.ImageView
 
@@ -18,5 +19,11 @@ object FloorMapPositionTest {
             }
             true
         }
+    }
+
+    fun logTouchPosition(floorMapImage: ImageView) {
+        onTouchListener(floorMapImage, ACTION_DOWN = { event ->
+            Log.d("onTouchPosition", "${event.x}F, ${event.y}F")
+        })
     }
 }

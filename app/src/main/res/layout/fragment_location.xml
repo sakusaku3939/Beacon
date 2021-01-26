@@ -74,11 +74,18 @@
                     android:scaleType="centerInside"
                     android:src="@drawable/school_map_1f" />
 
-                <include
-                    android:id="@+id/mapPin"
-                    layout="@layout/map_pin"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp" />
+                <FrameLayout
+                    android:id="@+id/mapPinLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+
+<!--                <include-->
+<!--                    android:id="@+id/mapPin"-->
+<!--                    layout="@layout/map_pin"-->
+<!--                    android:layout_gravity="center"-->
+<!--                    android:layout_width="64dp"-->
+<!--                    android:layout_height="64dp" />-->
 
 <!--                <com.skyfishjy.library.RippleBackground-->
 <!--                    android:id="@+id/mapPinRipple"-->
