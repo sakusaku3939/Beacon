@@ -31,6 +31,7 @@ class LocationFragment : Fragment() {
         val mapPinLayout = root.findViewById<FrameLayout>(R.id.mapPinLayout)
         addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "図書室")
         addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "経営企画室")
+        addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "NT準備室")
 
         // 校内図
         val floorTab = root.findViewById<RadioGroup>(R.id.floorTab)
@@ -165,13 +166,13 @@ class LocationFragment : Fragment() {
 
         val view = layoutInflater.inflate(R.layout.map_pin, FrameLayout(requireContext()))
         val mapPinRipple = view.findViewById<RippleBackground>(R.id.mapPinRipple)
-        mapPinRipple.startRippleAnimation()
+//        mapPinRipple.startRippleAnimation()
 
         mapPinLayout.addView(view, params)
     }
 
     private fun convertPositionToMargin(position: Float): Float {
-        return -(102.98F - position) / 3.53F
+        return -(110F - position) / 3.5F
     }
 
     private fun Float.dp() = (this * resources.displayMetrics.density).toInt()
