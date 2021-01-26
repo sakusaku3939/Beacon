@@ -59,8 +59,9 @@
             </HorizontalScrollView>
 
             <FrameLayout
+                android:id="@+id/floorMap"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="310dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="16dp"
@@ -77,34 +78,7 @@
                 <FrameLayout
                     android:id="@+id/mapPinLayout"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal" />
-
-<!--                <include-->
-<!--                    android:id="@+id/mapPin"-->
-<!--                    layout="@layout/map_pin"-->
-<!--                    android:layout_gravity="center"-->
-<!--                    android:layout_width="64dp"-->
-<!--                    android:layout_height="64dp" />-->
-
-<!--                <com.skyfishjy.library.RippleBackground-->
-<!--                    android:id="@+id/mapPinRipple"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="96dp"-->
-<!--                    android:layout_gravity="center"-->
-<!--                    android:alpha="0.7"-->
-<!--                    app:rb_color="@color/blue_500"-->
-<!--                    app:rb_duration="3000"-->
-<!--                    app:rb_radius="8dp"-->
-<!--                    app:rb_rippleAmount="2"-->
-<!--                    app:rb_scale="4" />-->
-
-<!--                <View-->
-<!--                    android:id="@+id/mapPin"-->
-<!--                    android:layout_width="24dp"-->
-<!--                    android:layout_height="24dp"-->
-<!--                    android:visibility="gone"-->
-<!--                    android:background="@drawable/location_marker" />-->
+                    android:layout_height="wrap_content" />
             </FrameLayout>
 
             <TextView

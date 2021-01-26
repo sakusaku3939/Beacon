@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,13 +31,16 @@ class LocationFragment : Fragment() {
         // ユーザーピンを追加
         val mapPinLayout = root.findViewById<FrameLayout>(R.id.mapPinLayout)
         addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "図書室")
+        addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "環境整備準備室")
         addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "経営企画室")
         addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "NT準備室")
+        addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "メモリアルルーム")
 
         // 校内図
         val floorTab = root.findViewById<RadioGroup>(R.id.floorTab)
         val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
         floorTab.setOnCheckedChangeListener { _, checkedId ->
+            // 画像切り替え
             val imageResource = when (checkedId) {
                 R.id.floorTab1F -> R.drawable.school_map_1f
                 R.id.floorTab2F -> R.drawable.school_map_2f
@@ -46,6 +50,13 @@ class LocationFragment : Fragment() {
                 else -> null
             }
             imageResource?.let { floorMapImage.setImageResource(it) }
+
+            // 画像の高さを動的に設定
+            val floorMap = root.findViewById<FrameLayout>(R.id.floorMap)
+            floorMap.layoutParams.height = when (checkedId) {
+                R.id.floorTab1F -> 310F
+                else -> 292F
+            }.dp()
         }
 
         // タッチ座標をログに書き出し
@@ -166,13 +177,13 @@ class LocationFragment : Fragment() {
 
         val view = layoutInflater.inflate(R.layout.map_pin, FrameLayout(requireContext()))
         val mapPinRipple = view.findViewById<RippleBackground>(R.id.mapPinRipple)
-//        mapPinRipple.startRippleAnimation()
+        mapPinRipple.startRippleAnimation()
 
         mapPinLayout.addView(view, params)
     }
 
     private fun convertPositionToMargin(position: Float): Float {
-        return -(110F - position) / 3.5F
+        return -(110F - position) / 3.52F
     }
 
     private fun Float.dp() = (this * resources.displayMetrics.density).toInt()
