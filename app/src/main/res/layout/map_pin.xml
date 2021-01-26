@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="64dp"
-    android:layout_height="64dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="64dp">
 
     <com.skyfishjy.library.RippleBackground
         android:id="@+id/mapPinRipple"
@@ -15,11 +15,28 @@
         app:rb_rippleAmount="2"
         app:rb_scale="4" />
 
-    <View
-        android:id="@+id/mapPinImage"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+    <androidx.cardview.widget.CardView
+        android:layout_width="28dp"
+        android:layout_height="28dp"
         android:layout_gravity="center"
-        android:background="@drawable/location_marker" />
+        android:backgroundTint="#7704B2D9"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="0dp">
 
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="2dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/mapPinImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/user" />
+        </androidx.cardview.widget.CardView>
+    </androidx.cardview.widget.CardView>
 </FrameLayout>
