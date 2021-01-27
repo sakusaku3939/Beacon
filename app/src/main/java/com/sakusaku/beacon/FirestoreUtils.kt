@@ -1,13 +1,23 @@
 package com.sakusaku.beacon
 
 import android.util.Log
+import android.widget.Toast
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 object FirestoreUtils {
     private const val TAG: String = "Firestore"
-    var user: Map<String, Any>? = null
+    var user: Map<String, String>? = null
 
-    fun updateUser(position: String? = null, region: String? = null, subject: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
+    fun updateUserData(position: String? = null, region: String? = null, subject: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
+        userDataUtils("written", position, region, subject) { callback(it) }
+    }
+
+    fun addUserData(position: String? = null, region: String? = null, subject: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
+        userDataUtils("added", position, region, subject) { callback(it) }
+    }
+
+    private fun userDataUtils(updateMode: String, position: String?, region: String?, subject: String?, callback: (isSuccess: Boolean) -> (Unit) = {}) {
         val db = FirebaseFirestore.getInstance()
         val user = hashMapOf(
                 "position" to position,
@@ -17,20 +27,31 @@ object FirestoreUtils {
 
         val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
         uid?.takeIf { user.isNotEmpty() }?.let {
-            db.collection("users").document(it)
-                    .set(user)
-                    .addOnSuccessListener {
-                        Log.d(TAG, "DocumentSnapshot successfully written!")
-                        callback(true)
-                    }
-                    .addOnFailureListener {
-                        e -> Log.w(TAG, "Error writing document", e)
-                        callback(false)
-                    }
+            val document = db.collection("users").document(it)
+            val task = when (updateMode) {
+                "written" -> document.set(user)
+                "added" -> document.set(user, SetOptions.merge())
+                else -> document.set(user, SetOptions.merge())
+            }
+            task.addOnSuccessListener {
+                Log.d(TAG, "DocumentSnapshot successfully $updateMode!")
+                callback(true)
+            }.addOnFailureListener { e ->
+                Log.w(TAG, "Error $updateMode document", e)
+                callback(false)
+            }
         } ?: callback(true)
     }
 
-    fun loadUserData(callback: (data: Map<String, Any>?) -> (Unit) = {}) {
+    fun addName(name: String) {
+        val db = FirebaseFirestore.getInstance()
+        val user = hashMapOf("name" to name)
+
+        val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
+        uid?.let { db.collection("users").document(it).set(user, SetOptions.merge()) }
+    }
+
+    fun loadUserData(callback: (data: Map<String, String>?) -> (Unit) = {}) {
         val db = FirebaseFirestore.getInstance()
         val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
         uid?.let {
@@ -39,8 +60,9 @@ object FirestoreUtils {
                     .addOnSuccessListener { document ->
                         if (document != null) {
                             Log.d(TAG, "DocumentSnapshot data: ${document.data}")
-                            user = document.data
-                            callback(document.data)
+                            val documentMapData = document.data?.map { d -> d.key to d.value.toString() }?.toMap()
+                            user = documentMapData
+                            callback(documentMapData)
                         } else {
                             Log.d(TAG, "No such document")
                             callback(null)

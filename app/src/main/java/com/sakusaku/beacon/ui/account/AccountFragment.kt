@@ -44,11 +44,11 @@ class AccountFragment : PreferenceFragmentCompat() {
 
         // 先生or生徒の表示
         FirestoreUtils.user?.let {
-            account.summary = it["position"].toString()
+            account.summary = it["position"]
         } ?: run {
             FirestoreUtils.loadUserData { data ->
                 data?.let {
-                    account.summary = it["position"].toString()
+                    account.summary = it["position"]
                 }
             }
         }
@@ -83,7 +83,5 @@ class AccountFragment : PreferenceFragmentCompat() {
         val oss = findPreference<PreferenceScreen>("preference_oss_license")
         val intent = Intent(requireActivity(), OssLicensesMenuActivity::class.java)
         oss?.intent = intent
-
-
     }
 }

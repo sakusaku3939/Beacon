@@ -28,10 +28,10 @@ object FirebaseAuthUtils {
         }
     }
 
-    fun sendSignInLink(email: String, actionCodeSettings: ActionCodeSettings, afterSend: (Task<Void>) -> (Unit) = {}) {
+    fun sendSignInLink(email: String, actionCodeSettings: ActionCodeSettings, callback: (Task<Void>) -> (Unit) = {}) {
         Firebase.auth.sendSignInLinkToEmail(email, actionCodeSettings)
                 .addOnCompleteListener { task ->
-                    afterSend(task)
+                    callback(task)
                     if (task.isSuccessful) {
                         Log.d(TAG, "Email sent.")
                     } else {
@@ -40,7 +40,7 @@ object FirebaseAuthUtils {
                 }
     }
 
-    fun verifySignInLink(context: Context, intent: Intent, afterSignIn: (Task<AuthResult>) -> (Unit) = {}) {
+    fun verifySignInLink(context: Context, intent: Intent, callback: (Task<AuthResult>) -> (Unit) = {}) {
         val auth = Firebase.auth
         val emailLink = intent.data.toString()
 
@@ -49,7 +49,7 @@ object FirebaseAuthUtils {
 
             auth.signInWithEmailLink(email, emailLink)
                     .addOnCompleteListener { task ->
-                        afterSignIn(task)
+                        callback(task)
                         if (task.isSuccessful) {
                             Log.d(TAG, "Successfully signed in with email link!")
                         } else {
@@ -59,7 +59,7 @@ object FirebaseAuthUtils {
         }
     }
 
-    fun updateProfile(name: String?, afterUpdate: (Task<Void>) -> (Unit) = {}) {
+    fun updateProfile(name: String?, callback: (Task<Void>) -> (Unit) = {}) {
         val user = Firebase.auth.currentUser
 
         name?.let {
@@ -69,11 +69,13 @@ object FirebaseAuthUtils {
 
             user?.updateProfile(profileUpdates)
                     ?.addOnCompleteListener { task ->
-                        afterUpdate(task)
+                        callback(task)
                         if (task.isSuccessful) {
                             Log.d(TAG, "User profile updated.")
                         }
                     }
+
+            FirestoreUtils.addName(name)
         }
     }
 

@@ -1,11 +1,8 @@
 package com.sakusaku.beacon.onBoarding
 
 import android.Manifest
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -53,7 +50,7 @@ class PermissionFragment : Fragment() {
                 val subject = pref.getString("subject", null)
 
                 FirebaseAuthUtils.updateProfile(name)
-                FirestoreUtils.updateUser(position, region, subject) { isSuccess ->
+                FirestoreUtils.updateUserData(position, region, subject) { isSuccess ->
                     if (isSuccess) {
                         requireActivity().finish()
                     } else {
