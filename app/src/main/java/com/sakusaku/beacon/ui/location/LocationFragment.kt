@@ -5,11 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -17,10 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.rijckaert.tim.animatedvector.FloatingMusicActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.sakusaku.beacon.BeaconService
-import com.sakusaku.beacon.FirebaseAuthUtils
-import com.sakusaku.beacon.FirestoreUtils
-import com.sakusaku.beacon.R
+import com.sakusaku.beacon.*
 import com.skyfishjy.library.RippleBackground
 
 
@@ -29,13 +29,7 @@ class LocationFragment : Fragment() {
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_location, container, false)
 
-        // ユーザーピンを追加
-        val mapPinLayout = root.findViewById<FrameLayout>(R.id.mapPinLayout)
-        addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "図書室")
-        addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "環境整備準備室")
-        addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "経営企画室")
-        addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "NT準備室")
-        addUserMapPin(mapPinLayout, FloorMapPosition.P_1F.map, "メモリアルルーム")
+//        RealtimeDatabaseUtils.getFloorMapData(1)
 
         // 校内図
         val floorTab = root.findViewById<RadioGroup>(R.id.floorTab)
@@ -53,15 +47,34 @@ class LocationFragment : Fragment() {
             imageResource?.let { floorMapImage.setImageResource(it) }
 
             // 画像の高さを動的に設定
-            val floorMap = root.findViewById<FrameLayout>(R.id.floorMap)
-            floorMap.layoutParams.height = when (checkedId) {
-                R.id.floorTab1F -> 310F
-                else -> 292F
-            }.dp()
+//            val floorMap = root.findViewById<FrameLayout>(R.id.floorMap)
+//            val vto: ViewTreeObserver = floorMap.viewTreeObserver
+//            vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+//                override fun onGlobalLayout() {
+//                    Log.d("test", floorMapImage.height.toString())
+//
+//                    floorMap.layoutParams.height = floorMapImage.height
+//                    vto.removeOnGlobalLayoutListener(this)
+//                }
+//            })
+//            3549:2911
+//            floorMap.layoutParams.height = when (checkedId) {
+//                R.id.floorTab1F -> 310F
+//                else -> 292F
+//            }.dp()
+        }
+
+        // ユーザーピンを追加
+        floorMapImage.afterMeasured {
+            addUserMapPin(root, FloorMapPosition.P_1F.map, "図書室")
+            addUserMapPin(root, FloorMapPosition.P_1F.map, "環境整備準備室")
+            addUserMapPin(root, FloorMapPosition.P_1F.map, "経営企画室")
+            addUserMapPin(root, FloorMapPosition.P_1F.map, "NT準備室")
+            addUserMapPin(root, FloorMapPosition.P_1F.map, "メモリアルルーム")
         }
 
         // タッチ座標をログに書き出し
-        // FloorMapPositionTest.logTouchPosition(floorMapImage)
+//        FloorMapPositionTest.logTouchPosition(floorMapImage)
 
         // 同じ階にいる先生の表示
         val teacherList = listOf(
@@ -171,21 +184,33 @@ class LocationFragment : Fragment() {
         }
     }
 
-    private fun addUserMapPin(mapPinLayout: FrameLayout, positionMap: Map<String, Position>, positionName: String) {
+    private fun addUserMapPin(root: View, positionMap: Map<String, Position>, positionName: String) {
+        val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
         val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        params.marginStart = convertPositionToMargin(positionMap[positionName]?.x ?: -120F).dp()
-        params.topMargin = convertPositionToMargin(positionMap[positionName]?.y ?: -120F).dp()
+
+        val positionX = (positionMap[positionName]?.x ?: -10F) / 100
+        val positionY = (positionMap[positionName]?.y ?: -10F) / 100
+        params.marginStart = (floorMapImage.width * positionX).toInt() - 32F.dp()
+        params.topMargin = (floorMapImage.height * positionY).toInt() - 32F.dp()
 
         val view = layoutInflater.inflate(R.layout.map_pin, FrameLayout(requireContext()))
         val mapPinRipple = view.findViewById<RippleBackground>(R.id.mapPinRipple)
         mapPinRipple.startRippleAnimation()
 
+        val mapPinLayout = root.findViewById<FrameLayout>(R.id.mapPinLayout)
         mapPinLayout.addView(view, params)
     }
 
-    private fun convertPositionToMargin(position: Float): Float {
-        return -(110F - position) / 3.52F
-    }
-
     private fun Float.dp() = (this * resources.displayMetrics.density).toInt()
+}
+
+inline fun <T : View> T.afterMeasured(crossinline f: T.() -> Unit) {
+    viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        override fun onGlobalLayout() {
+            if (measuredWidth > 0 && measuredHeight > 0) {
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
+                f()
+            }
+        }
+    })
 }

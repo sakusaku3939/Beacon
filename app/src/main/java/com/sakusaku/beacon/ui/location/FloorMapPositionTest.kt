@@ -23,7 +23,8 @@ object FloorMapPositionTest {
 
     fun logTouchPosition(floorMapImage: ImageView) {
         onTouchListener(floorMapImage, ACTION_DOWN = { event ->
-            Log.d("onTouchPosition", "${event.x}F, ${event.y}F")
+            Log.d("onTouchPosition",
+                    "${event.x / floorMapImage.width * 100}F, ${event.y / floorMapImage.height * 100}F")
         })
     }
 }
