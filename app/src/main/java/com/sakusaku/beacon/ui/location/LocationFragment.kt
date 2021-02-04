@@ -49,10 +49,8 @@ class LocationFragment : Fragment() {
 
         // 校内図のタブ切り替え
         floorTab.setOnCheckedChangeListener { _, checkedId ->
-            val mapPinLayout = root.findViewById<FrameLayout>(R.id.mapPinLayout)
             val imageResource = when (checkedId) {
                 R.id.floorTab1F -> {
-                    mapPinLayout.removeAllViews()
                     floorMapImage.afterMeasured {
                         addUserPin(root, FloorMapPosition.P_1F.map, "図書室")
                         addUserPin(root, FloorMapPosition.P_1F.map, "環境整備準備室")
@@ -63,7 +61,6 @@ class LocationFragment : Fragment() {
                     R.drawable.school_map_1f
                 }
                 R.id.floorTab2F -> {
-                    mapPinLayout.removeAllViews()
                     floorMapImage.afterMeasured {
                         addUserPin(root, FloorMapPosition.P_1F.map, "経営企画室")
                         addUserPin(root, FloorMapPosition.P_1F.map, "NT準備室")
@@ -77,6 +74,10 @@ class LocationFragment : Fragment() {
                 else -> null
             }
             imageResource?.let { floorMapImage.setImageResource(it) }
+
+            // ユーザーピンを削除
+            val mapPinLayout = root.findViewById<FrameLayout>(R.id.mapPinLayout)
+            mapPinLayout.removeAllViews()
 
             // 画像の高さを動的に設定
             floorMap.layoutParams.height = when (checkedId) {
