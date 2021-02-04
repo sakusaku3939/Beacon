@@ -137,12 +137,9 @@ class BeaconService : Service(), BeaconConsumer {
             // WebSocketによるビーコンデータ送信
             if (firstBeacon != null) {
                 val json1 = JSONObject()
-                try {
-                    json1.put("major", firstBeacon.id2.toString())
-                    json1.put("minor", firstBeacon.id2.toString())
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                }
+                json1.put("major", firstBeacon.id2)
+                json1.put("minor", firstBeacon.id2)
+
                 val jsonArray = JSONArray()
                 jsonArray.put(json1)
                 val jsonData = jsonArray.toString()

@@ -29,22 +29,22 @@ class LocationFragment : Fragment() {
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_location, container, false)
 
-//        RealtimeDatabaseUtils.getFloorMapData(1)
-//
-//        RealtimeDatabaseUtils.userLocationUpdateListener(object : ChildEventListener {
-//            override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
-//                Log.d("test", "${dataSnapshot.child("name")}")
-//            }
-//
-//            override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
-//            }
-//
-//            override fun onChildRemoved(dataSnapshot: DataSnapshot) {
-//            }
-//
-//            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
-//            override fun onCancelled(error: DatabaseError) {}
-//        })
+        RealtimeDatabaseUtils.getFloorMapData(1)
+
+        RealtimeDatabaseUtils.userLocationUpdateListener(object : ChildEventListener {
+            override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                Log.d("test", "${dataSnapshot.child("name")}")
+            }
+
+            override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
+            }
+
+            override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+            override fun onCancelled(error: DatabaseError) {}
+        })
 
         // 校内図
         val floorMap = root.findViewById<FrameLayout>(R.id.floorMap)
