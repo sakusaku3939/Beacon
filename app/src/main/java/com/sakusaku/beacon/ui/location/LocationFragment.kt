@@ -17,11 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import be.rijckaert.tim.animatedvector.FloatingMusicActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.sakusaku.beacon.*
-import com.skyfishjy.library.RippleBackground
 
 
 class LocationFragment : Fragment() {
@@ -29,22 +25,25 @@ class LocationFragment : Fragment() {
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_location, container, false)
 
-        RealtimeDatabaseUtils.getFloorMapData(1)
+//        RealtimeDatabaseUtils.getFloorUserDataExist(1) {isPublicExist, isStudentsOnlyExist
+//
+//        }
 
-        RealtimeDatabaseUtils.userLocationUpdateListener(object : ChildEventListener {
-            override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
-                Log.d("test", "${dataSnapshot.child("name")}")
+        // 同じ階にいる先生、生徒の表示
+        val teacherGrid = PeopleGrid(requireContext(), root.findViewById(R.id.teacherPeopleGrid))
+        val studentGrid = PeopleGrid(requireContext(), root.findViewById(R.id.studentPeopleGrid))
+        RealtimeDatabaseUtils.userLocationUpdateListener { dataSnapshot, _ ->
+            Log.d("RealtimeDatabase", "DataSnapshot add $dataSnapshot")
+            val name = dataSnapshot.child("name").value.toString()
+            val position = dataSnapshot.child("position").value.toString()
+            val location = dataSnapshot.child("location").value.toString()
+            val timestamp = dataSnapshot.child("timestamp").value.toString()
+
+            when (position) {
+                "先生" -> teacherGrid.add(R.drawable.user, name, location, timestamp)
+                "生徒" -> studentGrid.add(R.drawable.user, name, location, timestamp)
             }
-
-            override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
-            }
-
-            override fun onChildRemoved(dataSnapshot: DataSnapshot) {
-            }
-
-            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
-            override fun onCancelled(error: DatabaseError) {}
-        })
+        }
 
         // 校内図
         val floorMap = root.findViewById<FrameLayout>(R.id.floorMap)
@@ -52,15 +51,17 @@ class LocationFragment : Fragment() {
         val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
 
         // ユーザーピンを追加
+        val mapPinLayout = root.findViewById<FrameLayout>(R.id.mapPinLayout)
+        val userPin = UserPin(requireContext(), inflater, floorMapImage, mapPinLayout)
         var floorMapHeight1F = 0
         floorMapImage.afterMeasured {
             floorMapHeight1F = floorMapImage.height
             floorMap.layoutParams.height = floorMapImage.height
-            addUserPin(root, FloorMapPosition.P_1F.map, "図書室")
-            addUserPin(root, FloorMapPosition.P_1F.map, "環境整備準備室")
-            addUserPin(root, FloorMapPosition.P_1F.map, "経営企画室")
-            addUserPin(root, FloorMapPosition.P_1F.map, "NT準備室")
-            addUserPin(root, FloorMapPosition.P_1F.map, "メモリアルルーム")
+            userPin.add(FloorMapPosition.P_1F.map, "図書室")
+            userPin.add(FloorMapPosition.P_1F.map, "環境整備準備室")
+            userPin.add(FloorMapPosition.P_1F.map, "経営企画室")
+            userPin.add(FloorMapPosition.P_1F.map, "NT準備室")
+            userPin.add(FloorMapPosition.P_1F.map, "メモリアルルーム")
         }
 
         // 校内図のタブ切り替え
@@ -68,19 +69,19 @@ class LocationFragment : Fragment() {
             val imageResource = when (checkedId) {
                 R.id.floorTab1F -> {
                     floorMapImage.afterMeasured {
-                        addUserPin(root, FloorMapPosition.P_1F.map, "図書室")
-                        addUserPin(root, FloorMapPosition.P_1F.map, "環境整備準備室")
-                        addUserPin(root, FloorMapPosition.P_1F.map, "経営企画室")
-                        addUserPin(root, FloorMapPosition.P_1F.map, "NT準備室")
-                        addUserPin(root, FloorMapPosition.P_1F.map, "メモリアルルーム")
+                        userPin.add(FloorMapPosition.P_1F.map, "図書室")
+                        userPin.add(FloorMapPosition.P_1F.map, "環境整備準備室")
+                        userPin.add(FloorMapPosition.P_1F.map, "経営企画室")
+                        userPin.add(FloorMapPosition.P_1F.map, "NT準備室")
+                        userPin.add(FloorMapPosition.P_1F.map, "メモリアルルーム")
                     }
                     R.drawable.school_map_1f
                 }
                 R.id.floorTab2F -> {
                     floorMapImage.afterMeasured {
-                        addUserPin(root, FloorMapPosition.P_1F.map, "経営企画室")
-                        addUserPin(root, FloorMapPosition.P_1F.map, "NT準備室")
-                        addUserPin(root, FloorMapPosition.P_1F.map, "メモリアルルーム")
+                        userPin.add(FloorMapPosition.P_1F.map, "経営企画室")
+                        userPin.add(FloorMapPosition.P_1F.map, "NT準備室")
+                        userPin.add(FloorMapPosition.P_1F.map, "メモリアルルーム")
                     }
                     R.drawable.school_map_2f
                 }
@@ -92,8 +93,7 @@ class LocationFragment : Fragment() {
             imageResource?.let { floorMapImage.setImageResource(it) }
 
             // ユーザーピンを削除
-            val mapPinLayout = root.findViewById<FrameLayout>(R.id.mapPinLayout)
-            mapPinLayout.removeAllViews()
+            userPin.removeAll()
 
             // 画像の高さを動的に設定
             floorMap.layoutParams.height = when (checkedId) {
@@ -105,30 +105,17 @@ class LocationFragment : Fragment() {
         // タッチ座標をログに書き出し
 //        FloorMapPositionTest.logTouchPosition(floorMapImage)
 
-        // 同じ階にいる先生の表示
-        val teacherGrid = PeopleGrid(requireContext(), root.findViewById(R.id.teacherPeopleGrid))
-        teacherGrid.add(R.drawable.user, "Name1", "101")
-        teacherGrid.add(R.drawable.user, "Name2", "102")
-        teacherGrid.add(R.drawable.user, "Name3", "103")
-        teacherGrid.add(R.drawable.user, "Name4", "104")
-        teacherGrid.add(R.drawable.user, "Name5", "105")
-        teacherGrid.add(R.drawable.user, "Name6", "106")
-        teacherGrid.onClickListener(object : PeopleGrid.OnClickListener {
-            override fun onClickItem(tappedView: View, name: String, location: String) {
-                Log.d("teacherGrid", "tapped")
-            }
-        })
-
-        // 同じ階にいる生徒の表示
-        val studentGrid = PeopleGrid(requireContext(), root.findViewById(R.id.studentPeopleGrid))
-        studentGrid.add(R.drawable.user, "Name1", "101")
-        studentGrid.add(R.drawable.user, "Name2", "102")
-        studentGrid.add(R.drawable.user, "Name3", "103")
-        studentGrid.onClickListener(object : PeopleGrid.OnClickListener {
-            override fun onClickItem(tappedView: View, name: String, location: String) {
-                Log.d("studentGrid", "tapped")
-            }
-        })
+//        teacherGrid.onClickListener(object : PeopleGrid.OnClickListener {
+//            override fun onClickItem(tappedView: View, name: String, location: String) {
+//                Log.d("teacherGrid", "tapped")
+//            }
+//        })
+//
+//        studentGrid.onClickListener(object : PeopleGrid.OnClickListener {
+//            override fun onClickItem(tappedView: View, name: String, location: String) {
+//                Log.d("studentGrid", "tapped")
+//            }
+//        })
 
         // FABの設定
         val fab: FloatingActionButton = root.findViewById(R.id.fab)
@@ -202,25 +189,6 @@ class LocationFragment : Fragment() {
             }
         }
     }
-
-    private fun addUserPin(root: View, positionMap: Map<String, Position>, positionName: String) {
-        val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
-        val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-
-        val positionX = (positionMap[positionName]?.x ?: -10F) / 100
-        val positionY = (positionMap[positionName]?.y ?: -10F) / 100
-        params.marginStart = (floorMapImage.width * positionX).toInt() - 32F.dp()
-        params.topMargin = (floorMapImage.height * positionY).toInt() - 32F.dp()
-
-        val view = layoutInflater.inflate(R.layout.map_pin, FrameLayout(requireContext()))
-        val mapPinRipple = view.findViewById<RippleBackground>(R.id.mapPinRipple)
-        mapPinRipple.startRippleAnimation()
-
-        val mapPinLayout = root.findViewById<FrameLayout>(R.id.mapPinLayout)
-        mapPinLayout.addView(view, params)
-    }
-
-    private fun Float.dp() = (this * resources.displayMetrics.density).toInt()
 }
 
 inline fun <T : View> T.afterMeasured(crossinline f: T.() -> Unit) {
