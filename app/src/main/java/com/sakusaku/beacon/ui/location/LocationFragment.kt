@@ -180,22 +180,6 @@ class LocationFragment : Fragment() {
         return root
     }
 
-//    private fun setPeopleGrid(list: List<PeopleGrid>, peopleRecyclerView: RecyclerView?) {
-//        val customAdapter = PeopleGridAdapter(list, object : PeopleGridAdapter.ListListener {
-//            override fun onClickItem(tappedView: View, name: String, location: String) {
-//            }
-//        })
-//
-//        peopleRecyclerView?.apply {
-//            val manager = LinearLayoutManager(requireContext())
-//            manager.orientation = LinearLayoutManager.HORIZONTAL
-//            layoutManager = manager
-//            isNestedScrollingEnabled = false
-//            adapter = customAdapter
-//            setHasFixedSize(true)
-//        }
-//    }
-
     private fun fabToggle(fab: FloatingActionButton, fabMode: FloatingMusicActionButton.Mode) {
         val toolbar = requireActivity().findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
         val progress = requireActivity().findViewById<ProgressBar>(R.id.progress)
