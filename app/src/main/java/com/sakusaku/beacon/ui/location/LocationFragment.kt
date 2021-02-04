@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -32,13 +31,46 @@ class LocationFragment : Fragment() {
 //        RealtimeDatabaseUtils.getFloorMapData(1)
 
         // 校内図
+        val floorMap = root.findViewById<FrameLayout>(R.id.floorMap)
         val floorTab = root.findViewById<RadioGroup>(R.id.floorTab)
         val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
+
+        // ユーザーピンを追加
+        var floorMapHeight1F = 0
+        floorMapImage.afterMeasured {
+            floorMapHeight1F = floorMapImage.height
+            floorMap.layoutParams.height = floorMapImage.height
+            addUserPin(root, FloorMapPosition.P_1F.map, "図書室")
+            addUserPin(root, FloorMapPosition.P_1F.map, "環境整備準備室")
+            addUserPin(root, FloorMapPosition.P_1F.map, "経営企画室")
+            addUserPin(root, FloorMapPosition.P_1F.map, "NT準備室")
+            addUserPin(root, FloorMapPosition.P_1F.map, "メモリアルルーム")
+        }
+
+        // 校内図のタブ切り替え
         floorTab.setOnCheckedChangeListener { _, checkedId ->
-            // 画像切り替え
+            val mapPinLayout = root.findViewById<FrameLayout>(R.id.mapPinLayout)
             val imageResource = when (checkedId) {
-                R.id.floorTab1F -> R.drawable.school_map_1f
-                R.id.floorTab2F -> R.drawable.school_map_2f
+                R.id.floorTab1F -> {
+                    mapPinLayout.removeAllViews()
+                    floorMapImage.afterMeasured {
+                        addUserPin(root, FloorMapPosition.P_1F.map, "図書室")
+                        addUserPin(root, FloorMapPosition.P_1F.map, "環境整備準備室")
+                        addUserPin(root, FloorMapPosition.P_1F.map, "経営企画室")
+                        addUserPin(root, FloorMapPosition.P_1F.map, "NT準備室")
+                        addUserPin(root, FloorMapPosition.P_1F.map, "メモリアルルーム")
+                    }
+                    R.drawable.school_map_1f
+                }
+                R.id.floorTab2F -> {
+                    mapPinLayout.removeAllViews()
+                    floorMapImage.afterMeasured {
+                        addUserPin(root, FloorMapPosition.P_1F.map, "経営企画室")
+                        addUserPin(root, FloorMapPosition.P_1F.map, "NT準備室")
+                        addUserPin(root, FloorMapPosition.P_1F.map, "メモリアルルーム")
+                    }
+                    R.drawable.school_map_2f
+                }
                 R.id.floorTab3F -> R.drawable.school_map_3f
                 R.id.floorTab4F -> R.drawable.school_map_4f
                 R.id.floorTab5F -> R.drawable.school_map_5f
@@ -47,30 +79,10 @@ class LocationFragment : Fragment() {
             imageResource?.let { floorMapImage.setImageResource(it) }
 
             // 画像の高さを動的に設定
-//            val floorMap = root.findViewById<FrameLayout>(R.id.floorMap)
-//            val vto: ViewTreeObserver = floorMap.viewTreeObserver
-//            vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
-//                override fun onGlobalLayout() {
-//                    Log.d("test", floorMapImage.height.toString())
-//
-//                    floorMap.layoutParams.height = floorMapImage.height
-//                    vto.removeOnGlobalLayoutListener(this)
-//                }
-//            })
-//            3549:2911
-//            floorMap.layoutParams.height = when (checkedId) {
-//                R.id.floorTab1F -> 310F
-//                else -> 292F
-//            }.dp()
-        }
-
-        // ユーザーピンを追加
-        floorMapImage.afterMeasured {
-            addUserMapPin(root, FloorMapPosition.P_1F.map, "図書室")
-            addUserMapPin(root, FloorMapPosition.P_1F.map, "環境整備準備室")
-            addUserMapPin(root, FloorMapPosition.P_1F.map, "経営企画室")
-            addUserMapPin(root, FloorMapPosition.P_1F.map, "NT準備室")
-            addUserMapPin(root, FloorMapPosition.P_1F.map, "メモリアルルーム")
+            floorMap.layoutParams.height = when (checkedId) {
+                R.id.floorTab1F -> floorMapHeight1F
+                else -> floorMapHeight1F * 0.94F
+            }.toInt()
         }
 
         // タッチ座標をログに書き出し
@@ -184,7 +196,7 @@ class LocationFragment : Fragment() {
         }
     }
 
-    private fun addUserMapPin(root: View, positionMap: Map<String, Position>, positionName: String) {
+    private fun addUserPin(root: View, positionMap: Map<String, Position>, positionName: String) {
         val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
         val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
