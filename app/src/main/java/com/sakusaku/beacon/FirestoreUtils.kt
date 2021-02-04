@@ -7,7 +7,7 @@ import com.google.firebase.firestore.SetOptions
 
 object FirestoreUtils {
     private const val TAG: String = "Firestore"
-    var user: Map<String, String>? = null
+    private var user: Map<String, String>? = null
 
     fun updateUserData(position: String? = null, region: String? = null, subject: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
         userDataUtils("written", position, region, subject) { callback(it) }
@@ -49,6 +49,14 @@ object FirestoreUtils {
 
         val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
         uid?.let { db.collection("users").document(it).set(user, SetOptions.merge()) }
+    }
+
+    fun getUserData(callback: (data: Map<String, String>) -> (Unit)) {
+        user?.let {
+            callback(it)
+        } ?: loadUserData { data ->
+            data?.let { callback(it) }
+        }
     }
 
     fun loadUserData(callback: (data: Map<String, String>?) -> (Unit) = {}) {

@@ -46,8 +46,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun showSplash() {
         if (FirebaseAuthUtils.isSignIn()) {
-            // ユーザーデータの読み込み
-            FirestoreUtils.loadUserData()
+            // ユーザーデータの事前読み込み
+            FirestoreUtils.getUserData {}
 
             // パーミッションチェック
             if (RuntimePermission.hasSelfPermissions(this, *PERMISSION_LOCATION)) {
