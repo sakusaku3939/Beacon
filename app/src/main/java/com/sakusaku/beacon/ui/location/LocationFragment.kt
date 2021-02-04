@@ -15,10 +15,11 @@ import android.view.ViewTreeObserver
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import be.rijckaert.tim.animatedvector.FloatingMusicActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.sakusaku.beacon.*
 import com.skyfishjy.library.RippleBackground
 
@@ -29,6 +30,21 @@ class LocationFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_location, container, false)
 
 //        RealtimeDatabaseUtils.getFloorMapData(1)
+//
+//        RealtimeDatabaseUtils.userLocationUpdateListener(object : ChildEventListener {
+//            override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
+//                Log.d("test", "${dataSnapshot.child("name")}")
+//            }
+//
+//            override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
+//            }
+//
+//            override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+//            }
+//
+//            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+//            override fun onCancelled(error: DatabaseError) {}
+//        })
 
         // 校内図
         val floorMap = root.findViewById<FrameLayout>(R.id.floorMap)
@@ -90,23 +106,29 @@ class LocationFragment : Fragment() {
 //        FloorMapPositionTest.logTouchPosition(floorMapImage)
 
         // 同じ階にいる先生の表示
-        val teacherList = listOf(
-                PeopleGrid(R.drawable.user, "Name1", "101"),
-                PeopleGrid(R.drawable.user, "Name2", "102"),
-                PeopleGrid(R.drawable.user, "Name3", "103"),
-                PeopleGrid(R.drawable.user, "Name4", "104"),
-                PeopleGrid(R.drawable.user, "Name5", "105"),
-                PeopleGrid(R.drawable.user, "Name6", "106"),
-        )
-        setPeopleGrid(teacherList, root.findViewById(R.id.teacherPeopleGrid))
+        val teacherGrid = PeopleGrid(requireContext(), root.findViewById(R.id.teacherPeopleGrid))
+        teacherGrid.add(R.drawable.user, "Name1", "101")
+        teacherGrid.add(R.drawable.user, "Name2", "102")
+        teacherGrid.add(R.drawable.user, "Name3", "103")
+        teacherGrid.add(R.drawable.user, "Name4", "104")
+        teacherGrid.add(R.drawable.user, "Name5", "105")
+        teacherGrid.add(R.drawable.user, "Name6", "106")
+        teacherGrid.onClickListener(object : PeopleGrid.OnClickListener {
+            override fun onClickItem(tappedView: View, name: String, location: String) {
+                Log.d("teacherGrid", "tapped")
+            }
+        })
 
         // 同じ階にいる生徒の表示
-        val studentList = listOf(
-                PeopleGrid(R.drawable.user, "Name1", "101"),
-                PeopleGrid(R.drawable.user, "Name2", "102"),
-                PeopleGrid(R.drawable.user, "Name3", "103"),
-        )
-        setPeopleGrid(studentList, root.findViewById(R.id.studentPeopleGrid))
+        val studentGrid = PeopleGrid(requireContext(), root.findViewById(R.id.studentPeopleGrid))
+        studentGrid.add(R.drawable.user, "Name1", "101")
+        studentGrid.add(R.drawable.user, "Name2", "102")
+        studentGrid.add(R.drawable.user, "Name3", "103")
+        studentGrid.onClickListener(object : PeopleGrid.OnClickListener {
+            override fun onClickItem(tappedView: View, name: String, location: String) {
+                Log.d("studentGrid", "tapped")
+            }
+        })
 
         // FABの設定
         val fab: FloatingActionButton = root.findViewById(R.id.fab)
@@ -158,21 +180,21 @@ class LocationFragment : Fragment() {
         return root
     }
 
-    private fun setPeopleGrid(list: List<PeopleGrid>, peopleRecyclerView: RecyclerView?) {
-        val customAdapter = PeopleGridAdapter(list, object : PeopleGridAdapter.ListListener {
-            override fun onClickItem(tappedView: View, name: String, location: String) {
-            }
-        })
-
-        peopleRecyclerView?.apply {
-            val manager = LinearLayoutManager(requireContext())
-            manager.orientation = LinearLayoutManager.HORIZONTAL
-            layoutManager = manager
-            isNestedScrollingEnabled = false
-            adapter = customAdapter
-            setHasFixedSize(true)
-        }
-    }
+//    private fun setPeopleGrid(list: List<PeopleGrid>, peopleRecyclerView: RecyclerView?) {
+//        val customAdapter = PeopleGridAdapter(list, object : PeopleGridAdapter.ListListener {
+//            override fun onClickItem(tappedView: View, name: String, location: String) {
+//            }
+//        })
+//
+//        peopleRecyclerView?.apply {
+//            val manager = LinearLayoutManager(requireContext())
+//            manager.orientation = LinearLayoutManager.HORIZONTAL
+//            layoutManager = manager
+//            isNestedScrollingEnabled = false
+//            adapter = customAdapter
+//            setHasFixedSize(true)
+//        }
+//    }
 
     private fun fabToggle(fab: FloatingActionButton, fabMode: FloatingMusicActionButton.Mode) {
         val toolbar = requireActivity().findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)

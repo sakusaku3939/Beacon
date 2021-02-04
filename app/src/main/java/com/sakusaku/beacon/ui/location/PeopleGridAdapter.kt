@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.sakusaku.beacon.R
 
 class PeopleGridAdapter(
-        private val peopleList: List<PeopleGrid>,
+        private val peopleList: MutableList<PeopleGrid.People>,
         private val listener: ListListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
