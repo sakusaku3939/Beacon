@@ -22,9 +22,8 @@ class AccountPreference @JvmOverloads constructor(context: Context?, attrs: Attr
         button.isClickable = true
         button.setOnClickListener {
             AlertDialog.Builder(context)
-                    .setTitle("ログアウト")
                     .setMessage("この端末からログアウトします。よろしいですか？")
-                    .setPositiveButton("はい") { _, _ ->
+                        .setPositiveButton("ログアウト") { _, _ ->
                         listener.onLogoutClickListener(it)
                     }
                     .setNegativeButton("キャンセル") { _, _ -> }
