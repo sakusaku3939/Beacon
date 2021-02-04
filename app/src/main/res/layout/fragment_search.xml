@@ -17,8 +17,9 @@
             android:layout_marginStart="24dp"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="24dp"
-            android:background="@color/light_white"
+            android:background="@color/light_gray"
             android:clickable="true"
+            android:foreground="?android:selectableItemBackground"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
