@@ -26,22 +26,36 @@ class LocationFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_location, container, false)
 
 //        RealtimeDatabaseUtils.getFloorUserDataExist(1) {isPublicExist, isStudentsOnlyExist
-//
 //        }
 
         // 同じ階にいる先生、生徒の表示
         val teacherGrid = PeopleGrid(requireContext(), root.findViewById(R.id.teacherPeopleGrid))
         val studentGrid = PeopleGrid(requireContext(), root.findViewById(R.id.studentPeopleGrid))
-        RealtimeDatabaseUtils.userLocationUpdateListener { dataSnapshot, _ ->
-            Log.d("RealtimeDatabase", "DataSnapshot add $dataSnapshot")
-            val name = dataSnapshot.child("name").value.toString()
-            val position = dataSnapshot.child("position").value.toString()
-            val location = dataSnapshot.child("location").value.toString()
-            val timestamp = dataSnapshot.child("timestamp").value.toString()
+        RealtimeDatabaseUtils.userLocationUpdateListener(1) { dataSnapshot, state ->
+            when (state) {
+                "USER_ADDED" -> {
+                    val name = dataSnapshot.child("name").value.toString()
+                    val position = dataSnapshot.child("position").value.toString()
+                    val location = dataSnapshot.child("location").value.toString()
+                    val timestamp = dataSnapshot.child("timestamp").value.toString()
+                    val uid = dataSnapshot.key.toString()
 
-            when (position) {
-                "先生" -> teacherGrid.add(R.drawable.user, name, location, timestamp)
-                "生徒" -> studentGrid.add(R.drawable.user, name, location, timestamp)
+                    when (position) {
+                        "先生" -> teacherGrid.add(R.drawable.user, uid, name, location, timestamp)
+                        "生徒" -> studentGrid.add(R.drawable.user, uid, name, location, timestamp)
+                    }
+                }
+                "USER_CHANGED" -> {
+                }
+                "USER_REMOVED" -> {
+                    val position = dataSnapshot.child("position").value.toString()
+                    val uid = dataSnapshot.key.toString()
+
+                    when (position) {
+                        "先生" -> teacherGrid.remove(uid)
+                        "生徒" -> studentGrid.remove(uid)
+                    }
+                }
             }
         }
 
@@ -107,13 +121,13 @@ class LocationFragment : Fragment() {
 
 //        teacherGrid.onClickListener(object : PeopleGrid.OnClickListener {
 //            override fun onClickItem(tappedView: View, name: String, location: String) {
-//                Log.d("teacherGrid", "tapped")
+//                Log.d("teacherGrid", "name:$name, location:$location")
 //            }
 //        })
 //
 //        studentGrid.onClickListener(object : PeopleGrid.OnClickListener {
 //            override fun onClickItem(tappedView: View, name: String, location: String) {
-//                Log.d("studentGrid", "tapped")
+//                Log.d("studentGrid", "name:$name, location:$location")
 //            }
 //        })
 

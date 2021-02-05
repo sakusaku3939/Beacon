@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.sakusaku.beacon.R
 
 class PeopleGridAdapter(
-        private val peopleList: MutableList<PeopleGrid.People>,
+        private val peopleMap: MutableMap<String, PeopleGrid.People>,
         private val listener: ListListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -18,6 +18,7 @@ class PeopleGridAdapter(
     }
 
     interface ListListener {
+        fun onBindView(holder: RecyclerView.ViewHolder, uid: String, position: Int)
         fun onClickItem(tappedView: View, name: String, location: String)
     }
 
@@ -27,13 +28,15 @@ class PeopleGridAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val people = peopleList[position]
+        val uid = peopleMap.keys.toMutableList()[position]
+        val people = peopleMap.values.toMutableList()[position]
         holder.itemView.findViewById<TextView>(R.id.name).text = people.name
         holder.itemView.findViewById<TextView>(R.id.location).text = people.location
+        listener.onBindView(holder, uid, position)
         holder.itemView.setOnClickListener {
             listener.onClickItem(it, people.name, people.location)
         }
     }
 
-    override fun getItemCount(): Int = peopleList.size
+    override fun getItemCount(): Int = peopleMap.size
 }

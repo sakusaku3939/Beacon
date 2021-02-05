@@ -11,23 +11,52 @@ import com.google.firebase.ktx.Firebase
 object RealtimeDatabaseUtils {
     private const val TAG: String = "RealtimeDatabase"
 
-    fun getFloorMapData(floor: Int, callback: (data: Map<String, String>?) -> (Unit) = {}) {
+    fun floorUserDataExist(floor: Int, callback: (isPublicExist: Boolean, isStudentsOnlyExist: Boolean) -> (Unit)) {
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val data = dataSnapshot.child("public")
-                Log.d(TAG, "DocumentSnapshot successfully $data")
+                Log.d(TAG, "GetFloorUserData successfully $dataSnapshot")
+                callback(dataSnapshot.child("public").exists(),
+                        dataSnapshot.child("students_only").exists())
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
                 Log.w(TAG, "onCancelled", databaseError.toException())
+                callback(false, false)
             }
         }
-        val postReference = Firebase.database.reference
-                .child("${floor}F")
+        val postReference = Firebase.database.reference.child("${floor}F")
         postReference.addValueEventListener(postListener)
     }
 
-    fun userLocationUpdateListener(listener: ChildEventListener) {
-        Firebase.database.reference.child("1F").child("public")/*.orderByChild("location").equalTo("経営企画室")*/.addChildEventListener(listener)
+    fun userLocationUpdateListener(floor: Int, callback: (dataSnapshot: DataSnapshot, state: String) -> Unit) {
+        val listener = {f: (dataSnapshot: DataSnapshot, state: String) -> Unit, childName: String ->
+            Firebase.database.reference.child("${floor}F").child(childName).addChildEventListener(object : ChildEventListener {
+                override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                    Log.d("RealtimeDatabase", "DataSnapshot added $dataSnapshot")
+                    f(dataSnapshot, "USER_ADDED")
+                }
+
+                override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                    Log.d("RealtimeDatabase", "DataSnapshot changed $dataSnapshot")
+                    f(dataSnapshot, "USER_CHANGED")
+                }
+
+                override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+                    Log.d("RealtimeDatabase", "DataSnapshot removed $dataSnapshot")
+                    f(dataSnapshot, "USER_REMOVED")
+                }
+
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.w(TAG, "onCancelled", error.toException())
+                }
+            })
+        }
+
+        listener(callback, "public")
+        FirestoreUtils.getUserData {
+            if (it["position"] == "生徒") listener(callback, "students_only")
+        }
     }
 }
