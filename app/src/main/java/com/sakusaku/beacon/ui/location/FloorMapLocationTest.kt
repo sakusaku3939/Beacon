@@ -5,7 +5,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.widget.ImageView
 
-object FloorMapPositionTest {
+object FloorMapLocationTest {
     @SuppressLint("ClickableViewAccessibility")
     fun onTouchListener(
             floorMapImage: ImageView,

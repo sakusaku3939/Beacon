@@ -1,6 +1,6 @@
 package com.sakusaku.beacon.ui.location;
 
-enum class FloorMapPosition(val map: Map<String, Position>) {
+enum class FloorMapLocation(val map: Map<String, Position>) {
     P_1F(mapOf(
             "図書室" to
                     Position(12.2725525F, 24.25896F),
@@ -50,8 +50,5 @@ enum class FloorMapPosition(val map: Map<String, Position>) {
                     Position(84.183365F, 93.3723F)
     ))
 }
-
-const val FLOOR_MAP_MEASURE_WIDTH = 1328
-const val FLOOR_MAP_MEASURE_HEIGHT = 1088
 
 data class Position(val x: Float, val y: Float)

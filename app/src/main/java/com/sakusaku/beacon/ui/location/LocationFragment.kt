@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -137,11 +136,11 @@ class LocationFragment : Fragment() {
         floorMapImage.afterMeasured {
             floorMapHeight1F = floorMapImage.height
             floorMap.layoutParams.height = floorMapImage.height
-            userPin.add(FloorMapPosition.P_1F.map, "図書室")
-            userPin.add(FloorMapPosition.P_1F.map, "環境整備準備室")
-            userPin.add(FloorMapPosition.P_1F.map, "経営企画室")
-            userPin.add(FloorMapPosition.P_1F.map, "NT準備室")
-            userPin.add(FloorMapPosition.P_1F.map, "メモリアルルーム")
+            userPin.add(FloorMapLocation.P_1F.map, "図書室")
+            userPin.add(FloorMapLocation.P_1F.map, "環境整備準備室")
+            userPin.add(FloorMapLocation.P_1F.map, "経営企画室")
+            userPin.add(FloorMapLocation.P_1F.map, "NT準備室")
+            userPin.add(FloorMapLocation.P_1F.map, "メモリアルルーム")
         }
 
         // 校内図のタブ切り替え
@@ -149,19 +148,19 @@ class LocationFragment : Fragment() {
             val imageResource = when (checkedId) {
                 R.id.floorTab1F -> {
                     floorMapImage.afterMeasured {
-                        userPin.add(FloorMapPosition.P_1F.map, "図書室")
-                        userPin.add(FloorMapPosition.P_1F.map, "環境整備準備室")
-                        userPin.add(FloorMapPosition.P_1F.map, "経営企画室")
-                        userPin.add(FloorMapPosition.P_1F.map, "NT準備室")
-                        userPin.add(FloorMapPosition.P_1F.map, "メモリアルルーム")
+                        userPin.add(FloorMapLocation.P_1F.map, "図書室")
+                        userPin.add(FloorMapLocation.P_1F.map, "環境整備準備室")
+                        userPin.add(FloorMapLocation.P_1F.map, "経営企画室")
+                        userPin.add(FloorMapLocation.P_1F.map, "NT準備室")
+                        userPin.add(FloorMapLocation.P_1F.map, "メモリアルルーム")
                     }
                     R.drawable.school_map_1f
                 }
                 R.id.floorTab2F -> {
                     floorMapImage.afterMeasured {
-                        userPin.add(FloorMapPosition.P_1F.map, "経営企画室")
-                        userPin.add(FloorMapPosition.P_1F.map, "NT準備室")
-                        userPin.add(FloorMapPosition.P_1F.map, "メモリアルルーム")
+                        userPin.add(FloorMapLocation.P_1F.map, "経営企画室")
+                        userPin.add(FloorMapLocation.P_1F.map, "NT準備室")
+                        userPin.add(FloorMapLocation.P_1F.map, "メモリアルルーム")
                     }
                     R.drawable.school_map_2f
                 }
@@ -183,7 +182,7 @@ class LocationFragment : Fragment() {
         }
 
         // タッチ座標をログに書き出し
-//        FloorMapPositionTest.logTouchPosition(floorMapImage)
+//        FloorMapLocationTest.logTouchPosition(floorMapImage)
 
 //        teacherGrid.onClickListener(object : PeopleGrid.OnClickListener {
 //            override fun onClickItem(tappedView: View, name: String, location: String) {
