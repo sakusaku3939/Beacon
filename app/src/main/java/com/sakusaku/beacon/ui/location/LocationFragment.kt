@@ -93,6 +93,15 @@ class LocationFragment : Fragment() {
                     }
                 }
                 "USER_CHANGED" -> {
+                    val position = dataSnapshot.child("position").value.toString()
+                    val location = dataSnapshot.child("location").value.toString()
+                    val timestamp = dataSnapshot.child("timestamp").value.toString()
+                    val uid = dataSnapshot.key.toString()
+
+                    when (position) {
+                        "先生" -> teacherGrid.update(uid, location, timestamp)
+                        "生徒" -> studentGrid.update(uid, location, timestamp)
+                    }
                 }
                 "USER_REMOVED" -> {
                     val position = dataSnapshot.child("position").value.toString()
