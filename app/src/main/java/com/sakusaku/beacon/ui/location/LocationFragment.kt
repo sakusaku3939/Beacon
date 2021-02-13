@@ -28,12 +28,12 @@ class LocationFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_location, container, false)
         val handler = Handler()
 
+        // 読み込み中または同じ階層に人が居ない時の処理
         val teacherPeopleGrid = root.findViewById<RecyclerView>(R.id.teacherPeopleGrid)
         val teacherNoUser = root.findViewById<TextView>(R.id.teacherNoUser)
         RealtimeDatabaseUtils.floorUserExist(1, "先生") { isExist ->
             val progress = root.findViewById<ProgressBar>(R.id.teacherProgress)
             val beforeGrid = root.findViewById<FrameLayout>(R.id.teacherBeforeGrid)
-
             thread {
                 handler.post {
                     progress.visibility = View.GONE
@@ -47,9 +47,27 @@ class LocationFragment : Fragment() {
             }
         }
 
+        val studentPeopleGrid = root.findViewById<RecyclerView>(R.id.studentPeopleGrid)
+        val studentNoUser = root.findViewById<TextView>(R.id.studentNoUser)
+        RealtimeDatabaseUtils.floorUserExist(1, "生徒") { isExist ->
+            val progress = root.findViewById<ProgressBar>(R.id.studentProgress)
+            val beforeGrid = root.findViewById<FrameLayout>(R.id.studentBeforeGrid)
+            thread {
+                handler.post {
+                    progress.visibility = View.GONE
+                    if (isExist) {
+                        beforeGrid.visibility = View.GONE
+                        studentPeopleGrid.visibility = View.VISIBLE
+                    } else {
+                        studentNoUser.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
+
         // 同じ階にいる先生、生徒の表示
         val teacherGrid = PeopleGrid(requireContext(), teacherPeopleGrid)
-        val studentGrid = PeopleGrid(requireContext(), root.findViewById(R.id.studentPeopleGrid))
+        val studentGrid = PeopleGrid(requireContext(), studentPeopleGrid)
         RealtimeDatabaseUtils.userLocationUpdateListener(1) { dataSnapshot, state ->
             when (state) {
                 "USER_ADDED" -> {
@@ -59,17 +77,19 @@ class LocationFragment : Fragment() {
                     val timestamp = dataSnapshot.child("timestamp").value.toString()
                     val uid = dataSnapshot.key.toString()
 
-                    when (position) {
-                        "先生" -> {
-                            if (teacherGrid.count() == 0) thread {
-                                handler.post {
-                                    teacherPeopleGrid.visibility = View.VISIBLE
-                                    teacherNoUser.visibility = View.GONE
-                                }
+                    val add = { grid: PeopleGrid, peopleGrid: RecyclerView, noUser: TextView ->
+                        if (grid.count() == 0) thread {
+                            handler.post {
+                                peopleGrid.visibility = View.VISIBLE
+                                noUser.visibility = View.GONE
                             }
-                            teacherGrid.add(R.drawable.user, uid, name, location, timestamp)
                         }
-                        "生徒" -> studentGrid.add(R.drawable.user, uid, name, location, timestamp)
+                        grid.add(R.drawable.user, uid, name, location, timestamp)
+                    }
+
+                    when (position) {
+                        "先生" -> add(teacherGrid, teacherPeopleGrid, teacherNoUser)
+                        "生徒" -> add(studentGrid, studentPeopleGrid, studentNoUser)
                     }
                 }
                 "USER_CHANGED" -> {
@@ -78,18 +98,19 @@ class LocationFragment : Fragment() {
                     val position = dataSnapshot.child("position").value.toString()
                     val uid = dataSnapshot.key.toString()
 
-                    when (position) {
-                        "先生" -> {
-                            teacherGrid.remove(uid)
-                            Log.d("test", teacherGrid.count().toString())
-                            if (teacherGrid.count() == 0) thread {
-                                handler.post {
-                                    teacherPeopleGrid.visibility = View.GONE
-                                    teacherNoUser.visibility = View.VISIBLE
-                                }
+                    val remove = { grid: PeopleGrid, peopleGrid: RecyclerView, noUser: TextView ->
+                        grid.remove(uid)
+                        if (grid.count() == 0) thread {
+                            handler.post {
+                                peopleGrid.visibility = View.GONE
+                                noUser.visibility = View.VISIBLE
                             }
                         }
-                        "生徒" -> studentGrid.remove(uid)
+                    }
+
+                    when (position) {
+                        "先生" -> remove(teacherGrid, teacherPeopleGrid, teacherNoUser)
+                        "生徒" -> remove(studentGrid, studentPeopleGrid, studentNoUser)
                     }
                 }
             }
