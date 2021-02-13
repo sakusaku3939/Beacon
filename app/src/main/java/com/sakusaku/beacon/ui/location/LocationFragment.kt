@@ -15,21 +15,40 @@ import android.view.ViewTreeObserver
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import be.rijckaert.tim.animatedvector.FloatingMusicActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.sakusaku.beacon.*
+import kotlin.concurrent.thread
 
 
 class LocationFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_location, container, false)
+        val handler = Handler()
 
-//        RealtimeDatabaseUtils.getFloorUserDataExist(1) {isPublicExist, isStudentsOnlyExist
-//        }
+        val teacherPeopleGrid = root.findViewById<RecyclerView>(R.id.teacherPeopleGrid)
+        val teacherNoUser = root.findViewById<TextView>(R.id.teacherNoUser)
+        RealtimeDatabaseUtils.floorUserExist(1, "先生") { isExist ->
+            val progress = root.findViewById<ProgressBar>(R.id.teacherProgress)
+            val beforeGrid = root.findViewById<FrameLayout>(R.id.teacherBeforeGrid)
+
+            thread {
+                handler.post {
+                    progress.visibility = View.GONE
+                    if (isExist) {
+                        beforeGrid.visibility = View.GONE
+                        teacherPeopleGrid.visibility = View.VISIBLE
+                    } else {
+                        teacherNoUser.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
 
         // 同じ階にいる先生、生徒の表示
-        val teacherGrid = PeopleGrid(requireContext(), root.findViewById(R.id.teacherPeopleGrid))
+        val teacherGrid = PeopleGrid(requireContext(), teacherPeopleGrid)
         val studentGrid = PeopleGrid(requireContext(), root.findViewById(R.id.studentPeopleGrid))
         RealtimeDatabaseUtils.userLocationUpdateListener(1) { dataSnapshot, state ->
             when (state) {
@@ -41,7 +60,15 @@ class LocationFragment : Fragment() {
                     val uid = dataSnapshot.key.toString()
 
                     when (position) {
-                        "先生" -> teacherGrid.add(R.drawable.user, uid, name, location, timestamp)
+                        "先生" -> {
+                            if (teacherGrid.count() == 0) thread {
+                                handler.post {
+                                    teacherPeopleGrid.visibility = View.VISIBLE
+                                    teacherNoUser.visibility = View.GONE
+                                }
+                            }
+                            teacherGrid.add(R.drawable.user, uid, name, location, timestamp)
+                        }
                         "生徒" -> studentGrid.add(R.drawable.user, uid, name, location, timestamp)
                     }
                 }
@@ -52,7 +79,16 @@ class LocationFragment : Fragment() {
                     val uid = dataSnapshot.key.toString()
 
                     when (position) {
-                        "先生" -> teacherGrid.remove(uid)
+                        "先生" -> {
+                            teacherGrid.remove(uid)
+                            Log.d("test", teacherGrid.count().toString())
+                            if (teacherGrid.count() == 0) thread {
+                                handler.post {
+                                    teacherPeopleGrid.visibility = View.GONE
+                                    teacherNoUser.visibility = View.VISIBLE
+                                }
+                            }
+                        }
                         "生徒" -> studentGrid.remove(uid)
                     }
                 }
