@@ -2,42 +2,25 @@ package com.sakusaku.beacon
 
 import android.app.*
 import android.content.Intent
-import android.os.*
+import android.os.IBinder
+import android.os.RemoteException
 import android.util.Log
 import androidx.preference.PreferenceManager
+import com.sakusaku.beacon.ui.location.BeaconInfo
+import com.sakusaku.beacon.ui.location.FloorMapBeacon
 import org.altbeacon.beacon.*
-import org.java_websocket.client.WebSocketClient
-import org.java_websocket.handshake.ServerHandshake
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
-import java.net.URI
-import java.net.URISyntaxException
 import java.util.function.Consumer
 
 class BeaconService : Service(), BeaconConsumer {
     private lateinit var beaconManager: BeaconManager
-    private lateinit var ws: WsClientListener
 
     companion object {
         // iBeacon認識のためのフォーマット設定
         private const val IBEACON_FORMAT: String = "m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"
-        private const val uuidString: String = "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC"
-        private const val ServerIP: String = "192.168.43.127"
-        private const val ServerPORT: String = "8081"
+        private const val uuidString: String = "82fc3dbe-24d0-ef62-df80-50ead855daf8"
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // サーバーの接続準備
-        try {
-            ws = WsClientListener(URI("ws://$ServerIP:$ServerPORT/"))
-        } catch (e: URISyntaxException) {
-            e.printStackTrace()
-        }
-        if (!ws.isOpen()) {
-            ws.connect()
-        }
-
         // ビーコン取得ライブラリのセットアップ
         beaconManager = BeaconManager.getInstanceForApplication(this)
         beaconManager.beaconParsers.add(BeaconParser().setBeaconLayout(IBEACON_FORMAT))
@@ -81,7 +64,6 @@ class BeaconService : Service(), BeaconConsumer {
     override fun onDestroy() {
         super.onDestroy()
         beaconManager.unbind(this)
-        ws.close()
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -100,7 +82,7 @@ class BeaconService : Service(), BeaconConsumer {
             }
         })
         val uuid = Identifier.parse(uuidString)
-        val mRegion = Region("iBeacon", null, null, null)
+        val mRegion = Region("iBeacon", uuid, null, null)
         try {
             //Beacon情報の監視を開始
             beaconManager.startMonitoringBeaconsInRegion(mRegion)
@@ -132,41 +114,25 @@ class BeaconService : Service(), BeaconConsumer {
                         + beacon.rssi + ", TxPower:" + beacon.txPower
                         + ", Distance:" + beacon.distance)
             }
-            val firstBeacon = if (beacons.iterator().hasNext()) beacons.iterator().next() else null
-
-            // WebSocketによるビーコンデータ送信
-            if (firstBeacon != null) {
-                val json1 = JSONObject()
-                json1.put("major", firstBeacon.id2)
-                json1.put("minor", firstBeacon.id2)
-
-                val jsonArray = JSONArray()
-                jsonArray.put(json1)
-                val jsonData = jsonArray.toString()
-                if (ws.isOpen) {
-                    ws.send(jsonData)
-                    Log.d("WebSocket", "send:$jsonData")
-                }
-            }
             Log.d("BeaconInfo", "total:" + beacons.size + "台")
-        }
-    }
 
-    private class WsClientListener(serverUri: URI?) : WebSocketClient(serverUri) {
-        override fun onOpen(serverHandshake: ServerHandshake?) {
-            Log.d("WebSocket", "Connected")
-        }
+            // 一番近いビーコンから位置を割り出し
+            val firstBeacon = if (beacons.iterator().hasNext()) beacons.iterator().next() else null
+            val passLocation = firstBeacon?.let { beacon ->
+                val major = beacon.id2.toInt()
+                val minor = beacon.id3.toInt()
+                val key = BeaconInfo(major, minor)
 
-        override fun onMessage(message: String) {
-            Log.d("WebSocket", message)
-        }
+                val location = FloorMapBeacon.BEACON_1F.map[key]
+                location?.let { RealtimeDatabaseUtils.writeUserLocation(major, it) }
+                location
+            }
 
-        override fun onClose(code: Int, reason: String, remote: Boolean) {
-            Log.d("WebSocket", "Disconnected")
-        }
-
-        override fun onError(ex: Exception) {
-            Log.d("WebSocket", "error")
+            // Fragmentに現在位置を渡す
+            val broadcast = Intent()
+            broadcast.putExtra("location", passLocation ?: "なし")
+            broadcast.action = "DO_ACTION"
+            baseContext.sendBroadcast(broadcast)
         }
     }
 }

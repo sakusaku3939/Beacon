@@ -1,8 +1,10 @@
 package com.sakusaku.beacon.ui.location
 
 import android.app.ActivityManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -10,10 +12,12 @@ import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.*
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import be.rijckaert.tim.animatedvector.FloatingMusicActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -214,13 +218,11 @@ class LocationFragment : Fragment() {
         val fab: FloatingActionButton = root.findViewById(R.id.fab)
         val customFab = fab as FloatingMusicActionButton
 
-        // フォアグラウンド実行中か
-        val manager = requireActivity().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        for (serviceInfo in manager.getRunningServices(Int.MAX_VALUE)) {
-            if (BeaconService::class.java.name == serviceInfo.service.className) {
-                fabToggle(fab, FloatingMusicActionButton.Mode.PAUSE_TO_PLAY)
-                customFab.changeMode(FloatingMusicActionButton.Mode.PAUSE_TO_PLAY)
-            }
+        // ビーコンスキャン実行中か
+        val pref = PreferenceManager.getDefaultSharedPreferences(context)
+        if (pref.getBoolean("isBeaconScan", false)) {
+            fabToggle(fab, FloatingMusicActionButton.Mode.PAUSE_TO_PLAY)
+            customFab.changeMode(FloatingMusicActionButton.Mode.PAUSE_TO_PLAY)
         }
 
         fab.setOnMusicFabClickListener(object : FloatingMusicActionButton.OnMusicFabClickListener {
@@ -236,17 +238,18 @@ class LocationFragment : Fragment() {
                                 fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.blue_500))
                             }, 300)
                         } else {
+                            pref.edit().putBoolean("isBeaconScan", true).apply()
                             fabToggle(fab, FloatingMusicActionButton.Mode.PAUSE_TO_PLAY)
                             requireActivity().startForegroundService(Intent(activity, BeaconService::class.java))
                         }
                     }
                     // ビーコン取得停止
                     FloatingMusicActionButton.Mode.PLAY_TO_PAUSE -> {
+                        pref.edit().putBoolean("isBeaconScan", false).apply()
                         fabToggle(fab, FloatingMusicActionButton.Mode.PLAY_TO_PAUSE)
                         requireActivity().stopService(Intent(activity, BeaconService::class.java))
                     }
-                    else -> {
-                    }
+                    else -> {}
                 }
 
                 // 連続クリックを無効化
@@ -257,11 +260,15 @@ class LocationFragment : Fragment() {
             }
         })
 
+        val filter = IntentFilter()
+        filter.addAction("DO_ACTION")
+        requireActivity().registerReceiver(UpdateReceiver(), filter)
+
         return root
     }
 
     private fun fabToggle(fab: FloatingActionButton, fabMode: FloatingMusicActionButton.Mode) {
-        val toolbar = requireActivity().findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
         val progress = requireActivity().findViewById<ProgressBar>(R.id.progress)
         val actionBarHeight = resources.getDimension(R.dimen.mtrl_toolbar_default_height).toInt()
 
@@ -269,7 +276,7 @@ class LocationFragment : Fragment() {
             FloatingMusicActionButton.Mode.PAUSE_TO_PLAY -> {
                 progress.visibility = View.VISIBLE
                 toolbar.layoutParams.height = actionBarHeight + 12
-                toolbar.subtitle = "現在位置: test"
+                toolbar.subtitle = "現在位置: なし"
                 fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.red))
             }
             FloatingMusicActionButton.Mode.PLAY_TO_PAUSE -> {
@@ -282,10 +289,18 @@ class LocationFragment : Fragment() {
             }
         }
     }
+
+    inner class UpdateReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val location = intent.extras?.getString("location") ?: "なし"
+            val toolbar = activity?.findViewById<Toolbar>(R.id.toolbar)
+            toolbar?.subtitle = "現在位置: $location"
+        }
+    }
 }
 
 inline fun <T : View> T.afterMeasured(crossinline f: T.() -> Unit) {
-    viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+    viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
         override fun onGlobalLayout() {
             if (measuredWidth > 0 && measuredHeight > 0) {
                 viewTreeObserver.removeOnGlobalLayoutListener(this)

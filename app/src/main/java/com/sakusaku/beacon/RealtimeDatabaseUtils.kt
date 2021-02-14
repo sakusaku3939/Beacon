@@ -13,17 +13,20 @@ object RealtimeDatabaseUtils {
     private val removeListenerList = mutableListOf<() -> Unit>()
 
     data class UserLocation(
-        val name: String = "",
-        val location: String = "",
-        val position: String = "",
-        val timestamp: Map<String, String> = ServerValue.TIMESTAMP
+            val name: String = "",
+            val location: String = "",
+            val position: String = "",
+            val timestamp: Map<String, String> = ServerValue.TIMESTAMP
     )
 
-    fun writeUserLocation(floor: Int, uid: String, location: String) {
-        FirestoreUtils.getUserData { user ->
-            val ref = Firebase.database.reference.child("${floor}F").child("public").child(uid)
-            val data = UserLocation(user["name"]!!, location, user["position"]!!)
-            ref.setValue(data)
+    fun writeUserLocation(floor: Int, location: String) {
+        val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
+        uid?.let {
+            FirestoreUtils.getUserData { user ->
+                val ref = Firebase.database.reference.child("${floor}F").child("public").child(it)
+                val data = UserLocation(user["name"]!!, location, user["position"]!!)
+                ref.setValue(data)
+            }
         }
     }
 
