@@ -109,23 +109,24 @@ class BeaconService : Service(), BeaconConsumer {
             e.printStackTrace()
         }
         beaconManager.addRangeNotifier { beacons: MutableCollection<Beacon>, _: Region ->
+            var firstBeacon: Beacon? = null
             for (beacon in beacons) {
                 Log.d("BeaconInfo", "UUID:" + beacon.id1 + ", major:"
                         + beacon.id2 + ", minor:" + beacon.id3 + ", RSSI:"
                         + beacon.rssi + ", TxPower:" + beacon.txPower
                         + ", Distance:" + beacon.distance)
+
+                if (firstBeacon == null || firstBeacon.distance > beacon.distance) firstBeacon = beacon
             }
             Log.d("BeaconInfo", "total:" + beacons.size + "台")
 
             // 一番近いビーコンから位置を割り出し
-            val firstBeacon = if (beacons.iterator().hasNext()) beacons.iterator().next() else null
             val passLocation = firstBeacon?.let { beacon ->
                 val major = beacon.id2.toInt()
                 val minor = beacon.id3.toInt()
                 val key = BeaconInfo(major, minor)
 
                 val location = FloorMapBeacon.LOCATION.map[key]
-
                 location?.let { RealtimeDatabaseUtils.writeUserLocation(applicationContext, major, it) }
                 location
             }
