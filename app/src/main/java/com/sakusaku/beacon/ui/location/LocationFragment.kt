@@ -144,6 +144,9 @@ class LocationFragment : Fragment() {
                         "先生" -> teacherGrid.update(uid, location, timestamp)
                         "生徒" -> studentGrid.update(uid, location, timestamp)
                     }
+
+                    userPin.remove(uid)
+                    userPin.add(FloorMapLocation.POSITION_1F.map, uid, location)
                 }
                 "USER_REMOVED" -> {
                     val position = dataSnapshot.child("position").value.toString()
@@ -163,6 +166,8 @@ class LocationFragment : Fragment() {
                         "先生" -> remove(teacherGrid, teacherPeopleGrid, teacherNoUser)
                         "生徒" -> remove(studentGrid, studentPeopleGrid, studentNoUser)
                     }
+
+                    userPin.remove(uid)
                 }
             }
         }
