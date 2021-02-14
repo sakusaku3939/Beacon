@@ -36,7 +36,7 @@ class LocationFragment : Fragment() {
             val progress = root.findViewById<ProgressBar>(R.id.teacherProgress)
             progress.visibility = View.VISIBLE
             beforeGrid.visibility = View.VISIBLE
-            teacherPeopleGrid.visibility  = View.GONE
+            teacherPeopleGrid.visibility = View.GONE
             teacherNoUser.visibility = View.GONE
 
             RealtimeDatabaseUtils.floorUserExist(floor, "先生") { isExist ->
@@ -66,7 +66,7 @@ class LocationFragment : Fragment() {
             val progress = root.findViewById<ProgressBar>(R.id.studentProgress)
             progress.visibility = View.VISIBLE
             beforeGrid.visibility = View.VISIBLE
-            studentPeopleGrid.visibility  = View.GONE
+            studentPeopleGrid.visibility = View.GONE
             studentNoUser.visibility = View.GONE
 
             RealtimeDatabaseUtils.floorUserExist(floor, "生徒") { isExist ->
@@ -167,32 +167,27 @@ class LocationFragment : Fragment() {
 
         // 校内図のタブ切り替え
         floorTab.setOnCheckedChangeListener { _, checkedId ->
+            val (floor, imageResource) = when (checkedId) {
+                R.id.floorTab1F -> Pair(1, R.drawable.school_map_1f)
+                R.id.floorTab2F -> Pair(2, R.drawable.school_map_2f)
+                R.id.floorTab3F -> Pair(3, R.drawable.school_map_3f)
+                R.id.floorTab4F -> Pair(4, R.drawable.school_map_4f)
+                R.id.floorTab5F -> Pair(5, R.drawable.school_map_5f)
+                else -> Pair(0, null)
+            }
+            // 画像の切り替え
+            imageResource?.let { floorMapImage.setImageResource(it) }
+
             // 切り替え前のデータを削除
             userPin.removeAll()
             studentGrid.removeAll()
             teacherGrid.removeAll()
             RealtimeDatabaseUtils.removeAllUserLocationUpdateListener()
 
-            // 初回ロード＆画像の切り替え
-            val imageResource = when (checkedId) {
-                R.id.floorTab1F -> {
-                    teacherFirstLoad(1)
-                    studentFirstLoad(1)
-                    setUserLocationUpdateListener(1)
-                    R.drawable.school_map_1f
-                }
-                R.id.floorTab2F -> {
-                    teacherFirstLoad(2)
-                    studentFirstLoad(2)
-                    setUserLocationUpdateListener(2)
-                    R.drawable.school_map_2f
-                }
-                R.id.floorTab3F -> R.drawable.school_map_3f
-                R.id.floorTab4F -> R.drawable.school_map_4f
-                R.id.floorTab5F -> R.drawable.school_map_5f
-                else -> null
-            }
-            imageResource?.let { floorMapImage.setImageResource(it) }
+            // 切り替え後の初回読み込み
+            teacherFirstLoad(floor)
+            studentFirstLoad(floor)
+            setUserLocationUpdateListener(floor)
 
             // 画像の高さを動的に設定
             floorMap.layoutParams.height = when (checkedId) {
