@@ -27,47 +27,84 @@ class LocationFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_location, container, false)
         val handler = Handler()
 
-        // 読み込み中または同じ階層に人が居ない時の処理
+        // 先生が読み込み中または同じ階層に居ない時の処理
         val teacherPeopleGrid = root.findViewById<RecyclerView>(R.id.teacherPeopleGrid)
         val teacherNoUser = root.findViewById<TextView>(R.id.teacherNoUser)
-        RealtimeDatabaseUtils.floorUserExist(1, "先生") { isExist ->
-            val progress = root.findViewById<ProgressBar>(R.id.teacherProgress)
+
+        fun teacherFirstLoad(floor: Int) {
             val beforeGrid = root.findViewById<FrameLayout>(R.id.teacherBeforeGrid)
-            thread {
-                handler.post {
-                    progress.visibility = View.GONE
-                    if (isExist) {
-                        beforeGrid.visibility = View.GONE
-                        teacherPeopleGrid.visibility = View.VISIBLE
-                    } else {
-                        teacherNoUser.visibility = View.VISIBLE
+            val progress = root.findViewById<ProgressBar>(R.id.teacherProgress)
+            progress.visibility = View.VISIBLE
+            beforeGrid.visibility = View.VISIBLE
+            teacherPeopleGrid.visibility  = View.GONE
+            teacherNoUser.visibility = View.GONE
+
+            RealtimeDatabaseUtils.floorUserExist(floor, "先生") { isExist ->
+                val locationScrollView = root.findViewById<FrameLayout>(R.id.locationScrollView)
+                locationScrollView.scrollTo(0, 0)
+                thread {
+                    handler.post {
+                        progress.visibility = View.GONE
+                        if (isExist) {
+                            beforeGrid.visibility = View.GONE
+                            teacherPeopleGrid.visibility = View.VISIBLE
+                        } else {
+                            teacherNoUser.visibility = View.VISIBLE
+                        }
                     }
                 }
             }
         }
+        teacherFirstLoad(1)
 
+        // 生徒が読み込み中または同じ階層に居ない時の処理
         val studentPeopleGrid = root.findViewById<RecyclerView>(R.id.studentPeopleGrid)
         val studentNoUser = root.findViewById<TextView>(R.id.studentNoUser)
-        RealtimeDatabaseUtils.floorUserExist(1, "生徒") { isExist ->
-            val progress = root.findViewById<ProgressBar>(R.id.studentProgress)
+
+        fun studentFirstLoad(floor: Int) {
             val beforeGrid = root.findViewById<FrameLayout>(R.id.studentBeforeGrid)
-            thread {
-                handler.post {
-                    progress.visibility = View.GONE
-                    if (isExist) {
-                        beforeGrid.visibility = View.GONE
-                        studentPeopleGrid.visibility = View.VISIBLE
-                    } else {
-                        studentNoUser.visibility = View.VISIBLE
+            val progress = root.findViewById<ProgressBar>(R.id.studentProgress)
+            progress.visibility = View.VISIBLE
+            beforeGrid.visibility = View.VISIBLE
+            studentPeopleGrid.visibility  = View.GONE
+            studentNoUser.visibility = View.GONE
+
+            RealtimeDatabaseUtils.floorUserExist(floor, "生徒") { isExist ->
+                thread {
+                    handler.post {
+                        progress.visibility = View.GONE
+                        if (isExist) {
+                            beforeGrid.visibility = View.GONE
+                            studentPeopleGrid.visibility = View.VISIBLE
+                        } else {
+                            studentNoUser.visibility = View.VISIBLE
+                        }
+                        val locationScrollView = root.findViewById<FrameLayout>(R.id.locationScrollView)
+                        locationScrollView.scrollTo(0, 0)
                     }
                 }
             }
+        }
+        studentFirstLoad(1)
+
+        // 校内図
+        val floorMap = root.findViewById<FrameLayout>(R.id.floorMap)
+        val floorTab = root.findViewById<RadioGroup>(R.id.floorTab)
+        val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
+
+        // ユーザーピンを追加
+        val mapPinLayout = root.findViewById<FrameLayout>(R.id.mapPinLayout)
+        val userPin = UserPin(requireContext(), inflater, floorMapImage, mapPinLayout)
+        var floorMapHeight1F = 0
+        floorMapImage.afterMeasured {
+            floorMap.layoutParams.height = floorMapImage.height
+            floorMapHeight1F = floorMapImage.height
         }
 
         // 同じ階にいる先生、生徒の表示
         val teacherGrid = PeopleGrid(requireContext(), teacherPeopleGrid)
         val studentGrid = PeopleGrid(requireContext(), studentPeopleGrid)
-        RealtimeDatabaseUtils.userLocationUpdateListener(1) { dataSnapshot, state ->
+        fun setUserLocationUpdateListener(floor: Int) = RealtimeDatabaseUtils.userLocationUpdateListener(floor) { dataSnapshot, state ->
             when (state) {
                 "USER_ADDED" -> {
                     val name = dataSnapshot.child("name").value.toString()
@@ -90,6 +127,8 @@ class LocationFragment : Fragment() {
                         "先生" -> add(teacherGrid, teacherPeopleGrid, teacherNoUser)
                         "生徒" -> add(studentGrid, studentPeopleGrid, studentNoUser)
                     }
+
+                    userPin.add(FloorMapLocation.P_1F.map, uid, location)
                 }
                 "USER_CHANGED" -> {
                     val position = dataSnapshot.child("position").value.toString()
@@ -124,44 +163,28 @@ class LocationFragment : Fragment() {
             }
         }
 
-        // 校内図
-        val floorMap = root.findViewById<FrameLayout>(R.id.floorMap)
-        val floorTab = root.findViewById<RadioGroup>(R.id.floorTab)
-        val floorMapImage = root.findViewById<ImageView>(R.id.floorMapImage)
-
-        // ユーザーピンを追加
-        val mapPinLayout = root.findViewById<FrameLayout>(R.id.mapPinLayout)
-        val userPin = UserPin(requireContext(), inflater, floorMapImage, mapPinLayout)
-        var floorMapHeight1F = 0
-        floorMapImage.afterMeasured {
-            floorMapHeight1F = floorMapImage.height
-            floorMap.layoutParams.height = floorMapImage.height
-            userPin.add(FloorMapLocation.P_1F.map, "図書室")
-            userPin.add(FloorMapLocation.P_1F.map, "環境整備準備室")
-            userPin.add(FloorMapLocation.P_1F.map, "経営企画室")
-            userPin.add(FloorMapLocation.P_1F.map, "NT準備室")
-            userPin.add(FloorMapLocation.P_1F.map, "メモリアルルーム")
-        }
+        setUserLocationUpdateListener(1)
 
         // 校内図のタブ切り替え
         floorTab.setOnCheckedChangeListener { _, checkedId ->
+            // 切り替え前のデータを削除
+            userPin.removeAll()
+            studentGrid.removeAll()
+            teacherGrid.removeAll()
+            RealtimeDatabaseUtils.removeAllUserLocationUpdateListener()
+
+            // 初回ロード＆画像の切り替え
             val imageResource = when (checkedId) {
                 R.id.floorTab1F -> {
-                    floorMapImage.afterMeasured {
-                        userPin.add(FloorMapLocation.P_1F.map, "図書室")
-                        userPin.add(FloorMapLocation.P_1F.map, "環境整備準備室")
-                        userPin.add(FloorMapLocation.P_1F.map, "経営企画室")
-                        userPin.add(FloorMapLocation.P_1F.map, "NT準備室")
-                        userPin.add(FloorMapLocation.P_1F.map, "メモリアルルーム")
-                    }
+                    teacherFirstLoad(1)
+                    studentFirstLoad(1)
+                    setUserLocationUpdateListener(1)
                     R.drawable.school_map_1f
                 }
                 R.id.floorTab2F -> {
-                    floorMapImage.afterMeasured {
-                        userPin.add(FloorMapLocation.P_1F.map, "経営企画室")
-                        userPin.add(FloorMapLocation.P_1F.map, "NT準備室")
-                        userPin.add(FloorMapLocation.P_1F.map, "メモリアルルーム")
-                    }
+                    teacherFirstLoad(2)
+                    studentFirstLoad(2)
+                    setUserLocationUpdateListener(2)
                     R.drawable.school_map_2f
                 }
                 R.id.floorTab3F -> R.drawable.school_map_3f
@@ -170,9 +193,6 @@ class LocationFragment : Fragment() {
                 else -> null
             }
             imageResource?.let { floorMapImage.setImageResource(it) }
-
-            // ユーザーピンを削除
-            userPin.removeAll()
 
             // 画像の高さを動的に設定
             floorMap.layoutParams.height = when (checkedId) {

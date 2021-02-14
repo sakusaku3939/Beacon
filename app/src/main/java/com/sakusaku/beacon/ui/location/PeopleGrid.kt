@@ -40,6 +40,11 @@ class PeopleGrid(private val context: Context, private val peopleRecyclerView: R
         }
     }
 
+    fun removeAll() {
+        map.clear()
+        customAdapter.notifyDataSetChanged()
+    }
+
     fun count(): Int = map.size
 
     private fun applyView(context: Context, peopleRecyclerView: RecyclerView, customAdapter: PeopleGridAdapter) {
