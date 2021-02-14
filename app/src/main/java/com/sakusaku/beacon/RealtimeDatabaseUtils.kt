@@ -11,6 +11,7 @@ import kotlin.coroutines.suspendCoroutine
 object RealtimeDatabaseUtils {
     private const val TAG: String = "RealtimeDatabase"
     private val removeListenerList = mutableListOf<() -> Unit>()
+    private var currentFloor: Int = 0
 
     data class UserLocation(
             val name: String = "",
@@ -26,7 +27,19 @@ object RealtimeDatabaseUtils {
                 val ref = Firebase.database.reference.child("${floor}F").child("public").child(it)
                 val data = UserLocation(user["name"]!!, location, user["position"]!!)
                 ref.setValue(data)
+
+                if (currentFloor != 0 && currentFloor != floor) deleteUserLocation()
+                currentFloor = floor
             }
+        }
+    }
+
+    fun deleteUserLocation() {
+        val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
+        uid?.let {
+            val ref = Firebase.database.reference.child("${currentFloor}F").child("public").child(it)
+            ref.removeValue()
+            currentFloor = 0
         }
     }
 

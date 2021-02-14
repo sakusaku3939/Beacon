@@ -1,7 +1,7 @@
 package com.sakusaku.beacon.ui.location
 
 enum class FloorMapBeacon(val map: Map<BeaconInfo, String>) {
-    BEACON_1F(mapOf(
+    LOCATION(mapOf(
             BeaconInfo(1, 1) to "図書室" ,
             BeaconInfo(1, 2) to "司書室",
             BeaconInfo(1, 3) to "小講義室",
