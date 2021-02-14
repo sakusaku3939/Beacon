@@ -1,10 +1,7 @@
 package com.sakusaku.beacon
 
 import android.util.Log
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.*
@@ -15,11 +12,26 @@ object RealtimeDatabaseUtils {
     private const val TAG: String = "RealtimeDatabase"
     private val removeListenerList = mutableListOf<() -> Unit>()
 
+    data class UserLocation(
+        val name: String = "",
+        val location: String = "",
+        val position: String = "",
+        val timestamp: Map<String, String> = ServerValue.TIMESTAMP
+    )
+
+    fun writeUserLocation(floor: Int, uid: String, location: String) {
+        FirestoreUtils.getUserData { user ->
+            val ref = Firebase.database.reference.child("${floor}F").child("public").child(uid)
+            val data = UserLocation(user["name"]!!, location, user["position"]!!)
+            ref.setValue(data)
+        }
+    }
+
     fun floorUserExist(floor: Int, position: String, callback: (isExist: Boolean) -> (Unit)) {
-        FirestoreUtils.getUserData {
+        FirestoreUtils.getUserData { user ->
             GlobalScope.launch(Dispatchers.IO) {
                 val isExistPublic = async { asyncFloorUserExist(floor, "public", position) }
-                if (it["position"] == "生徒") {
+                if (user["position"] == "生徒") {
                     val isExistOnly = async { asyncFloorUserExist(floor, "students_only", position) }
                     callback(isExistPublic.await() || isExistOnly.await())
                 } else {
@@ -31,28 +43,26 @@ object RealtimeDatabaseUtils {
 
     private suspend fun asyncFloorUserExist(floor: Int, range: String, position: String): Boolean {
         return suspendCoroutine { continuation ->
-            val reference = Firebase.database.reference.child("${floor}F").child(range).orderByChild("position").equalTo(position)
+            val ref = Firebase.database.reference.child("${floor}F").child(range).orderByChild("position").equalTo(position)
             val listener = object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     Log.d(TAG, "GetFloorUserData successfully ${dataSnapshot.value}")
-                    reference.removeEventListener(this)
                     continuation.resume(dataSnapshot.value != null)
                 }
 
                 override fun onCancelled(databaseError: DatabaseError) {
                     Log.w(TAG, "onCancelled", databaseError.toException())
-                    reference.removeEventListener(this)
                     continuation.resume(false)
                 }
             }
-            reference.addValueEventListener(listener)
+            ref.addListenerForSingleValueEvent(listener)
             return@suspendCoroutine
         }
     }
 
     fun userLocationUpdateListener(floor: Int, callback: (dataSnapshot: DataSnapshot, state: String) -> Unit) {
         fun setListener(f: (dataSnapshot: DataSnapshot, state: String) -> Unit, range: String): () -> Unit {
-            val reference = Firebase.database.reference.child("${floor}F").child(range)
+            val ref = Firebase.database.reference.child("${floor}F").child(range)
             val listener = object : ChildEventListener {
                 override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
                     Log.d("RealtimeDatabase", "DataSnapshot added $dataSnapshot")
@@ -75,13 +85,13 @@ object RealtimeDatabaseUtils {
                     Log.w(TAG, "onCancelled", error.toException())
                 }
             }
-            reference.addChildEventListener(listener)
-            return { reference.removeEventListener(listener) }
+            ref.addChildEventListener(listener)
+            return { ref.removeEventListener(listener) }
         }
 
         removeListenerList.add(setListener(callback, "public"))
-        FirestoreUtils.getUserData {
-            if (it["position"] == "生徒") removeListenerList.add(setListener(callback, "students_only"))
+        FirestoreUtils.getUserData { user ->
+            if (user["position"] == "生徒") removeListenerList.add(setListener(callback, "students_only"))
         }
     }
 

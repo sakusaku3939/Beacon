@@ -128,7 +128,7 @@ class LocationFragment : Fragment() {
                         "生徒" -> add(studentGrid, studentPeopleGrid, studentNoUser)
                     }
 
-                    userPin.add(FloorMapLocation.P_1F.map, uid, location)
+                    userPin.add(FloorMapLocation.POSITION_1F.map, uid, location)
                 }
                 "USER_CHANGED" -> {
                     val position = dataSnapshot.child("position").value.toString()

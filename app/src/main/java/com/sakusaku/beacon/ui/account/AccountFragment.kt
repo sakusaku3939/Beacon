@@ -43,8 +43,8 @@ class AccountFragment : PreferenceFragmentCompat() {
         })
 
         // 先生or生徒の表示
-        FirestoreUtils.getUserData {
-            account.summary = it["position"]
+        FirestoreUtils.getUserData { user ->
+            account.summary = user["position"]
         }
 
         return view
