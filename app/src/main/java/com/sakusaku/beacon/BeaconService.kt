@@ -63,7 +63,7 @@ class BeaconService : Service(), BeaconConsumer {
 
     override fun onDestroy() {
         super.onDestroy()
-        RealtimeDatabaseUtils.deleteUserLocation()
+        RealtimeDatabaseUtils.deleteUserLocation(applicationContext)
         beaconManager.unbind(this)
     }
 
@@ -125,7 +125,8 @@ class BeaconService : Service(), BeaconConsumer {
                 val key = BeaconInfo(major, minor)
 
                 val location = FloorMapBeacon.LOCATION.map[key]
-                location?.let { RealtimeDatabaseUtils.writeUserLocation(major, it) }
+
+                location?.let { RealtimeDatabaseUtils.writeUserLocation(applicationContext, major, it) }
                 location
             }
 

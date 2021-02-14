@@ -12,10 +12,7 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceScreen
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
-import com.sakusaku.beacon.FirebaseAuthUtils
-import com.sakusaku.beacon.FirestoreUtils
-import com.sakusaku.beacon.MainActivity
-import com.sakusaku.beacon.R
+import com.sakusaku.beacon.*
 
 
 class AccountFragment : PreferenceFragmentCompat() {
@@ -53,25 +50,10 @@ class AccountFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preference_app_setting, rootKey)
 
-        // 保存値からステータス設定のクリック無効化のON/OFF
-        val preferenceStatus = findPreference<ListPreference>("preference_status")
-        preferenceStatus?.isEnabled = PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean("prefs.preferenceList.enabled", true)
-
-        // プライバシー設定が「非公開」の場合クリック無効化
+        // ビーコンスキャン中の場合「プライバシー設定」のクリック無効化
+        val pref = PreferenceManager.getDefaultSharedPreferences(context)
         val disclosureRange = findPreference<ListPreference>("preference_disclosure_range")
-        disclosureRange?.setOnPreferenceChangeListener { _, newValue ->
-            val isEnabled = when (newValue.toString()) {
-                "非公開" -> false
-                else -> true
-            }
-            preferenceStatus?.isEnabled = isEnabled
-            PreferenceManager.getDefaultSharedPreferences(context)
-                    .edit()
-                    .putBoolean("prefs.preferenceList.enabled", isEnabled)
-                    .apply()
-            true
-        }
+        disclosureRange?.isEnabled = !pref.getBoolean("isBeaconScan", false)
 
         // OSSライセンス表示画面へのIntentを設定
         val oss = findPreference<PreferenceScreen>("preference_oss_license")

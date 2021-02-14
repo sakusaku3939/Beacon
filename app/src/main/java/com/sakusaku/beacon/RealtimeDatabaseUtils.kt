@@ -1,6 +1,8 @@
 package com.sakusaku.beacon
 
+import android.content.Context
 import android.util.Log
+import androidx.preference.PreferenceManager
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
@@ -20,26 +22,41 @@ object RealtimeDatabaseUtils {
             val timestamp: Map<String, String> = ServerValue.TIMESTAMP
     )
 
-    fun writeUserLocation(floor: Int, location: String) {
-        val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
-        uid?.let {
-            FirestoreUtils.getUserData { user ->
-                val ref = Firebase.database.reference.child("${floor}F").child("public").child(it)
-                val data = UserLocation(user["name"]!!, location, user["position"]!!)
-                ref.setValue(data)
+    fun writeUserLocation(context: Context, floor: Int, location: String) {
+        val disclosureRange = getDisclosureRange(context)
+        disclosureRange.takeIf { it.isNotEmpty() }?.let { range ->
+            val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
+            uid?.let {
+                FirestoreUtils.getUserData { user ->
+                    val ref = Firebase.database.reference.child("${floor}F").child(range).child(it)
+                    val data = UserLocation(user["name"]!!, location, user["position"]!!)
+                    ref.setValue(data)
 
-                if (currentFloor != 0 && currentFloor != floor) deleteUserLocation()
-                currentFloor = floor
+                    if (currentFloor != 0 && currentFloor != floor) deleteUserLocation(context)
+                    currentFloor = floor
+                }
             }
         }
     }
 
-    fun deleteUserLocation() {
-        val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
-        uid?.let {
-            val ref = Firebase.database.reference.child("${currentFloor}F").child("public").child(it)
-            ref.removeValue()
-            currentFloor = 0
+    fun deleteUserLocation(context: Context) {
+        val disclosureRange = getDisclosureRange(context)
+        disclosureRange.takeIf { it.isNotEmpty() }?.let { range ->
+            val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
+            uid?.let {
+                val ref = Firebase.database.reference.child("${currentFloor}F").child(range).child(it)
+                ref.removeValue()
+                currentFloor = 0
+            }
+        }
+    }
+
+    private fun getDisclosureRange(context: Context): String {
+        return when (PreferenceManager.getDefaultSharedPreferences(context)
+                .getString("preference_disclosure_range", "全体に公開")) {
+            "全体に公開" -> "public"
+            "生徒にのみ公開" -> "students_only"
+            else -> ""
         }
     }
 
