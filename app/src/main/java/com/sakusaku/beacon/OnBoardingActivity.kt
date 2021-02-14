@@ -28,7 +28,7 @@ class OnBoardingActivity : AppCompatActivity() {
                         FragmentUtil.existsUserData(this, blurImage)
                     }
                 } else {
-                    Toast.makeText(this, "メールリンクが無効です", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "マジックリンクが無効です", Toast.LENGTH_LONG).show()
                 }
             }
         }

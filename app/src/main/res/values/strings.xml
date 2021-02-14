@@ -7,7 +7,7 @@
     <string name="onboarding_description">多摩科学技術高校のビーコン型位置情報共有アプリ</string>
     <string name="onboarding_get_started">生徒 または 先生 で始める</string>
     <string name="onboarding_email_hint">メールアドレスを入力</string>
-    <string name="onboarding_email_description">パスワードなしでサインインできるメールリンクを送信します</string>
+    <string name="onboarding_email_description">パスワードなしでサインインできるマジックリンクを送信します</string>
     <string name="onboarding_email_send_overview">メールを確認</string>
     <string name="onboarding_email_send_description"> に送信したメールに記載されているリンクをタップしてください</string>
     <string name="onboarding_email_send_launch">メールアプリを起動</string>
