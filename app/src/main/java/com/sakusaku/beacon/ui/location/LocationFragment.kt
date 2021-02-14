@@ -162,7 +162,6 @@ class LocationFragment : Fragment() {
                 }
             }
         }
-
         setUserLocationUpdateListener(1)
 
         // 校内図のタブ切り替え
