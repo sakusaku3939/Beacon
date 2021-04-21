@@ -14,6 +14,7 @@ object RealtimeDatabaseUtils {
     private const val TAG: String = "RealtimeDatabase"
     private val removeListenerList = mutableListOf<() -> Unit>()
     private var currentFloor: Int = 0
+    private val floorRef = Firebase.database.reference.child("floor")
 
     data class UserLocation(
             val name: String = "",
@@ -28,7 +29,7 @@ object RealtimeDatabaseUtils {
             val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
             uid?.let {
                 FirestoreUtils.getUserData { user ->
-                    val ref = Firebase.database.reference.child("${floor}F").child(range).child(it)
+                    val ref = floorRef.child("${floor}F").child(range).child(it)
                     val data = UserLocation(user["name"]!!, location, user["position"]!!)
                     ref.setValue(data)
 
@@ -76,7 +77,7 @@ object RealtimeDatabaseUtils {
 
     private suspend fun asyncFloorUserExist(floor: Int, range: String, position: String): Boolean {
         return suspendCoroutine { continuation ->
-            val ref = Firebase.database.reference.child("${floor}F").child(range).orderByChild("position").equalTo(position)
+            val ref = floorRef.child("${floor}F").child(range).orderByChild("position").equalTo(position)
             val listener = object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     Log.d(TAG, "GetFloorUserData successfully ${dataSnapshot.value}")
@@ -95,7 +96,7 @@ object RealtimeDatabaseUtils {
 
     fun userLocationUpdateListener(floor: Int, callback: (dataSnapshot: DataSnapshot, state: String) -> Unit) {
         fun setListener(f: (dataSnapshot: DataSnapshot, state: String) -> Unit, range: String): () -> Unit {
-            val ref = Firebase.database.reference.child("${floor}F").child(range)
+            val ref = floorRef.child("${floor}F").child(range)
             val listener = object : ChildEventListener {
                 override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
                     Log.d("RealtimeDatabase", "DataSnapshot added $dataSnapshot")
