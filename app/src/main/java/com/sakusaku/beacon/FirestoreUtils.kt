@@ -9,12 +9,12 @@ object FirestoreUtils {
     private const val TAG: String = "Firestore"
     private var user: Map<String, String>? = null
 
-    fun updateUserData(position: String? = null, region: String? = null, subject: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
+    fun writeUserData(position: String? = null, region: String? = null, subject: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
         userDataUtils("written", position, region, subject) { callback(it) }
     }
 
-    fun addUserData(position: String? = null, region: String? = null, subject: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
-        userDataUtils("added", position, region, subject) { callback(it) }
+    fun updateUserData(position: String? = null, region: String? = null, subject: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
+        userDataUtils("update", position, region, subject) { callback(it) }
     }
 
     private fun userDataUtils(updateMode: String, position: String?, region: String?, subject: String?, callback: (isSuccess: Boolean) -> (Unit) = {}) {
@@ -30,7 +30,7 @@ object FirestoreUtils {
             val document = db.collection("users").document(it)
             val task = when (updateMode) {
                 "written" -> document.set(user)
-                "added" -> document.set(user, SetOptions.merge())
+                "update" -> document.set(user, SetOptions.merge())
                 else -> document.set(user, SetOptions.merge())
             }
             task.addOnSuccessListener {

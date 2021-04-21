@@ -30,8 +30,7 @@ object RealtimeDatabaseUtils {
             uid?.let {
                 FirestoreUtils.getUserData { user ->
                     val ref = floorRef.child("${floor}F").child(range).child(it)
-                    val name = FirebaseAuthUtils.getUserProfile()["name"].toString()
-                    val data = UserLocation(name, location, user["position"]!!)
+                    val data = UserLocation(user["name"]!!, location, user["position"]!!)
                     ref.setValue(data)
 
                     if (currentFloor != 0 && currentFloor != floor) deleteUserLocation(context)

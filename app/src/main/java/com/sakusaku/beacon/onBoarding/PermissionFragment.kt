@@ -49,24 +49,23 @@ class PermissionFragment : Fragment() {
                 val region = pref.getString("region", null)
                 val subject = pref.getString("subject", null)
 
-                FirebaseAuthUtils.updateProfile(name)
-                FirestoreUtils.updateUserData(position, region, subject) { isSuccess ->
+                FirestoreUtils.writeUserData(position, region, subject) { isSuccess ->
                     if (isSuccess) {
+                        FirebaseAuthUtils.updateProfile(name)
                         requireActivity().finish()
                     } else {
                         Toast.makeText(requireContext(), "ユーザー情報の登録に失敗しました", Toast.LENGTH_SHORT).show()
                         FirebaseAuthUtils.signOut()
                     }
+                    // 仮保存データの削除
+                    pref.edit()
+                            .remove("name")
+                            .remove("position")
+                            .remove("email")
+                            .remove("region")
+                            .remove("subject")
+                            .apply()
                 }
-
-                // 仮保存データの削除
-                pref.edit()
-                        .remove("name")
-                        .remove("position")
-                        .remove("email")
-                        .remove("region")
-                        .remove("subject")
-                        .apply()
             }
         }
     }
