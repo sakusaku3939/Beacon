@@ -297,9 +297,12 @@ class LocationFragment : Fragment() {
 
     inner class UpdateReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val location = intent.extras?.getString("location") ?: "なし"
-            val toolbar = activity?.findViewById<Toolbar>(R.id.toolbar)
-            toolbar?.subtitle = "現在位置: $location"
+            val pref = PreferenceManager.getDefaultSharedPreferences(context)
+            if (pref.getBoolean("isBeaconScan", false)) {
+                val location = intent.extras?.getString("location") ?: "なし"
+                val toolbar = activity?.findViewById<Toolbar>(R.id.toolbar)
+                toolbar?.subtitle = "現在位置: $location"
+            }
         }
     }
 }

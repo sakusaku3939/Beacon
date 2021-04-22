@@ -45,7 +45,7 @@ object RealtimeDatabaseUtils {
         disclosureRange.takeIf { it.isNotEmpty() }?.let { range ->
             val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
             uid?.let {
-                val ref = Firebase.database.reference.child("${currentFloor}F").child(range).child(it)
+                val ref = floorRef.child("${currentFloor}F").child(range).child(it)
                 ref.removeValue()
                 currentFloor = 0
             }
