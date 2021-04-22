@@ -127,9 +127,12 @@ class BeaconService : Service(), BeaconConsumer {
                 val key = BeaconInfo(major, minor)
 
                 val location = FloorMapBeacon.LOCATION.map[key]
-                location?.let { RealtimeDatabaseUtils.writeUserLocation(applicationContext, major, it) }
+                if (location != null) RealtimeDatabaseUtils.writeUserLocation(applicationContext, major, location)
                 location
             }
+
+            // ビーコンがない場合はデータベースから削除
+            if (passLocation == null) RealtimeDatabaseUtils.deleteUserLocation(applicationContext)
 
             // Fragmentに現在位置を渡す
             val broadcast = Intent()
