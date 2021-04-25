@@ -10,14 +10,13 @@ import android.widget.RadioGroup
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.sakusaku.beacon.FragmentUtil
-import com.sakusaku.beacon.GridRadioGroup
 import com.sakusaku.beacon.R
 
 class RegionSelectFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_onboarding_region_select, container, false)
-        val radioSubject: GridRadioGroup = view.findViewById(R.id.radioSubject)
+        val radioSubject: RadioGroup = view.findViewById(R.id.radioSubject)
         radioSubject.check(R.id.radioSubjectPhysics)
         val navigationNext = view.findViewById<Button?>(R.id.navigationNext)
         navigationNext.setOnClickListener {
