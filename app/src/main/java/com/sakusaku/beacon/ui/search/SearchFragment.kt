@@ -43,7 +43,7 @@ class SearchFragment : Fragment() {
         val radioRegion: RadioGroup = root.findViewById(R.id.radioRegion)
         val radioSubject: RadioGroup = root.findViewById(R.id.radioSubject)
 
-        // 検索フィルターの選択肢を再タップで解除
+        // 検索フィルターの選択を再タップで解除
         val regionIdList = listOf(R.id.radioRegionIT, R.id.radioRegionET, R.id.radioRegionBT, R.id.radioRegionNT)
         DeselectRadio(root, radioRegion).registerRadioButtonClickListener(regionIdList)
 
