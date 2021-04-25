@@ -7,6 +7,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
@@ -17,6 +18,7 @@ import androidx.annotation.IdRes;
  */
 public class GridRadioGroup extends TableLayout implements OnClickListener {
     private int checkedButtonID = -1;
+    private OnCheckedChangeListener mOnCheckedChangeListener;
 
     /**
      * @param context
@@ -55,7 +57,7 @@ public class GridRadioGroup extends TableLayout implements OnClickListener {
      */
     @Override
     public void addView(View child, int index,
-            android.view.ViewGroup.LayoutParams params) {
+                        android.view.ViewGroup.LayoutParams params) {
         super.addView(child, index, params);
         setChildrenOnClickListener((TableRow) child);
     }
@@ -74,11 +76,11 @@ public class GridRadioGroup extends TableLayout implements OnClickListener {
     private void setChildrenOnClickListener(TableRow tr) {
         final int c = tr.getChildCount();
         for (int i = 0; i < c; i++) {
-        final View v = tr.getChildAt(i);
-        if (v instanceof RadioButton) {
-            v.setOnClickListener(this);
+            final View v = tr.getChildAt(i);
+            if (v instanceof RadioButton) {
+                v.setOnClickListener(this);
+            }
         }
-    }
     }
 
 
@@ -115,11 +117,18 @@ public class GridRadioGroup extends TableLayout implements OnClickListener {
      * @param id
      */
     private void setCheckedId(int id) {
+        if (mOnCheckedChangeListener != null) {
+            mOnCheckedChangeListener.onCheckedChanged(this, id);
+        }
         this.checkedButtonID = id;
     }
 
     public void clearCheck() {
         check(-1);
+    }
+
+    public void setOnCheckedChangeListener(OnCheckedChangeListener listener) {
+        mOnCheckedChangeListener = listener;
     }
 
     @Override
@@ -181,5 +190,9 @@ public class GridRadioGroup extends TableLayout implements OnClickListener {
                 return new SavedState[size];
             }
         };
+    }
+
+    public interface OnCheckedChangeListener {
+        void onCheckedChanged(GridRadioGroup gridRadioGroup, int checkedId);
     }
 }
