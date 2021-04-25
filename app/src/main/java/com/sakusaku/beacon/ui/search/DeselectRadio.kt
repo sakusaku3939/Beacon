@@ -5,7 +5,7 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 
 class DeselectRadio(private val root: View, private val radioGroup: RadioGroup) {
-    private var isRadioButtonCheck = false
+    private var isRadioButtonCheck = true
 
     init {
         radioGroup.setOnCheckedChangeListener { _, _ -> isRadioButtonCheck = false }

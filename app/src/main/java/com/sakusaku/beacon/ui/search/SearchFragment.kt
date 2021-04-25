@@ -2,6 +2,7 @@ package com.sakusaku.beacon.ui.search
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -56,8 +57,10 @@ class SearchFragment : Fragment() {
         // 検索画面への遷移
         val searchBar = root.findViewById<LinearLayout>(R.id.searchBar)
         searchBar.setOnClickListener {
-            val region = root.findViewById<RadioButton>(radioRegion.checkedRadioButtonId).text
-            val subject = root.findViewById<RadioButton>(radioSubject.checkedRadioButtonId).text
+            val region = if (radioRegion.checkedRadioButtonId != -1)
+                root.findViewById<RadioButton>(radioRegion.checkedRadioButtonId).text else null
+            val subject = if (radioSubject.checkedRadioButtonId != -1)
+                root.findViewById<RadioButton>(radioSubject.checkedRadioButtonId).text else null
 
             val intent = Intent(requireActivity(), SearchActivity::class.java)
             if (searchFilter.visibility == View.VISIBLE) {
