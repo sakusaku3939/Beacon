@@ -26,15 +26,21 @@ class SearchActivity : AppCompatActivity() {
         val subject: String? = intent.getStringExtra("subject")
 
         val db = FirebaseFirestore.getInstance().collection("users")
+        val conditionalDB = when {
+            !region.isNullOrEmpty() && !subject.isNullOrEmpty() ->
+                db.whereEqualTo("region", region).whereEqualTo("subject", subject)
+            !region.isNullOrEmpty() ->
+                db.whereEqualTo("region", region)
+            !subject.isNullOrEmpty() ->
+                db.whereEqualTo("subject", subject)
+            else -> db
+        }
 
-        Log.d("test", subject.toString())
-//        region?.let { db.whereEqualTo("region", it) }
-//        subject?.let { db.whereEqualTo("subject", it) }
-//        db.whereEqualTo("subject", "数学")
-
-        db.whereEqualTo("subject", "数学A").whereEqualTo("region", "ET").get().addOnSuccessListener { documents ->
-            for (document in documents) {
+        conditionalDB.get().addOnSuccessListener { documents ->
+            if (!documents.isEmpty) for (document in documents) {
                 Log.d("test", document.data.toString())
+            } else {
+                Log.d("test", "None")
             }
         }.addOnFailureListener { exception ->
             Log.d("test", "get failed with ", exception)
