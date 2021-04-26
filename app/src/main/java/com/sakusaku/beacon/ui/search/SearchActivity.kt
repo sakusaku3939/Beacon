@@ -47,23 +47,18 @@ class SearchActivity : AppCompatActivity() {
             Log.d("test", "get failed with ", exception)
         }
 
-//        val queryText = "ET"
-////        Log.d("test", "ok")
-//        val ref = Firebase.database.reference.child("search")
-//                .orderByKey()
-//                .startAt(queryText)
-//                .endAt(queryText + "\uf8ff")
-//        val listener = object : ValueEventListener {
-//            override fun onDataChange(dataSnapshot: DataSnapshot) {
-////                Log.d("test", "${dataSnapshot.value}")
-//            }
-//
-//            override fun onCancelled(databaseError: DatabaseError) {
-//                Log.w("test", "onCancelled", databaseError.toException())
-//            }
-//        }
-//        ref.addListenerForSingleValueEvent(listener)
+        val ref = Firebase.database.reference.child("floor").orderByChild("public")
 
+        val listener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                Log.d("test", "${dataSnapshot.value}")
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.w("test", "onCancelled", databaseError.toException())
+            }
+        }
+        ref.addListenerForSingleValueEvent(listener)
 
         // 戻る
         val searchBackButton = findViewById<ImageButton>(R.id.searchBackButton)
