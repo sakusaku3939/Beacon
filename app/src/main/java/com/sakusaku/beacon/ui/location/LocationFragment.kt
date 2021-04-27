@@ -1,6 +1,5 @@
 package com.sakusaku.beacon.ui.location
 
-import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -43,7 +42,7 @@ class LocationFragment : Fragment() {
             teacherPeopleGrid.visibility = View.GONE
             teacherNoUser.visibility = View.GONE
 
-            RealtimeDatabaseUtils.floorUserExist(floor, "先生") { isExist ->
+            RealtimeDatabaseUtils.isFloorUserExist(floor, "先生") { isExist ->
                 val locationScrollView = root.findViewById<FrameLayout>(R.id.locationScrollView)
                 locationScrollView.scrollTo(0, 0)
                 thread {
@@ -73,7 +72,7 @@ class LocationFragment : Fragment() {
             studentPeopleGrid.visibility = View.GONE
             studentNoUser.visibility = View.GONE
 
-            RealtimeDatabaseUtils.floorUserExist(floor, "生徒") { isExist ->
+            RealtimeDatabaseUtils.isFloorUserExist(floor, "生徒") { isExist ->
                 thread {
                     handler.post {
                         progress.visibility = View.GONE

@@ -52,45 +52,17 @@ object RealtimeDatabaseUtils {
         }
     }
 
-    private fun getDisclosureRange(context: Context): String {
-        return when (PreferenceManager.getDefaultSharedPreferences(context)
-                .getString("preference_disclosure_range", "全体に公開")) {
-            "全体に公開" -> "public"
-            "生徒にのみ公開" -> "students_only"
-            else -> ""
-        }
-    }
-
-    fun floorUserExist(floor: Int, position: String, callback: (isExist: Boolean) -> (Unit)) {
+    fun isFloorUserExist(floor: Int, position: String, callback: (isExist: Boolean) -> (Unit)) {
         FirestoreUtils.getUserData { user ->
             GlobalScope.launch(Dispatchers.IO) {
-                val isExistPublic = async { asyncFloorUserExist(floor, "public", position) }
+                val isExistPublic = async { asyncIsFloorUserExist(floor, "public", position) }
                 if (user["position"] == "生徒") {
-                    val isExistOnly = async { asyncFloorUserExist(floor, "students_only", position) }
+                    val isExistOnly = async { asyncIsFloorUserExist(floor, "students_only", position) }
                     callback(isExistPublic.await() || isExistOnly.await())
                 } else {
                     callback(isExistPublic.await())
                 }
             }
-        }
-    }
-
-    private suspend fun asyncFloorUserExist(floor: Int, range: String, position: String): Boolean {
-        return suspendCoroutine { continuation ->
-            val ref = floorRef.child("${floor}F").child(range).orderByChild("position").equalTo(position)
-            val listener = object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    Log.d(TAG, "GetFloorUserData successfully ${dataSnapshot.value}")
-                    continuation.resume(dataSnapshot.value != null)
-                }
-
-                override fun onCancelled(databaseError: DatabaseError) {
-                    Log.w(TAG, "onCancelled", databaseError.toException())
-                    continuation.resume(false)
-                }
-            }
-            ref.addListenerForSingleValueEvent(listener)
-            return@suspendCoroutine
         }
     }
 
@@ -131,5 +103,33 @@ object RealtimeDatabaseUtils {
 
     fun removeAllUserLocationUpdateListener() {
         removeListenerList.forEach { it() }
+    }
+
+    private fun getDisclosureRange(context: Context): String {
+        return when (PreferenceManager.getDefaultSharedPreferences(context)
+                .getString("preference_disclosure_range", "全体に公開")) {
+            "全体に公開" -> "public"
+            "生徒にのみ公開" -> "students_only"
+            else -> ""
+        }
+    }
+
+    private suspend fun asyncIsFloorUserExist(floor: Int, range: String, position: String): Boolean {
+        return suspendCoroutine { continuation ->
+            val ref = floorRef.child("${floor}F").child(range).orderByChild("position").equalTo(position)
+            val listener = object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    Log.d(TAG, "GetFloorUserData successfully ${dataSnapshot.value}")
+                    continuation.resume(dataSnapshot.value != null)
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    Log.w(TAG, "onCancelled", databaseError.toException())
+                    continuation.resume(false)
+                }
+            }
+            ref.addListenerForSingleValueEvent(listener)
+            return@suspendCoroutine
+        }
     }
 }
