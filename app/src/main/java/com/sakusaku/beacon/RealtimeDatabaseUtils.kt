@@ -23,6 +23,13 @@ object RealtimeDatabaseUtils {
             val timestamp: Map<String, String> = ServerValue.TIMESTAMP
     )
 
+    /**
+     * 現在の位置情報を書き込むメソッド
+     *
+     * @param context Context (PreferenceManagerから取得するために使用)
+     * @param floor 階層
+     * @param location 位置情報
+     */
     fun writeUserLocation(context: Context, floor: Int, location: String) {
         val disclosureRange = getDisclosureRange(context)
         disclosureRange.takeIf { it.isNotEmpty() }?.let { range ->
@@ -40,6 +47,11 @@ object RealtimeDatabaseUtils {
         }
     }
 
+    /**
+     * 現在の位置情報を削除するメソッド
+     *
+     * @param context Context (PreferenceManagerから取得するために使用)
+     */
     fun deleteUserLocation(context: Context) {
         val disclosureRange = getDisclosureRange(context)
         disclosureRange.takeIf { it.isNotEmpty() }?.let { range ->
@@ -52,6 +64,13 @@ object RealtimeDatabaseUtils {
         }
     }
 
+    /**
+     * 指定された階に人がいるか調べるメソッド
+     *
+     * @param floor 階層
+     * @param position 位置情報
+     * @param callback: (isExist: Boolean) -> (Unit) ユーザーがいるかを返すコールバック関数
+     */
     fun isFloorUserExist(floor: Int, position: String, callback: (isExist: Boolean) -> (Unit)) {
         FirestoreUtils.getUserData { user ->
             GlobalScope.launch(Dispatchers.IO) {
@@ -66,6 +85,14 @@ object RealtimeDatabaseUtils {
         }
     }
 
+    /**
+     * floorノードの変更を監視するリスナーを返すメソッド
+     *
+     * state の中身: "USER_ADDED" or "USER_ADDED" or "USER_REMOVED"
+     *
+     * @param floor 階層
+     * @param callback: (dataSnapshot: DataSnapshot, state: String) -> (Unit) JSONツリーを返すコールバック関数
+     */
     fun userLocationUpdateListener(floor: Int, callback: (dataSnapshot: DataSnapshot, state: String) -> Unit) {
         fun setListener(f: (dataSnapshot: DataSnapshot, state: String) -> Unit, range: String): () -> Unit {
             val ref = floorRef.child("${floor}F").child(range)
@@ -101,6 +128,9 @@ object RealtimeDatabaseUtils {
         }
     }
 
+    /**
+     *  全てのfloorノードのリスナーを削除するメソッド
+     */
     fun removeAllUserLocationUpdateListener() {
         removeListenerList.forEach { it() }
     }
