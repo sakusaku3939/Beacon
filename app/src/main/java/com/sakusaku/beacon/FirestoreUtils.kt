@@ -92,7 +92,17 @@ object FirestoreUtils {
         } ?: callback(null)
     }
 
-    fun searchUser(name: String, region: String, subject: String/*, callback: (data: Map<String, String>?) -> Unit*/) {
+    /**
+     * ユーザーを検索するメソッド
+     *
+     * @param name 名前
+     * @param region 領域
+     * @param subject 教科
+     * @param callback: (onlineUserMap: Map<String, Any?>, offlineUserMap: Map<String, Any?>) -> (Unit)
+     *                  オンラインのユーザー、オフラインのユーザーを連想配列で返すコールバック関数
+     */
+    fun searchUser(name: String, region: String, subject: String,
+                   callback: (onlineUserMap: Map<String, Any?>, offlineUserMap: Map<String, Any?>) -> Unit) {
         val users = FirebaseFirestore.getInstance().collection("users")
         val conditionRole = when {
             region.isNotEmpty() && subject.isNotEmpty() ->
@@ -136,11 +146,13 @@ object FirestoreUtils {
                 }
 
                 // オンライン・オフラインでリスト分け
-                val onlineUserMap = getOnlineUserMap("public")
-                if (user?.get("position") == "生徒") (0..4).forEach { i -> onlineUserMap[i].addAll(getOnlineUserMap("students_only")[i]) }
-                val offlineUserMap = (userMapWithID + (0..4).map { i -> onlineUserMap[i]}.flatten()).groupBy { it["id"] }.filter { it.value.size == 1 }.flatMap { it.value }
+                val mutableOnlineUserMap = getOnlineUserMap("public")
+                if (user?.get("position") == "生徒") (0..4).forEach { i -> mutableOnlineUserMap[i].addAll(getOnlineUserMap("students_only")[i]) }
 
-                Log.d("test", offlineUserMap.toString())
+                val onlineUserMap = mutableOnlineUserMap.flatten()
+                val offlineUserMap = (userMapWithID + (0..4).map { i -> mutableOnlineUserMap[i] }.flatten()).groupBy { it["id"] }.filter { it.value.size == 1 }.flatMap { it.value }
+
+                callback(onlineUserMap[0], offlineUserMap[0])
             }
         }
     }
