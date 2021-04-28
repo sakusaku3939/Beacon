@@ -1,9 +1,13 @@
 package com.sakusaku.beacon
 
 import android.util.Log
-import android.widget.Toast
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.*
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 object FirestoreUtils {
     private const val TAG: String = "Firestore"
@@ -67,9 +71,8 @@ object FirestoreUtils {
      */
     fun loadUserData(callback: (data: Map<String, String>?) -> (Unit) = {}) {
         val db = FirebaseFirestore.getInstance()
-        val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
-        uid?.let {
-            db.collection("users").document(it)
+        FirebaseAuthUtils.getUserProfile()["uid"]?.toString()?.let { uid ->
+            db.collection("users").document(uid)
                     .get()
                     .addOnSuccessListener { document ->
                         if (document != null) {
@@ -89,6 +92,59 @@ object FirestoreUtils {
         } ?: callback(null)
     }
 
+    fun searchUser(name: String, region: String, subject: String/*, callback: (data: Map<String, String>?) -> Unit*/) {
+        val users = FirebaseFirestore.getInstance().collection("users")
+        val conditionRole = when {
+            region.isNotEmpty() && subject.isNotEmpty() ->
+                users.whereEqualTo("region", region).whereEqualTo("subject", subject)
+            region.isNotEmpty() ->
+                users.whereEqualTo("region", region)
+            subject.isNotEmpty() ->
+                users.whereEqualTo("subject", subject)
+            else -> users
+        }
+        val conditionName = when {
+            name.isNotEmpty() ->
+                conditionRole.orderBy("name").startAt(name).endAt(name + "\uf8ff")
+            else -> conditionRole
+        }
+
+        GlobalScope.launch(Dispatchers.IO) {
+            val deferredFloorData = async { RealtimeDatabaseUtils.asyncFloorData() }
+            val deferredUserData = async { asyncConditionUserData(conditionName) }
+            val floorData = deferredFloorData.await()
+            val userData = deferredUserData.await()
+            if (userData != null) {
+                // Firestoreのユーザーデータを連想配列化
+                val userMap: List<Map<String, String?>> = userData.map { user -> user.data.keys.zip(user.data.values).associateBy({ it.first }, { it.second?.toString() }) }
+
+                // 連想配列にIDを挿入
+                val idList = userData.map { it.id }
+                val userMapWithID = userMap.mapIndexed { i, map -> map.plus("id" to idList[i]) }
+
+                // FirebaseのユーザーデータとRealtime Databaseの位置情報データを結合
+                val getFloorDataChild = { range: String -> (1..5).map { i -> floorData?.child("${i}F")?.child(range) } }
+                val getOnlineUserMap = { range: String ->
+                    (0..4).map { i ->
+                        userMapWithID.filter {
+                            getFloorDataChild(range)[i]?.hasChild(it["id"] ?: "") ?: false
+                        }.map {
+                            it.plus("location" to (getFloorDataChild(range)[i]?.child(it["id"]
+                                    ?: "")?.child("location")?.value ?: "なし"))
+                        }.toMutableList()
+                    }
+                }
+
+                // オンライン・オフラインでリスト分け
+                val onlineUserMap = getOnlineUserMap("public")
+                if (user?.get("position") == "生徒") (0..4).forEach { i -> onlineUserMap[i].addAll(getOnlineUserMap("students_only")[i]) }
+                val offlineUserMap = (userMapWithID + (0..4).map { i -> onlineUserMap[i]}.flatten()).groupBy { it["id"] }.filter { it.value.size == 1 }.flatMap { it.value }
+
+                Log.d("test", offlineUserMap.toString())
+            }
+        }
+    }
+
     private fun userDataUtils(updateMode: String, position: String?, region: String?, subject: String?, callback: (isSuccess: Boolean) -> (Unit) = {}) {
         val db = FirebaseFirestore.getInstance()
         val user = hashMapOf(
@@ -97,9 +153,8 @@ object FirestoreUtils {
                 "subject" to subject
         ).filter { it.value != null }
 
-        val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
-        uid?.takeIf { user.isNotEmpty() }?.let {
-            val document = db.collection("users").document(it)
+        FirebaseAuthUtils.getUserProfile()["uid"]?.toString()?.takeIf { user.isNotEmpty() }?.let { uid ->
+            val document = db.collection("users").document(uid)
             val task = when (updateMode) {
                 "written" -> document.set(user)
                 "update" -> document.set(user, SetOptions.merge())
@@ -113,5 +168,23 @@ object FirestoreUtils {
                 callback(false)
             }
         } ?: callback(true)
+    }
+
+    private suspend fun asyncConditionUserData(conditionDB: Query): QuerySnapshot? {
+        return suspendCoroutine { continuation ->
+            conditionDB.get().addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    Log.d(TAG, "ConditionUserData successfully")
+                    continuation.resume(documents)
+                } else {
+                    Log.d(TAG, "None")
+                    continuation.resume(null)
+                }
+            }.addOnFailureListener { exception ->
+                Log.d("test", "get failed with ", exception)
+                continuation.resume(null)
+            }
+            return@suspendCoroutine
+        }
     }
 }

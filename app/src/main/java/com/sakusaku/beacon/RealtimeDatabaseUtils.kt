@@ -33,10 +33,9 @@ object RealtimeDatabaseUtils {
     fun writeUserLocation(context: Context, floor: Int, location: String) {
         val disclosureRange = getDisclosureRange(context)
         disclosureRange.takeIf { it.isNotEmpty() }?.let { range ->
-            val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
-            uid?.let {
+            FirebaseAuthUtils.getUserProfile()["uid"]?.toString()?.let { uid ->
                 FirestoreUtils.getUserData { user ->
-                    val ref = floorRef.child("${floor}F").child(range).child(it)
+                    val ref = floorRef.child("${floor}F").child(range).child(uid)
                     val data = UserLocation(user["name"]!!, location, user["position"]!!)
                     ref.setValue(data)
 
@@ -55,9 +54,8 @@ object RealtimeDatabaseUtils {
     fun deleteUserLocation(context: Context) {
         val disclosureRange = getDisclosureRange(context)
         disclosureRange.takeIf { it.isNotEmpty() }?.let { range ->
-            val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
-            uid?.let {
-                val ref = floorRef.child("${currentFloor}F").child(range).child(it)
+            FirebaseAuthUtils.getUserProfile()["uid"]?.toString()?.let { uid ->
+                val ref = floorRef.child("${currentFloor}F").child(range).child(uid)
                 ref.removeValue()
                 currentFloor = 0
             }
@@ -74,9 +72,9 @@ object RealtimeDatabaseUtils {
     fun isFloorUserExist(floor: Int, position: String, callback: (isExist: Boolean) -> (Unit)) {
         FirestoreUtils.getUserData { user ->
             GlobalScope.launch(Dispatchers.IO) {
-                val isExistPublic = async { asyncIsFloorUserExist(floor, "public", position) }
+                val isExistPublic = async { asyncFloorUserExist(floor, "public", position) }
                 if (user["position"] == "生徒") {
-                    val isExistOnly = async { asyncIsFloorUserExist(floor, "students_only", position) }
+                    val isExistOnly = async { asyncFloorUserExist(floor, "students_only", position) }
                     callback(isExistPublic.await() || isExistOnly.await())
                 } else {
                     callback(isExistPublic.await())
@@ -135,6 +133,29 @@ object RealtimeDatabaseUtils {
         removeListenerList.forEach { it() }
     }
 
+    /**
+     * floorノードの変更を監視するリスナーを返すメソッド (async)
+     *
+     * @return DataSnapshot
+     */
+    suspend fun asyncFloorData(): DataSnapshot? {
+        return suspendCoroutine { continuation ->
+            val listener = object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    Log.d(TAG, "GetFloorData successfully")
+                    continuation.resume(dataSnapshot)
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    Log.w(TAG, "onCancelled", databaseError.toException())
+                    continuation.resume(null)
+                }
+            }
+            floorRef.addListenerForSingleValueEvent(listener)
+            return@suspendCoroutine
+        }
+    }
+
     private fun getDisclosureRange(context: Context): String {
         return when (PreferenceManager.getDefaultSharedPreferences(context)
                 .getString("preference_disclosure_range", "全体に公開")) {
@@ -144,12 +165,12 @@ object RealtimeDatabaseUtils {
         }
     }
 
-    private suspend fun asyncIsFloorUserExist(floor: Int, range: String, position: String): Boolean {
+    private suspend fun asyncFloorUserExist(floor: Int, range: String, position: String): Boolean {
         return suspendCoroutine { continuation ->
             val ref = floorRef.child("${floor}F").child(range).orderByChild("position").equalTo(position)
             val listener = object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    Log.d(TAG, "GetFloorUserData successfully ${dataSnapshot.value}")
+                    Log.d(TAG, "GetFloorUserData successfully")
                     continuation.resume(dataSnapshot.value != null)
                 }
 

@@ -58,9 +58,9 @@ class SearchFragment : Fragment() {
         val searchBar = root.findViewById<LinearLayout>(R.id.searchBar)
         searchBar.setOnClickListener {
             val region = if (radioRegion.checkedRadioButtonId != -1)
-                root.findViewById<RadioButton>(radioRegion.checkedRadioButtonId).text else null
+                root.findViewById<RadioButton>(radioRegion.checkedRadioButtonId).text else ""
             val subject = if (radioSubject.checkedRadioButtonId != -1)
-                root.findViewById<RadioButton>(radioSubject.checkedRadioButtonId).text else null
+                root.findViewById<RadioButton>(radioSubject.checkedRadioButtonId).text else ""
 
             val intent = Intent(requireActivity(), SearchActivity::class.java)
             if (searchFilter.visibility == View.VISIBLE) {
