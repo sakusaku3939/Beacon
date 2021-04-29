@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:hint="@string/onboarding_name_hint"
-        android:maxLength="10"
         android:inputType="textMultiLine"
         android:textColor="@color/white"
         android:textSize="24sp"
