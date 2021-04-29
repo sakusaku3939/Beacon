@@ -1,10 +1,15 @@
 package com.sakusaku.beacon.ui.search
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
+import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,8 +33,8 @@ class SearchActivity : AppCompatActivity() {
         val handler = Handler()
         val searchList = arrayListOf<SearchList>()
         val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeRefresh)
-        val searchUserUpdate = {
-            // 検索結果の中身をリセット
+        val searchUserUpdate = { name: String ->
+            // 検索結果リストをリセット
             thread {
                 handler.post {
                     searchList.clear()
@@ -37,14 +42,16 @@ class SearchActivity : AppCompatActivity() {
                 }
             }
             // 取得したデータを検索結果に反映
-            FirestoreUtils.searchUser("", region, subject) { onlineUserMap, offlineUserMap ->
+            FirestoreUtils.searchUser(name, region, subject) { onlineUserMap, offlineUserMap ->
                 swipeRefresh.isRefreshing = false
                 val getStrVal = { map: Map<String, Any?>, key: String ->
                     map[key]?.toString() ?: ""
                 }
-                val addList = {map: List<Map<String, Any?>>, state: Boolean -> map.forEach {
-                    searchList.add(SearchList(getStrVal(it, "name"), getStrVal(it, "position"), getStrVal(it, "location"), state))
-                }}
+                val addList = { map: List<Map<String, Any?>>, state: Boolean ->
+                    map.forEach {
+                        searchList.add(SearchList(getStrVal(it, "name"), getStrVal(it, "position"), getStrVal(it, "location"), state))
+                    }
+                }
                 addList(onlineUserMap, true)
                 addList(offlineUserMap, false)
                 thread {
@@ -58,14 +65,32 @@ class SearchActivity : AppCompatActivity() {
         // 初回読み込み
         swipeRefresh.post {
             swipeRefresh.isRefreshing = true
-            searchUserUpdate()
-        }
-        // リロードが実行された時
-        swipeRefresh.setOnRefreshListener {
-            searchUserUpdate()
+            searchUserUpdate("")
         }
 
-        // 戻る
+        // 入力完了を検知したら検索結果読み込み
+        var latestSearchText = ""
+        val searchEditText = findViewById<EditText>(R.id.searchEditText)
+        searchEditText.setOnKeyListener { v, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
+                val inputMethodManager = applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(v.windowToken, InputMethodManager.RESULT_UNCHANGED_SHOWN)
+                swipeRefresh.post {
+                    swipeRefresh.isRefreshing = true
+                    latestSearchText = searchEditText.text.toString()
+                    searchUserUpdate(latestSearchText)
+                }
+                return@setOnKeyListener true
+            }
+            return@setOnKeyListener false
+        }
+
+        // リロードが実行された時
+        swipeRefresh.setOnRefreshListener {
+            searchUserUpdate(latestSearchText)
+        }
+
+        // 戻るボタン
         val searchBackButton = findViewById<ImageButton>(R.id.searchBackButton)
         searchBackButton.setOnClickListener {
             finish()
@@ -77,5 +102,13 @@ class SearchActivity : AppCompatActivity() {
         super.onBackPressed()
         overridePendingTransition(0, 0)
         finish()
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        val searchToolbar = findViewById<LinearLayout>(R.id.searchToolBar)
+        val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(searchToolbar.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+        searchToolbar.requestFocus()
+        return super.dispatchTouchEvent(event)
     }
 }

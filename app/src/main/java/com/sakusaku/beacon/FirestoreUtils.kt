@@ -153,6 +153,8 @@ object FirestoreUtils {
                 val offlineUserMap = (userMapWithID + (0..4).map { i -> mutableOnlineUserMap[i] }.flatten()).groupBy { it["id"] }.filter { it.value.size == 1 }.flatMap { it.value }
 
                 callback(onlineUserMap, offlineUserMap)
+            } else {
+                callback(listOf(), listOf())
             }
         }
     }
