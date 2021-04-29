@@ -98,11 +98,11 @@ object FirestoreUtils {
      * @param name 名前
      * @param region 領域
      * @param subject 教科
-     * @param callback: (onlineUserMap: Map<String, Any?>, offlineUserMap: Map<String, Any?>) -> (Unit)
+     * @param callback: callback: (onlineUserMap: List<Map<String, Any?>>, offlineUserMap: List<Map<String, Any?>>) -> (Unit)
      *                  オンラインのユーザー、オフラインのユーザーを連想配列で返すコールバック関数
      */
     fun searchUser(name: String, region: String, subject: String,
-                   callback: (onlineUserMap: Map<String, Any?>, offlineUserMap: Map<String, Any?>) -> Unit) {
+                   callback: (onlineUserMap: List<Map<String, Any?>>, offlineUserMap: List<Map<String, Any?>>) -> Unit) {
         val users = FirebaseFirestore.getInstance().collection("users")
         val conditionRole = when {
             region.isNotEmpty() && subject.isNotEmpty() ->
@@ -152,7 +152,7 @@ object FirestoreUtils {
                 val onlineUserMap = mutableOnlineUserMap.flatten()
                 val offlineUserMap = (userMapWithID + (0..4).map { i -> mutableOnlineUserMap[i] }.flatten()).groupBy { it["id"] }.filter { it.value.size == 1 }.flatMap { it.value }
 
-                callback(onlineUserMap[0], offlineUserMap[0])
+                callback(onlineUserMap, offlineUserMap)
             }
         }
     }
