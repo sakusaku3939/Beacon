@@ -3,6 +3,9 @@ package com.sakusaku.beacon.ui.search
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
+import android.text.Editable
+import android.text.InputFilter
+import android.text.TextWatcher
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.WindowManager
@@ -84,6 +87,19 @@ class SearchActivity : AppCompatActivity() {
             }
             return@setOnKeyListener false
         }
+
+        // 入力欄が空になったら再読み込み
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun afterTextChanged(s: Editable) {
+                if (s.isEmpty()) swipeRefresh.post {
+                    swipeRefresh.isRefreshing = true
+                    latestSearchText = searchEditText.text.toString()
+                    searchUserUpdate(latestSearchText)
+                }
+            }
+        })
 
         // リロードが実行された時
         swipeRefresh.setOnRefreshListener {
