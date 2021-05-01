@@ -53,4 +53,9 @@
     <string name="preference_privacy_policy">プライバシーポリシー</string>
     <string name="preference_oss_license">オープンソースライセンス</string>
     <string name="preference_footer">©2020 sakusaku3939</string>
+    <string name="account_setting">プロフィールを編集</string>
+    <string name="account_setting_name">名前</string>
+    <string name="account_setting_region">領域</string>
+    <string name="account_setting_subject">教科</string>
+    <string name="account_setting_save">変更を保存</string>
 </resources>

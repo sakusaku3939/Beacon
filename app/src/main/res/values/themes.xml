@@ -25,6 +25,13 @@
         <item name="android:textColorPrimary">@color/black</item>
     </style>
 
+    <style name="WhiteActionBarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="title">@string/app_name</item>
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="android:textColorPrimary">@color/black</item>
+    </style>
+
     <style name="ActionBarSubtitleAppearance" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
         <item name="android:textSize">14sp</item>
     </style>

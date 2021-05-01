@@ -10,4 +10,26 @@
         <item>中間</item>
         <item>長い</item>
     </string-array>
+    <string-array name="array_region">
+        <item>@string/radio_region_IT</item>
+        <item>@string/radio_region_ET</item>
+        <item>@string/radio_region_BT</item>
+        <item>@string/radio_region_NT</item>
+    </string-array>
+    <string-array name="array_subject">
+        <item>@string/radio_subject_physics</item>
+        <item>@string/radio_subject_science</item>
+        <item>@string/radio_subject_biology</item>
+        <item>@string/radio_subject_math</item>
+        <item>@string/radio_subject_english</item>
+        <item>@string/radio_subject_modern</item>
+        <item>@string/radio_subject_geography</item>
+        <item>@string/radio_subject_pe</item>
+        <item>@string/radio_subject_he</item>
+        <item>@string/radio_subject_art</item>
+        <item>@string/radio_subject_other</item>
+    </string-array>
+    <string-array name="array_none">
+        <item>なし</item>
+    </string-array>
 </resources>

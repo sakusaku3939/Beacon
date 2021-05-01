@@ -176,6 +176,7 @@ object FirestoreUtils {
             }
             task.addOnSuccessListener {
                 Log.d(TAG, "DocumentSnapshot successfully $updateMode!")
+                this.user = null
                 callback(true)
             }.addOnFailureListener { e ->
                 Log.w(TAG, "Error $updateMode document", e)

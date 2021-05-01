@@ -50,6 +50,9 @@ class AccountFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preference_app_setting, rootKey)
 
+        val account = findPreference<AccountPreference>("preference_account")
+        account?.intent = Intent(requireActivity(), AccountSettingActivity::class.java)
+
         // ビーコンスキャン中の場合「プライバシー設定」のクリック無効化
         val pref = PreferenceManager.getDefaultSharedPreferences(context)
         val disclosureRange = findPreference<ListPreference>("preference_disclosure_range")
@@ -57,7 +60,6 @@ class AccountFragment : PreferenceFragmentCompat() {
 
         // OSSライセンス表示画面へのIntentを設定
         val oss = findPreference<PreferenceScreen>("preference_oss_license")
-        val intent = Intent(requireActivity(), OssLicensesMenuActivity::class.java)
-        oss?.intent = intent
+        oss?.intent = Intent(requireActivity(), OssLicensesMenuActivity::class.java)
     }
 }
