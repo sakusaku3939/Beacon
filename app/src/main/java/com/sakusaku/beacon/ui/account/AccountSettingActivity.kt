@@ -1,16 +1,26 @@
 package com.sakusaku.beacon.ui.account
 
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.cardview.widget.CardView
 import com.sakusaku.beacon.FirebaseAuthUtils
 import com.sakusaku.beacon.FirestoreUtils
 import com.sakusaku.beacon.NameRestriction
 import com.sakusaku.beacon.R
 
+
 class AccountSettingActivity : AppCompatActivity() {
+    companion object {
+        private const val READ_REQUEST_CODE: Int = 42
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirestoreUtils.getUserData { user ->
@@ -19,9 +29,20 @@ class AccountSettingActivity : AppCompatActivity() {
             val toolbar = findViewById<Toolbar>(R.id.accountSettingToolbar)
             toolbar.setNavigationOnClickListener { onBackPressed() }
 
+            val image = findViewById<CardView>(R.id.cardView)
+            image.setOnClickListener {
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "image/*"
+                }
+                startActivityForResult(intent, READ_REQUEST_CODE)
+            }
+
             val name = findViewById<EditText>(R.id.accountNameEdit)
             name.setText(FirebaseAuthUtils.getUserProfile()["name"].toString())
             NameRestriction.add(name)
+
+            Log.d("test", FirebaseAuthUtils.getUserProfile()["photoUrl"].toString())
 
             val regionSpinner = findViewById<Spinner>(R.id.accountRegionSpinner)
             val subjectSpinner = findViewById<Spinner>(R.id.accountSubjectSpinner)
@@ -44,15 +65,25 @@ class AccountSettingActivity : AppCompatActivity() {
 
             val saveButton = findViewById<Button>(R.id.accountSaveButton)
             saveButton.setOnClickListener {
-                val region = if (isPositionTeacher(user)) regionSpinner.selectedItem.toString() else null
-                val subject = if (isPositionTeacher(user)) subjectSpinner.selectedItem.toString() else null
-                if (isInputFieldChange(user)) FirestoreUtils.updateUserData(region = region, subject = subject) { isSuccess ->
-                    if (isSuccess) {
-                        FirebaseAuthUtils.updateProfile(name.text.toString())
-                        Toast.makeText(this, "プロフィールを更新しました", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this, "プロフィールの更新に失敗しました", Toast.LENGTH_SHORT).show()
+                if (name.text.isNotEmpty()) {
+                    val region = if (isPositionTeacher(user)) regionSpinner.selectedItem.toString() else null
+                    val subject = if (isPositionTeacher(user)) subjectSpinner.selectedItem.toString() else null
+
+                    if (isInputFieldChange(user)) FirestoreUtils.updateUserData(region = region, subject = subject) { isSuccess ->
+                        if (isSuccess) {
+                            FirebaseAuthUtils.updateProfile(name.text.toString()) { isSuccess2 ->
+                                if (isSuccess2) {
+                                    Toast.makeText(this, "プロフィールを更新しました", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(this, "プロフィールの更新に失敗しました", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        } else {
+                            Toast.makeText(this, "プロフィールの更新に失敗しました", Toast.LENGTH_SHORT).show()
+                        }
                     }
+                } else {
+                    name.error = "文字を入力してください"
                 }
             }
         }
@@ -66,6 +97,34 @@ class AccountSettingActivity : AppCompatActivity() {
                     .setNegativeButton("キャンセル") { _, _ -> }
                     .show()
             else super.onBackPressed()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
+        super.onActivityResult(requestCode, resultCode, resultData)
+        if (resultCode != RESULT_OK) {
+            return
+        }
+        when (requestCode) {
+            READ_REQUEST_CODE -> {
+                try {
+                    resultData?.data?.also { uri ->
+                        val inputStream = contentResolver?.openInputStream(uri)
+                        val image = BitmapFactory.decodeStream(inputStream)
+
+                        val width = (image.width * 0.7f).toInt()
+                        val height = (image.height * 0.7f).toInt()
+                        val startX = (image.width - width) / 2
+                        val startY = (image.height - height) / 2
+                        val afterResizeImage = Bitmap.createBitmap(image, startX, startY, width, height, null, true);
+
+                        val profilePhoto = findViewById<ImageView>(R.id.profilePhoto)
+                        profilePhoto.setImageBitmap(afterResizeImage)
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(this, "画像読み込み時にエラーが発生しました", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 

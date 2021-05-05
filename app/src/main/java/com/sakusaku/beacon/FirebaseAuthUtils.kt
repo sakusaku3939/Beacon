@@ -2,6 +2,7 @@ package com.sakusaku.beacon
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.preference.PreferenceManager
 import com.google.android.gms.tasks.Task
@@ -59,24 +60,29 @@ object FirebaseAuthUtils {
         }
     }
 
-    fun updateProfile(name: String?, callback: (Task<Void>) -> (Unit) = {}) {
+    fun updateProfile(name: String? = null, photoUrl: String? = null, callback: (isSuccessful: Boolean) -> (Unit) = {}) {
         val user = Firebase.auth.currentUser
-
-        name?.let {
-            val profileUpdates = userProfileChangeRequest {
-                displayName = name
+        val profileUpdates = userProfileChangeRequest {
+            when {
+                !name.isNullOrEmpty() && !photoUrl.isNullOrEmpty() -> {
+                    displayName = name
+                    photoUri = Uri.parse(photoUrl)
+                }
+                !name.isNullOrEmpty() -> displayName = name
+                !photoUrl.isNullOrEmpty() -> photoUri = Uri.parse(photoUrl)
+                else -> return
             }
-
-            user?.updateProfile(profileUpdates)
-                    ?.addOnCompleteListener { task ->
-                        callback(task)
-                        if (task.isSuccessful) {
-                            Log.d(TAG, "User profile updated.")
-                        }
-                    }
-
-            FirestoreUtils.addName(name)
         }
+
+        user?.updateProfile(profileUpdates)
+                ?.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d(TAG, "User profile updated.")
+                    }
+                    callback(task.isSuccessful)
+                }
+
+        name?.let { FirestoreUtils.addName(name) }
     }
 
     fun getUserProfile(): Map<String, Any?> {
@@ -85,7 +91,7 @@ object FirebaseAuthUtils {
                 "name" to user?.displayName,
                 "email" to user?.email,
                 "emailVerified" to user?.isEmailVerified,
+                "photoUrl" to user?.photoUrl,
                 "uid" to user?.uid)
     }
-
 }
