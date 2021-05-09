@@ -36,6 +36,8 @@ class SearchActivity : AppCompatActivity() {
         val handler = Handler()
         val searchList = arrayListOf<SearchList>()
         val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeRefresh)
+        swipeRefresh.isEnabled = false
+
         val searchUserUpdate = { name: String ->
             // 検索結果リストをリセット
             thread {
