@@ -19,7 +19,7 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_gravity="center"
-        android:backgroundTint="#5504B2D9"
+        android:backgroundTint="@color/white"
         app:cardCornerRadius="12dp"
         app:cardElevation="0dp">
 
