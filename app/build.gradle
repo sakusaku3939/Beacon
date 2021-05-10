@@ -62,6 +62,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'
     implementation 'com.skyfishjy.ripplebackground:library:1.0.1'
     implementation 'com.google.firebase:firebase-database-ktx'
+    implementation 'com.google.firebase:firebase-storage-ktx'
 }
 
 apply plugin: 'com.google.gms.google-services'

@@ -10,10 +10,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.cardview.widget.CardView
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import com.sakusaku.beacon.FirebaseAuthUtils
 import com.sakusaku.beacon.FirestoreUtils
 import com.sakusaku.beacon.NameRestriction
 import com.sakusaku.beacon.R
+import java.io.ByteArrayOutputStream
 
 
 class AccountSettingActivity : AppCompatActivity() {
@@ -39,10 +42,8 @@ class AccountSettingActivity : AppCompatActivity() {
             }
 
             val name = findViewById<EditText>(R.id.accountNameEdit)
-            name.setText(FirebaseAuthUtils.getUserProfile()["name"].toString())
+            name.setText(FirebaseAuthUtils.name.toString())
             NameRestriction.add(name)
-
-            Log.d("test", FirebaseAuthUtils.getUserProfile()["photoUrl"].toString())
 
             val regionSpinner = findViewById<Spinner>(R.id.accountRegionSpinner)
             val subjectSpinner = findViewById<Spinner>(R.id.accountSubjectSpinner)
@@ -110,16 +111,28 @@ class AccountSettingActivity : AppCompatActivity() {
                 try {
                     resultData?.data?.also { uri ->
                         val inputStream = contentResolver?.openInputStream(uri)
-                        val image = BitmapFactory.decodeStream(inputStream)
+                        val bitmap = BitmapFactory.decodeStream(inputStream)
 
-                        val width = (image.width * 0.7f).toInt()
-                        val height = (image.height * 0.7f).toInt()
-                        val startX = (image.width - width) / 2
-                        val startY = (image.height - height) / 2
-                        val afterResizeImage = Bitmap.createBitmap(image, startX, startY, width, height, null, true);
+                        val width = (bitmap.width * 0.7f).toInt()
+                        val height = (bitmap.height * 0.7f).toInt()
+                        val startX = (bitmap.width - width) / 2
+                        val startY = (bitmap.height - height) / 2
+                        val afterResizeBitmap = Bitmap.createBitmap(bitmap, startX, startY, width, height, null, true);
 
                         val profilePhoto = findViewById<ImageView>(R.id.profilePhoto)
-                        profilePhoto.setImageBitmap(afterResizeImage)
+                        profilePhoto.setImageBitmap(afterResizeBitmap)
+
+                        val stream = ByteArrayOutputStream()
+                        afterResizeBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                        val data = stream.toByteArray()
+
+                        val reference = Firebase.storage.reference.child("users/${FirebaseAuthUtils.uid}/profile_picture.jpg")
+                        val uploadTask = reference.putBytes(data)
+                        uploadTask.addOnFailureListener {
+                            // Handle unsuccessful uploads
+                        }.addOnSuccessListener {
+                            Log.d("test", "ok")
+                        }
                     }
                 } catch (e: Exception) {
                     Toast.makeText(this, "画像読み込み時にエラーが発生しました", Toast.LENGTH_LONG).show()
@@ -133,7 +146,7 @@ class AccountSettingActivity : AppCompatActivity() {
         val region = findViewById<Spinner>(R.id.accountRegionSpinner)
         val subject = findViewById<Spinner>(R.id.accountSubjectSpinner)
         return when {
-            name.text.toString() != FirebaseAuthUtils.getUserProfile()["name"].toString() -> true
+            name.text.toString() != FirebaseAuthUtils.name.toString() -> true
             isPositionTeacher(user) &&
                     (region.selectedItem.toString() != user["region"] || subject.selectedItem.toString() != user["subject"]) -> true
             else -> false
