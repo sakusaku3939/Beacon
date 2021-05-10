@@ -23,7 +23,7 @@ class GetStartedFragment : Fragment() {
         getStarted.setOnClickListener {
             // 画像にぼかしを入れる
             Handler().postDelayed({ blurImage.setBlur(5) }, 100)
-            val isEmailVerified = FirebaseAuthUtils.getUserProfile()["emailVerified"]
+            val isEmailVerified = FirebaseAuthUtils.emailVerified
             isEmailVerified?.let {
                 FragmentUtil.existsUserData(requireActivity(), blurImage)
             } ?: FragmentUtil.replaceFragment(requireActivity(), EmailEntryFragment())

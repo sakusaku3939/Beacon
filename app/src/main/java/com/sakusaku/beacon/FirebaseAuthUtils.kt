@@ -16,6 +16,12 @@ import com.google.firebase.ktx.Firebase
 object FirebaseAuthUtils {
     private const val TAG: String = "Firebase"
 
+    val name: String? = Firebase.auth.currentUser?.displayName
+    val email: String? = Firebase.auth.currentUser?.email
+    val emailVerified: Boolean? = Firebase.auth.currentUser?.isEmailVerified
+    val photoUrl: Uri? = Firebase.auth.currentUser?.photoUrl
+    val uid: String? = Firebase.auth.currentUser?.uid
+
     fun isSignIn(): Boolean = Firebase.auth.currentUser != null
 
     fun signOut() {
@@ -83,15 +89,5 @@ object FirebaseAuthUtils {
                 }
 
         name?.let { FirestoreUtils.addName(name) }
-    }
-
-    fun getUserProfile(): Map<String, Any?> {
-        val user = Firebase.auth.currentUser
-        return mapOf(
-                "name" to user?.displayName,
-                "email" to user?.email,
-                "emailVerified" to user?.isEmailVerified,
-                "photoUrl" to user?.photoUrl,
-                "uid" to user?.uid)
     }
 }

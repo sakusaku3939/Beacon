@@ -23,7 +23,7 @@ class AccountFragment : PreferenceFragmentCompat() {
 
         // 名前の表示
         val account = findPreference<AccountPreference>("preference_account")!!
-        account.title = FirebaseAuthUtils.getUserProfile()["name"].toString()
+        account.title = FirebaseAuthUtils.name.toString()
 
         // ログアウト押下時の処理
         account.setOnLogoutClickListener(object : AccountPreference.OnLogoutClickListener {

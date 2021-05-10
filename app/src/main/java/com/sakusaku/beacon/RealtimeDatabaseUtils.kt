@@ -33,7 +33,7 @@ object RealtimeDatabaseUtils {
     fun writeUserLocation(context: Context, floor: Int, location: String) {
         val disclosureRange = getDisclosureRange(context)
         disclosureRange.takeIf { it.isNotEmpty() }?.let { range ->
-            FirebaseAuthUtils.getUserProfile()["uid"]?.toString()?.let { uid ->
+            FirebaseAuthUtils.uid?.let { uid ->
                 FirestoreUtils.getUserData { user ->
                     val ref = floorRef.child("${floor}F").child(range).child(uid)
                     val data = UserLocation(user["name"]!!, location, user["position"]!!)
@@ -54,7 +54,7 @@ object RealtimeDatabaseUtils {
     fun deleteUserLocation(context: Context) {
         val disclosureRange = getDisclosureRange(context)
         disclosureRange.takeIf { it.isNotEmpty() }?.let { range ->
-            FirebaseAuthUtils.getUserProfile()["uid"]?.toString()?.let { uid ->
+            FirebaseAuthUtils.uid?.let { uid ->
                 val ref = floorRef.child("${currentFloor}F").child(range).child(uid)
                 ref.removeValue()
                 currentFloor = 0

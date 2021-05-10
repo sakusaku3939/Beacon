@@ -46,8 +46,9 @@ object FirestoreUtils {
         val db = FirebaseFirestore.getInstance()
         val user = hashMapOf("name" to name)
 
-        val uid = FirebaseAuthUtils.getUserProfile()["uid"] as String?
-        uid?.let { db.collection("users").document(it).set(user, SetOptions.merge()) }
+        FirebaseAuthUtils.uid?.let {
+            db.collection("users").document(it).set(user, SetOptions.merge())
+        }
     }
 
     /**
@@ -71,7 +72,7 @@ object FirestoreUtils {
      */
     fun loadUserData(callback: (data: Map<String, String>?) -> (Unit) = {}) {
         val db = FirebaseFirestore.getInstance()
-        FirebaseAuthUtils.getUserProfile()["uid"]?.toString()?.let { uid ->
+        FirebaseAuthUtils.uid?.let { uid ->
             db.collection("users").document(uid)
                     .get()
                     .addOnSuccessListener { document ->
@@ -167,7 +168,7 @@ object FirestoreUtils {
                 "subject" to subject
         ).filter { it.value != null }
 
-        FirebaseAuthUtils.getUserProfile()["uid"]?.toString()?.takeIf { user.isNotEmpty() }?.let { uid ->
+        FirebaseAuthUtils.uid?.takeIf { user.isNotEmpty() }?.let { uid ->
             val document = db.collection("users").document(uid)
             val task = when (updateMode) {
                 "written" -> document.set(user)
