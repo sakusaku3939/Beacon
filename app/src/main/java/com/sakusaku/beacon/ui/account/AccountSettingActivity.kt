@@ -5,22 +5,19 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.cardview.widget.CardView
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
-import com.sakusaku.beacon.FirebaseAuthUtils
-import com.sakusaku.beacon.FirestoreUtils
-import com.sakusaku.beacon.NameRestriction
-import com.sakusaku.beacon.R
+import com.sakusaku.beacon.*
 import com.yalantis.ucrop.UCrop
-import java.io.ByteArrayOutputStream
+import kotlinx.coroutines.*
 import java.io.File
 import java.util.*
+import kotlin.concurrent.thread
 
 
 class AccountSettingActivity : AppCompatActivity() {
@@ -28,8 +25,12 @@ class AccountSettingActivity : AppCompatActivity() {
         private const val READ_REQUEST_CODE: Int = 42
     }
 
+    private var newProfileBitmap: Bitmap? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val handler = Handler()
+
         FirestoreUtils.getUserData { user ->
             setContentView(R.layout.account_setting_activity)
 
@@ -74,17 +75,23 @@ class AccountSettingActivity : AppCompatActivity() {
                     val region = if (isPositionTeacher(user)) regionSpinner.selectedItem.toString() else null
                     val subject = if (isPositionTeacher(user)) subjectSpinner.selectedItem.toString() else null
 
-                    if (isInputFieldChange(user)) FirestoreUtils.updateUserData(region = region, subject = subject) { isSuccess ->
-                        if (isSuccess) {
-                            FirebaseAuthUtils.updateProfile(name.text.toString()) { isSuccess2 ->
-                                if (isSuccess2) {
-                                    Toast.makeText(this, "プロフィールを更新しました", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    Toast.makeText(this, "プロフィールの更新に失敗しました", Toast.LENGTH_SHORT).show()
-                                }
+                    GlobalScope.launch {
+                        val downloadUrl = newProfileBitmap?.let {
+                            val uploadProfileImage = async { CloudStorageUtils.uploadProfileImage(it) }
+                            if (uploadProfileImage.await()) {
+                                newProfileBitmap = null
+                                val downloadUrl = async { CloudStorageUtils.getDownloadUrl() }
+                                downloadUrl.await().toString()
+                            } else null
+                        }
+                        val updateUser = async { FirestoreUtils.asyncUpdateUserData(region = region, subject = subject) }
+                        val updateProfile = async { FirebaseAuthUtils.asyncUpdateProfile(name = name.text.toString(), photoUri = downloadUrl) }
+
+                        val resultToast = if (updateUser.await() && updateProfile.await()) "プロフィールを更新しました" else "プロフィールの更新に失敗しました"
+                        thread {
+                            handler.post {
+                                Toast.makeText(applicationContext, resultToast, Toast.LENGTH_SHORT).show()
                             }
-                        } else {
-                            Toast.makeText(this, "プロフィールの更新に失敗しました", Toast.LENGTH_SHORT).show()
                         }
                     }
                 } else {
@@ -118,14 +125,14 @@ class AccountSettingActivity : AppCompatActivity() {
                     val tmpFileUri = Uri.fromFile(File(cacheDir, tmpFileName))
 
                     val options = UCrop.Options()
-                    options.setToolbarTitle("切り抜き")
+                    options.setToolbarTitle("画像の切り抜き")
                     options.setCompressionFormat(Bitmap.CompressFormat.JPEG)
-                    val uCrop = UCrop.of(uri, tmpFileUri)
+                    val uCrop = UCrop.of(uri, tmpFileUri).withAspectRatio(1F, 1F)
                     uCrop.withOptions(options)
                     uCrop.start(this)
                 } catch (e: Exception) {
                     Toast.makeText(this, "画像読み込み時にエラーが発生しました", Toast.LENGTH_LONG).show()
-                    Log.e("imageLoadError", e.toString())
+                    Log.w("imageLoadError", e)
                 }
             }
             UCrop.REQUEST_CROP -> resultData?.also { data ->
@@ -139,16 +146,7 @@ class AccountSettingActivity : AppCompatActivity() {
                 val profilePhoto = findViewById<ImageView>(R.id.profilePhoto)
                 profilePhoto.setImageBitmap(afterResizeBitmap)
 
-                val stream = ByteArrayOutputStream()
-                afterResizeBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-
-                val reference = Firebase.storage.reference.child("users/${FirebaseAuthUtils.uid}/profile_picture.jpg")
-                val uploadTask = reference.putBytes(stream.toByteArray())
-                uploadTask.addOnSuccessListener {
-                    Log.d("test", "ok")
-                }.addOnFailureListener {
-                    // Handle unsuccessful uploads
-                }
+                newProfileBitmap = afterResizeBitmap
             }
         }
     }
@@ -158,6 +156,7 @@ class AccountSettingActivity : AppCompatActivity() {
         val region = findViewById<Spinner>(R.id.accountRegionSpinner)
         val subject = findViewById<Spinner>(R.id.accountSubjectSpinner)
         return when {
+            newProfileBitmap != null -> true
             name.text.toString() != FirebaseAuthUtils.name.toString() -> true
             isPositionTeacher(user) &&
                     (region.selectedItem.toString() != user["region"] || subject.selectedItem.toString() != user["subject"]) -> true
