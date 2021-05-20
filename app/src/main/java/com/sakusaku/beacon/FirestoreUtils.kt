@@ -22,7 +22,21 @@ object FirestoreUtils {
      * @param callback: (isSuccess: Boolean) -> (Unit) 成功したかを返すコールバック関数
      */
     fun writeUserData(position: String? = null, region: String? = null, subject: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
-        userDataUtils("written", position, region, subject) { callback(it) }
+        userDataUtils("written", position, region, subject, callback)
+    }
+
+    /**
+     * ユーザー情報を更新するメソッド (async)
+     *
+     * @param position 位置情報
+     * @param region 領域
+     * @param region 教科
+     * @return isSuccess 更新に成功したかを返す
+     */
+    suspend fun asyncUpdateUserData(position: String? = null, region: String? = null, subject: String? = null): Boolean {
+        return suspendCoroutine { continuation ->
+            userDataUtils("update", position, region, subject) { continuation.resume(it) }
+        }
     }
 
     /**
@@ -34,7 +48,7 @@ object FirestoreUtils {
      * @param callback: (isSuccess: Boolean) -> (Unit) 成功したかを返すコールバック関数
      */
     fun updateUserData(position: String? = null, region: String? = null, subject: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
-        userDataUtils("update", position, region, subject) { callback(it) }
+        userDataUtils("update", position, region, subject, callback)
     }
 
     /**
