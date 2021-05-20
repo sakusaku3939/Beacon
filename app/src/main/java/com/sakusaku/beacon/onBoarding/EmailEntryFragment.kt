@@ -10,7 +10,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import com.sakusaku.beacon.FirebaseAuthUtils
+import com.sakusaku.beacon.firebase.FirebaseAuthUtils
 import com.sakusaku.beacon.FragmentUtil
 import com.sakusaku.beacon.R
 

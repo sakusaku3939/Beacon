@@ -13,6 +13,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.cardview.widget.CardView
 import com.sakusaku.beacon.*
+import com.sakusaku.beacon.firebase.CloudStorageUtils
+import com.sakusaku.beacon.firebase.FirebaseAuthUtils
+import com.sakusaku.beacon.firebase.FirestoreUtils
 import com.yalantis.ucrop.UCrop
 import kotlinx.coroutines.*
 import java.io.File

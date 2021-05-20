@@ -1,7 +1,6 @@
 package com.sakusaku.beacon.ui.account
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +12,8 @@ import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceScreen
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.sakusaku.beacon.*
+import com.sakusaku.beacon.firebase.FirebaseAuthUtils
+import com.sakusaku.beacon.firebase.FirestoreUtils
 
 
 class AccountFragment : PreferenceFragmentCompat() {

@@ -1,4 +1,4 @@
-package com.sakusaku.beacon
+package com.sakusaku.beacon.firebase
 
 import android.content.Context
 import android.content.Intent

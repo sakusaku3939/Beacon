@@ -2,14 +2,13 @@ package com.sakusaku.beacon.onBoarding
 
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import com.jgabrielfreitas.core.BlurImageView
-import com.sakusaku.beacon.FirebaseAuthUtils
+import com.sakusaku.beacon.firebase.FirebaseAuthUtils
 import com.sakusaku.beacon.FragmentUtil
 import com.sakusaku.beacon.R
 

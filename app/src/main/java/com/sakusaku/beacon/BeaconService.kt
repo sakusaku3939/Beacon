@@ -6,6 +6,7 @@ import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
 import androidx.preference.PreferenceManager
+import com.sakusaku.beacon.firebase.RealtimeDatabaseUtils
 import com.sakusaku.beacon.ui.location.BeaconInfo
 import com.sakusaku.beacon.ui.location.FloorMapBeacon
 import org.altbeacon.beacon.*

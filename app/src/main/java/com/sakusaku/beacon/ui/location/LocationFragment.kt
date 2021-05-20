@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import be.rijckaert.tim.animatedvector.FloatingMusicActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.sakusaku.beacon.*
+import com.sakusaku.beacon.firebase.RealtimeDatabaseUtils
 import kotlin.concurrent.thread
 
 

@@ -11,6 +11,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.sakusaku.beacon.*
+import com.sakusaku.beacon.firebase.FirebaseAuthUtils
+import com.sakusaku.beacon.firebase.FirestoreUtils
 
 class PermissionFragment : Fragment() {
     companion object {

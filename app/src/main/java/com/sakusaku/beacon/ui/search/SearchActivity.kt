@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
-import android.text.InputFilter
 import android.text.TextWatcher
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -17,7 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.sakusaku.beacon.FirestoreUtils
+import com.sakusaku.beacon.firebase.FirestoreUtils
 import com.sakusaku.beacon.R
 import kotlin.concurrent.thread
 

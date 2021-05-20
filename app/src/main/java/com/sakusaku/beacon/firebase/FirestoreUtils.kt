@@ -1,4 +1,4 @@
-package com.sakusaku.beacon
+package com.sakusaku.beacon.firebase
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
@@ -191,7 +191,7 @@ object FirestoreUtils {
             }
             task.addOnSuccessListener {
                 Log.d(TAG, "DocumentSnapshot successfully $updateMode!")
-                this.user = null
+                FirestoreUtils.user = null
                 callback(true)
             }.addOnFailureListener { e ->
                 Log.w(TAG, "Error $updateMode document", e)

@@ -1,4 +1,4 @@
-package com.sakusaku.beacon
+package com.sakusaku.beacon.firebase
 
 import android.graphics.Bitmap
 import android.net.Uri

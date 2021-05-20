@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.sakusaku.beacon.firebase.FirebaseAuthUtils
+import com.sakusaku.beacon.firebase.FirestoreUtils
 
 class MainActivity : AppCompatActivity() {
     companion object {

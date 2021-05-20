@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.jgabrielfreitas.core.BlurImageView
+import com.sakusaku.beacon.firebase.FirebaseAuthUtils
+import com.sakusaku.beacon.firebase.FirestoreUtils
 import com.sakusaku.beacon.onBoarding.GetStartedFragment
 import com.sakusaku.beacon.onBoarding.NameEntryFragment
 import com.sakusaku.beacon.onBoarding.PermissionFragment
