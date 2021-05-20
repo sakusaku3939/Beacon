@@ -94,7 +94,7 @@ object FirebaseAuthUtils {
     }
 
     /**
-     * プロフィールを更新するメソッド
+     * プロフィールを更新するメソッド (async)
      *
      * @param name 名前
      * @param photoUri プロフィール画像のURI

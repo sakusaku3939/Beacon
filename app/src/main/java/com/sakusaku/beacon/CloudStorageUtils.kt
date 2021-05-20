@@ -13,6 +13,12 @@ object CloudStorageUtils {
     private const val TAG: String = "CloudStorage"
     private val ref = Firebase.storage.reference.child("users/${FirebaseAuthUtils.uid}/profile_picture.jpg")
 
+    /**
+     * プロフィール画像をアップロードするメソッド (async)
+     *
+     * @param bitmap 画像データ
+     * @return isSuccess アップロードに成功したかを返す
+     */
     suspend fun uploadProfileImage(bitmap: Bitmap): Boolean {
         return suspendCoroutine { continuation ->
             val stream = ByteArrayOutputStream()
@@ -35,6 +41,11 @@ object CloudStorageUtils {
         }
     }
 
+    /**
+     * プロフィール画像のダウンロード用URLを返すメソッド (async)
+     *
+     * @return Uri
+     */
     suspend fun getDownloadUrl(): Uri? {
         return suspendCoroutine { continuation ->
             ref.downloadUrl.addOnSuccessListener { uri ->
