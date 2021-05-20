@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -75,25 +76,33 @@ class AccountSettingActivity : AppCompatActivity() {
             val saveButton = findViewById<Button>(R.id.accountSaveButton)
             saveButton.setOnClickListener {
                 if (name.text.isNotEmpty()) {
-                    val region = if (isPositionTeacher(user)) regionSpinner.selectedItem.toString() else null
-                    val subject = if (isPositionTeacher(user)) subjectSpinner.selectedItem.toString() else null
+                    if (isInputFieldChange(user)) {
+                        val region = if (isPositionTeacher(user)) regionSpinner.selectedItem.toString() else null
+                        val subject = if (isPositionTeacher(user)) subjectSpinner.selectedItem.toString() else null
 
-                    GlobalScope.launch {
-                        val downloadUrl = newProfileBitmap?.let {
-                            val uploadProfileImage = async { CloudStorageUtils.uploadProfileImage(it) }
-                            if (uploadProfileImage.await()) {
-                                newProfileBitmap = null
-                                val downloadUrl = async { CloudStorageUtils.getDownloadUrl() }
-                                downloadUrl.await().toString()
-                            } else null
-                        }
-                        val updateUser = async { FirestoreUtils.asyncUpdateUserData(region = region, subject = subject) }
-                        val updateProfile = async { FirebaseAuthUtils.asyncUpdateProfile(name = name.text.toString(), photoUri = downloadUrl) }
+                        val progress = findViewById<ProgressBar>(R.id.accountSaveProgress)
+                        progress.visibility = View.VISIBLE
+                        saveButton.text = ""
 
-                        val resultToast = if (updateUser.await() && updateProfile.await()) "プロフィールを更新しました" else "プロフィールの更新に失敗しました"
-                        thread {
-                            handler.post {
-                                Toast.makeText(applicationContext, resultToast, Toast.LENGTH_SHORT).show()
+                        GlobalScope.launch {
+                            val downloadUrl = newProfileBitmap?.let {
+                                val uploadProfileImage = async { CloudStorageUtils.uploadProfileImage(it) }
+                                if (uploadProfileImage.await()) {
+                                    newProfileBitmap = null
+                                    val downloadUrl = async { CloudStorageUtils.getDownloadUrl() }
+                                    downloadUrl.await().toString()
+                                } else null
+                            }
+                            val updateUser = async { FirestoreUtils.asyncUpdateUserData(region = region, subject = subject) }
+                            val updateProfile = async { FirebaseAuthUtils.asyncUpdateProfile(name = name.text.toString(), photoUri = downloadUrl) }
+
+                            val resultToast = if (updateUser.await() && updateProfile.await()) "プロフィールを更新しました" else "プロフィールの更新に失敗しました"
+                            thread {
+                                handler.post {
+                                    progress.visibility = View.GONE
+                                    saveButton.text = resources.getString(R.string.account_setting_save)
+                                    Toast.makeText(applicationContext, resultToast, Toast.LENGTH_SHORT).show()
+                                }
                             }
                         }
                     }
