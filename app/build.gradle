@@ -63,6 +63,7 @@ dependencies {
     implementation 'com.skyfishjy.ripplebackground:library:1.0.1'
     implementation 'com.google.firebase:firebase-database-ktx'
     implementation 'com.google.firebase:firebase-storage-ktx'
+    implementation 'com.github.yalantis:ucrop:2.2.6-native'
 }
 
 apply plugin: 'com.google.gms.google-services'

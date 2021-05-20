@@ -3,6 +3,7 @@ package com.sakusaku.beacon.ui.account
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
@@ -16,7 +17,10 @@ import com.sakusaku.beacon.FirebaseAuthUtils
 import com.sakusaku.beacon.FirestoreUtils
 import com.sakusaku.beacon.NameRestriction
 import com.sakusaku.beacon.R
+import com.yalantis.ucrop.UCrop
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.util.*
 
 
 class AccountSettingActivity : AppCompatActivity() {
@@ -107,35 +111,43 @@ class AccountSettingActivity : AppCompatActivity() {
             return
         }
         when (requestCode) {
-            READ_REQUEST_CODE -> {
+            READ_REQUEST_CODE -> resultData?.data?.also { uri ->
                 try {
-                    resultData?.data?.also { uri ->
-                        val inputStream = contentResolver?.openInputStream(uri)
-                        val bitmap = BitmapFactory.decodeStream(inputStream)
+                    val tmpFileName = UUID.randomUUID().toString() + ".jpg"
+                    File.createTempFile(tmpFileName, null, cacheDir)
+                    val tmpFileUri = Uri.fromFile(File(cacheDir, tmpFileName))
 
-                        val width = (bitmap.width * 0.7f).toInt()
-                        val height = (bitmap.height * 0.7f).toInt()
-                        val startX = (bitmap.width - width) / 2
-                        val startY = (bitmap.height - height) / 2
-                        val afterResizeBitmap = Bitmap.createBitmap(bitmap, startX, startY, width, height, null, true);
-
-                        val profilePhoto = findViewById<ImageView>(R.id.profilePhoto)
-                        profilePhoto.setImageBitmap(afterResizeBitmap)
-
-                        val stream = ByteArrayOutputStream()
-                        afterResizeBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-                        val data = stream.toByteArray()
-
-                        val reference = Firebase.storage.reference.child("users/${FirebaseAuthUtils.uid}/profile_picture.jpg")
-                        val uploadTask = reference.putBytes(data)
-                        uploadTask.addOnFailureListener {
-                            // Handle unsuccessful uploads
-                        }.addOnSuccessListener {
-                            Log.d("test", "ok")
-                        }
-                    }
+                    val options = UCrop.Options()
+                    options.setToolbarTitle("切り抜き")
+                    options.setCompressionFormat(Bitmap.CompressFormat.JPEG)
+                    val uCrop = UCrop.of(uri, tmpFileUri)
+                    uCrop.withOptions(options)
+                    uCrop.start(this)
                 } catch (e: Exception) {
                     Toast.makeText(this, "画像読み込み時にエラーが発生しました", Toast.LENGTH_LONG).show()
+                    Log.e("imageLoadError", e.toString())
+                }
+            }
+            UCrop.REQUEST_CROP -> resultData?.also { data ->
+                if (resultCode == UCrop.RESULT_ERROR) {
+                    Toast.makeText(this, "トリミングに失敗しました", Toast.LENGTH_LONG).show()
+                    Log.e("uCropError", UCrop.getError(data).toString())
+                    return
+                }
+
+                val afterResizeBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(UCrop.getOutput(data)!!.encodedPath), 400, 400, true)
+                val profilePhoto = findViewById<ImageView>(R.id.profilePhoto)
+                profilePhoto.setImageBitmap(afterResizeBitmap)
+
+                val stream = ByteArrayOutputStream()
+                afterResizeBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+
+                val reference = Firebase.storage.reference.child("users/${FirebaseAuthUtils.uid}/profile_picture.jpg")
+                val uploadTask = reference.putBytes(stream.toByteArray())
+                uploadTask.addOnSuccessListener {
+                    Log.d("test", "ok")
+                }.addOnFailureListener {
+                    // Handle unsuccessful uploads
                 }
             }
         }
