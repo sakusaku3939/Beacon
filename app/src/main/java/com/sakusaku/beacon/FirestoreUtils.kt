@@ -211,7 +211,7 @@ object FirestoreUtils {
                     continuation.resume(null)
                 }
             }.addOnFailureListener { exception ->
-                Log.d("test", "get failed with ", exception)
+                Log.d(TAG, "get failed with ", exception)
                 continuation.resume(null)
             }
             return@suspendCoroutine
