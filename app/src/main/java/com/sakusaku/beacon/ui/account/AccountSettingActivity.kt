@@ -149,7 +149,7 @@ class AccountSettingActivity : AppCompatActivity() {
             }
             UCrop.REQUEST_CROP -> resultData?.also { data ->
                 if (resultCode == UCrop.RESULT_ERROR) {
-                    Toast.makeText(this, "トリミングに失敗しました", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "画像の切り抜きに失敗しました", Toast.LENGTH_LONG).show()
                     Log.e("uCropError", UCrop.getError(data).toString())
                     return
                 }
