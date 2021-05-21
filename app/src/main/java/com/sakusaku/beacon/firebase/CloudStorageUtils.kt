@@ -19,24 +19,26 @@ object CloudStorageUtils {
      * @param bitmap 画像データ
      * @return isSuccess アップロードに成功したかを返す
      */
-    suspend fun uploadProfileImage(bitmap: Bitmap): Boolean {
+    suspend fun uploadProfileImage(bitmap: Bitmap?): Boolean {
         return suspendCoroutine { continuation ->
-            val stream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            bitmap?.also {
+                val stream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
 
-            val uploadTask = ref.putBytes(stream.toByteArray())
-            uploadTask.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d(TAG, "Upload is done")
-                    continuation.resume(true)
-                } else {
-                    Log.w(TAG, "Task did not succeed:", task.exception)
+                val uploadTask = ref.putBytes(stream.toByteArray())
+                uploadTask.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d(TAG, "Upload is done")
+                        continuation.resume(true)
+                    } else {
+                        Log.w(TAG, "Task did not succeed:", task.exception)
+                        continuation.resume(false)
+                    }
+                }.addOnFailureListener { e ->
+                    Log.w(TAG, "Upload error:", e)
                     continuation.resume(false)
                 }
-            }.addOnFailureListener { e ->
-                Log.w(TAG, "Upload error:", e)
-                continuation.resume(false)
-            }
+            } ?: continuation.resume(true)
             return@suspendCoroutine
         }
     }

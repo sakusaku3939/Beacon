@@ -85,18 +85,11 @@ class AccountSettingActivity : AppCompatActivity() {
                         saveButton.text = ""
 
                         GlobalScope.launch {
-                            val downloadUrl = newProfileBitmap?.let {
-                                val uploadProfileImage = async { CloudStorageUtils.uploadProfileImage(it) }
-                                if (uploadProfileImage.await()) {
-                                    newProfileBitmap = null
-                                    val downloadUrl = async { CloudStorageUtils.getDownloadUrl() }
-                                    downloadUrl.await().toString()
-                                } else null
-                            }
+                            val uploadProfileImage = async { CloudStorageUtils.uploadProfileImage(newProfileBitmap) }
                             val updateUser = async { FirestoreUtils.asyncUpdateUserData(region = region, subject = subject) }
-                            val updateProfile = async { FirebaseAuthUtils.asyncUpdateProfile(name = name.text.toString(), photoUri = downloadUrl) }
+                            val updateProfile = async { FirebaseAuthUtils.asyncUpdateProfile(name = name.text.toString()) }
 
-                            val resultToast = if (updateUser.await() && updateProfile.await()) "プロフィールを更新しました" else "プロフィールの更新に失敗しました"
+                            val resultToast = if (updateUser.await() && updateProfile.await() && uploadProfileImage.await()) "プロフィールを更新しました" else "プロフィールの更新に失敗しました"
                             thread {
                                 handler.post {
                                     progress.visibility = View.GONE
