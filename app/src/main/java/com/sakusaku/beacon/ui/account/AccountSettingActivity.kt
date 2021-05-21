@@ -102,6 +102,7 @@ class AccountSettingActivity : AppCompatActivity() {
                                     progress.visibility = View.GONE
                                     saveButton.text = resources.getString(R.string.account_setting_save)
                                     Toast.makeText(applicationContext, resultToast, Toast.LENGTH_SHORT).show()
+                                    finish()
                                 }
                             }
                         }

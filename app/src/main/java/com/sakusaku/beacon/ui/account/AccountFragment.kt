@@ -21,6 +21,11 @@ class AccountFragment : PreferenceFragmentCompat() {
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
         view?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
+        return view
+    }
+
+    override fun onStart() {
+        super.onStart()
 
         // 名前の表示
         val account = findPreference<AccountPreference>("preference_account")!!
@@ -44,8 +49,6 @@ class AccountFragment : PreferenceFragmentCompat() {
         FirestoreUtils.getUserData { user ->
             account.summary = user["position"]
         }
-
-        return view
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
