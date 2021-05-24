@@ -49,6 +49,8 @@ class AccountSettingActivity : AppCompatActivity() {
                 }
                 startActivityForResult(intent, READ_REQUEST_CODE)
             }
+            val profilePhoto = findViewById<ImageView>(R.id.profilePhoto)
+            CloudStorageUtils.setProfileImage(applicationContext, profilePhoto)
 
             val name = findViewById<EditText>(R.id.accountNameEdit)
             name.setText(FirebaseAuthUtils.name.toString())

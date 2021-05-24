@@ -1,10 +1,14 @@
 package com.sakusaku.beacon.firebase
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import android.widget.ImageView
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import com.sakusaku.beacon.R
 import java.io.ByteArrayOutputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -41,6 +45,22 @@ object CloudStorageUtils {
             } ?: continuation.resume(true)
             return@suspendCoroutine
         }
+    }
+
+    /**
+     * プロフィール画像をImageViewに反映するメソッド
+     *
+     * @param context Context
+     * @param imageView 反映させたい画像データ
+     * @param uid 取得したいプロフィール画像のUID (省略可)
+     */
+    fun setProfileImage(context: Context, imageView: ImageView, uid: String? = FirebaseAuthUtils.uid) = uid?.let {
+        val profileRef = Firebase.storage.reference.child("users/${it}/profile_picture.jpg")
+        GlideApp.with(context)
+                .load(profileRef)
+                .error(R.drawable.user)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .into(imageView)
     }
 
     /**
