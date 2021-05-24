@@ -51,7 +51,7 @@ class PermissionFragment : Fragment() {
                 val region = pref.getString("region", null)
                 val subject = pref.getString("subject", null)
 
-                FirestoreUtils.writeUserData(position, region, subject) { isSuccess ->
+                FirestoreUtils.writeUserData(position = position, region = region, subject = subject) { isSuccess ->
                     if (isSuccess) {
                         FirebaseAuthUtils.updateProfile(name)
                         requireActivity().finish()

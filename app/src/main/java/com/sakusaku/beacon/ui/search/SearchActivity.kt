@@ -46,7 +46,7 @@ class SearchActivity : AppCompatActivity() {
                 }
             }
             // 取得したデータを検索結果に反映
-            FirestoreUtils.searchUser(name, region, subject) { onlineUserMap, offlineUserMap ->
+            FirestoreUtils.searchUser(name = name, region = region, subject = subject) { onlineUserMap, offlineUserMap ->
                 swipeRefresh.isRefreshing = false
                 val getStrVal = { map: Map<String, Any?>, key: String ->
                     map[key]?.toString() ?: ""
