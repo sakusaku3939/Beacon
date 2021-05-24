@@ -100,7 +100,7 @@ object FirebaseAuthUtils {
      * @param photoUri プロフィール画像のURI
      * @return isSuccessful 更新に成功したかを返す
      */
-    suspend fun asyncUpdateProfile(name: String? = null, photoUri: String? = null, callback: (isSuccessful: Boolean) -> (Unit) = {}): Boolean {
+    suspend fun asyncUpdateProfile(name: String? = null, photoUri: String? = null): Boolean {
         return suspendCoroutine { continuation ->
             updateProfileUtils(name, photoUri) { continuation.resume(it) }
         }
