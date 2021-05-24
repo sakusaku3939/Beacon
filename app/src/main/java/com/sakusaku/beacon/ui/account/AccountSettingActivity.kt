@@ -50,7 +50,7 @@ class AccountSettingActivity : AppCompatActivity() {
                 startActivityForResult(intent, READ_REQUEST_CODE)
             }
             val profilePhoto = findViewById<ImageView>(R.id.profilePhoto)
-            CloudStorageUtils.setProfileImage(applicationContext, profilePhoto)
+            CloudStorageUtils.setProfileImage(profilePhoto)
 
             val name = findViewById<EditText>(R.id.accountNameEdit)
             name.setText(FirebaseAuthUtils.name.toString())
@@ -87,11 +87,18 @@ class AccountSettingActivity : AppCompatActivity() {
                         saveButton.text = ""
 
                         GlobalScope.launch {
-                            val uploadProfileImage = async { CloudStorageUtils.uploadProfileImage(newProfileBitmap) }
-                            val updateUser = async { FirestoreUtils.asyncUpdateUserData(region = region, subject = subject) }
+                            val downloadUrl = newProfileBitmap?.let {
+                                val uploadProfileImage = async { CloudStorageUtils.uploadProfileImage(it) }
+                                if (uploadProfileImage.await()) {
+                                    newProfileBitmap = null
+                                    val downloadUrl = async { CloudStorageUtils.getDownloadUrl() }
+                                    downloadUrl.await().toString()
+                                } else null
+                            }
+                            val updateUser = async { FirestoreUtils.asyncUpdateUserData(region = region, subject = subject, photoUri = downloadUrl) }
                             val updateProfile = async { FirebaseAuthUtils.asyncUpdateProfile(name = name.text.toString()) }
 
-                            val resultToast = if (updateUser.await() && updateProfile.await() && uploadProfileImage.await()) "プロフィールを更新しました" else "プロフィールの更新に失敗しました"
+                            val resultToast = if (updateUser.await() && updateProfile.await()) "プロフィールを更新しました" else "プロフィールの更新に失敗しました"
                             thread {
                                 handler.post {
                                     progress.visibility = View.GONE

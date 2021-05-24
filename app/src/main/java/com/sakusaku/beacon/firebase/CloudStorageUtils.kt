@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import android.widget.ImageView
-import com.bumptech.glide.load.engine.DiskCacheStrategy
+import coil.load
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.sakusaku.beacon.R
@@ -50,17 +50,16 @@ object CloudStorageUtils {
     /**
      * プロフィール画像をImageViewに反映するメソッド
      *
-     * @param context Context
      * @param imageView 反映させたい画像データ
-     * @param uid 取得したいプロフィール画像のUID (省略可)
+     * @param url プロフィール画像のURL (省略可)
      */
-    fun setProfileImage(context: Context, imageView: ImageView, uid: String? = FirebaseAuthUtils.uid) = uid?.let {
-        val profileRef = Firebase.storage.reference.child("users/${it}/profile_picture.jpg")
-        GlideApp.with(context)
-                .load(profileRef)
-                .error(R.drawable.user)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(imageView)
+    fun setProfileImage(imageView: ImageView, url: String = "") {
+        val loadImage = { u: String -> imageView.load(u) { error(R.drawable.user) } }
+
+        if (url.isNotEmpty()) loadImage(url)
+        else FirestoreUtils.getUserData { user ->
+            loadImage(user["photoUri"] ?: "")
+        }
     }
 
     /**

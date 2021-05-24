@@ -21,8 +21,8 @@ object FirestoreUtils {
      * @param region 教科
      * @param callback: (isSuccess: Boolean) -> (Unit) 成功したかを返すコールバック関数
      */
-    fun writeUserData(position: String? = null, region: String? = null, subject: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
-        userDataUtils("written", position, region, subject, callback)
+    fun writeUserData(position: String? = null, region: String? = null, subject: String? = null, photoUri: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
+        userDataUtils("written", position, region, subject, photoUri, callback)
     }
 
     /**
@@ -33,9 +33,9 @@ object FirestoreUtils {
      * @param region 教科
      * @return isSuccess 更新に成功したかを返す
      */
-    suspend fun asyncUpdateUserData(position: String? = null, region: String? = null, subject: String? = null): Boolean {
+    suspend fun asyncUpdateUserData(position: String? = null, region: String? = null, photoUri: String? = null, subject: String? = null): Boolean {
         return suspendCoroutine { continuation ->
-            userDataUtils("update", position, region, subject) { continuation.resume(it) }
+            userDataUtils("update", position, region, subject, photoUri) { continuation.resume(it) }
         }
     }
 
@@ -47,8 +47,8 @@ object FirestoreUtils {
      * @param region 教科
      * @param callback: (isSuccess: Boolean) -> (Unit) 成功したかを返すコールバック関数
      */
-    fun updateUserData(position: String? = null, region: String? = null, subject: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
-        userDataUtils("update", position, region, subject, callback)
+    fun updateUserData(position: String? = null, region: String? = null, subject: String? = null, photoUri: String? = null, callback: (isSuccess: Boolean) -> (Unit) = {}) {
+        userDataUtils("update", position, region, subject, photoUri, callback)
     }
 
     /**
@@ -174,12 +174,13 @@ object FirestoreUtils {
         }
     }
 
-    private fun userDataUtils(updateMode: String, position: String?, region: String?, subject: String?, callback: (isSuccess: Boolean) -> (Unit) = {}) {
+    private fun userDataUtils(updateMode: String, position: String?, region: String?, subject: String?, photoUri: String?, callback: (isSuccess: Boolean) -> (Unit) = {}) {
         val db = FirebaseFirestore.getInstance()
         val user = hashMapOf(
                 "position" to position,
                 "region" to region,
-                "subject" to subject
+                "subject" to subject,
+                "photoUri" to photoUri
         ).filter { it.value != null }
 
         FirebaseAuthUtils.uid?.takeIf { user.isNotEmpty() }?.let { uid ->
