@@ -84,7 +84,7 @@ object FirestoreUtils {
      *
      * @param callback: (data: Map<String, String>) -> (Unit) ユーザー情報を返すコールバック関数
      */
-    fun loadUserData(callback: (data: Map<String, String>?) -> (Unit) = {}) {
+    private fun loadUserData(callback: (data: Map<String, String>?) -> (Unit) = {}) {
         val db = FirebaseFirestore.getInstance()
         FirebaseAuthUtils.uid?.let { uid ->
             db.collection("users").document(uid)
@@ -105,6 +105,15 @@ object FirestoreUtils {
                         callback(null)
                     }
         } ?: callback(null)
+    }
+
+    /**
+     * ユーザー情報があるかどうかを調べるメソッド
+     *
+     * @param callback: (isExist: Boolean) -> (Unit) ユーザー情報があるかを返すコールバック関数
+     */
+    fun existsUserData(callback: (isExist: Boolean) -> (Unit)) = loadUserData { data ->
+        callback(data != null)
     }
 
     /**
