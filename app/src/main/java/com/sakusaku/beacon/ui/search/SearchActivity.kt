@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.WindowManager
@@ -72,28 +73,38 @@ class SearchActivity : AppCompatActivity() {
             searchUserUpdate("")
         }
 
-        // 入力完了を検知したら検索結果読み込み
-        var latestSearchText = ""
+        // Enterボタンが押されたらキーボードを隠す
         val searchEditText = findViewById<EditText>(R.id.searchEditText)
         searchEditText.setOnKeyListener { v, keyCode, event ->
             if (event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
                 val inputMethodManager = applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 inputMethodManager.hideSoftInputFromWindow(v.windowToken, InputMethodManager.RESULT_UNCHANGED_SHOWN)
-                swipeRefresh.post {
-                    swipeRefresh.isRefreshing = true
-                    latestSearchText = searchEditText.text.toString()
-                    searchUserUpdate(latestSearchText)
-                }
                 return@setOnKeyListener true
             }
             return@setOnKeyListener false
         }
 
-        // 入力欄が空になったら再読み込み
+        // 入力欄リスナー
+        var latestSearchText = ""
         searchEditText.addTextChangedListener(object : TextWatcher {
+            val editHandler = Handler()
+            var runnable: Runnable? = null
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable) {
+                // 一秒経過で検索結果を読み込み
+                runnable?.let { editHandler.removeCallbacks(it) }
+                val r = Runnable {
+                    swipeRefresh.post {
+                        swipeRefresh.isRefreshing = true
+                        latestSearchText = searchEditText.text.toString()
+                        searchUserUpdate(latestSearchText)
+                    }
+                }
+                editHandler.postDelayed(r, 1000)
+                runnable = r
+
+                // 入力欄が空になったら再読み込み
                 if (s.isEmpty()) swipeRefresh.post {
                     swipeRefresh.isRefreshing = true
                     latestSearchText = searchEditText.text.toString()
