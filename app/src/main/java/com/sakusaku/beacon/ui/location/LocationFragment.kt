@@ -124,7 +124,7 @@ class LocationFragment : Fragment() {
                                 noUser.visibility = View.GONE
                             }
                         }
-                        grid.add(R.drawable.user, uid, name, location, timestamp)
+                        grid.add(uid, name, location, timestamp)
                     }
 
                     when (position) {

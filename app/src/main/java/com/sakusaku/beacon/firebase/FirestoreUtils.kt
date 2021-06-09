@@ -69,42 +69,22 @@ object FirestoreUtils {
      * ユーザー情報を取得するメソッド
      * ※一度読み込んだことがある場合はそのユーザー情報を返す
      *
+     * @param uid
      * @param callback: (data: Map<String, String>) -> (Unit) ユーザー情報を返すコールバック関数
      */
-    fun getUserData(callback: (data: Map<String, String>) -> (Unit)) {
-        user?.let {
+    fun getUserData(uid: String = "", callback: (data: Map<String, String>) -> (Unit)) {
+        if (uid.isEmpty()) user?.let {
             callback(it)
         } ?: loadUserData { data ->
-            data?.let { callback(it) }
+            data?.let {
+                user = it
+                callback(it)
+            }
+        } else loadUserData(uid) { data ->
+            data?.let {
+                callback(it)
+            }
         }
-    }
-
-    /**
-     * ユーザー情報を読み込むメソッド
-     *
-     * @param callback: (data: Map<String, String>) -> (Unit) ユーザー情報を返すコールバック関数
-     */
-    private fun loadUserData(callback: (data: Map<String, String>?) -> (Unit) = {}) {
-        val db = FirebaseFirestore.getInstance()
-        FirebaseAuthUtils.uid?.let { uid ->
-            db.collection("users").document(uid)
-                    .get()
-                    .addOnSuccessListener { document ->
-                        if (document != null) {
-                            Log.d(TAG, "DocumentSnapshot data: ${document.data}")
-                            val documentMapData = document.data?.map { d -> d.key to d.value.toString() }?.toMap()
-                            user = documentMapData
-                            callback(documentMapData)
-                        } else {
-                            Log.d(TAG, "No such document")
-                            callback(null)
-                        }
-                    }
-                    .addOnFailureListener { exception ->
-                        Log.d(TAG, "get failed with ", exception)
-                        callback(null)
-                    }
-        } ?: callback(null)
     }
 
     /**
@@ -208,6 +188,29 @@ object FirestoreUtils {
                 callback(false)
             }
         } ?: callback(true)
+    }
+
+    private fun loadUserData(uid: String = "", callback: (data: Map<String, String>?) -> (Unit) = {}) {
+        val db = FirebaseFirestore.getInstance()
+        val keyUid = if (uid.isNotEmpty()) uid else FirebaseAuthUtils.uid
+        keyUid?.let {
+            db.collection("users").document(it)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        if (document != null) {
+                            Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+                            val documentMapData = document.data?.map { d -> d.key to d.value.toString() }?.toMap()
+                            callback(documentMapData)
+                        } else {
+                            Log.d(TAG, "No such document")
+                            callback(null)
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.d(TAG, "get failed with ", exception)
+                        callback(null)
+                    }
+        } ?: callback(null)
     }
 
     private suspend fun asyncConditionUserData(conditionDB: Query): QuerySnapshot? {

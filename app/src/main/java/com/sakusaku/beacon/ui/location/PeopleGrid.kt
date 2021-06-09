@@ -11,8 +11,8 @@ class PeopleGrid(private val context: Context, private val peopleRecyclerView: R
     private lateinit var customAdapter: PeopleGridAdapter
     private var listener: OnClickListener? = null
 
-    fun add(image: Int, uid: String, name: String, location: String, timestamp: String) {
-        map[uid] = People(image, name, location, timestamp)
+    fun add(uid: String, name: String, location: String, timestamp: String) {
+        map[uid] = People(name, location, timestamp)
         customAdapter = PeopleGridAdapter(map, object : PeopleGridAdapter.ListListener {
             override fun onBindView(holder: RecyclerView.ViewHolder, uid: String, position: Int) {
                 adapterPositionList[uid] = position
@@ -69,7 +69,6 @@ class PeopleGrid(private val context: Context, private val peopleRecyclerView: R
     }
 
     data class People(
-            val image: Int,
             val name: String,
             var location: String,
             var timestamp: String

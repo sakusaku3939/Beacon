@@ -3,9 +3,11 @@ package com.sakusaku.beacon.ui.location
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.sakusaku.beacon.R
+import com.sakusaku.beacon.firebase.CloudStorageUtils
 
 class PeopleGridAdapter(
         private val peopleMap: MutableMap<String, PeopleGrid.People>,
@@ -30,8 +32,12 @@ class PeopleGridAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val uid = peopleMap.keys.toMutableList()[position]
         val people = peopleMap.values.toMutableList()[position]
+        val profilePhoto = holder.itemView.findViewById<ImageView>(R.id.profilePhoto)
+        CloudStorageUtils.setProfileImage(profilePhoto, uid = uid)
+
         holder.itemView.findViewById<TextView>(R.id.name).text = people.name
         holder.itemView.findViewById<TextView>(R.id.location).text = people.location
+
         listener.onBindView(holder, uid, position)
         holder.itemView.setOnClickListener {
             listener.onClickItem(it, people.name, people.location)

@@ -53,12 +53,17 @@ object CloudStorageUtils {
      * @param imageView 反映させたい画像データ
      * @param url プロフィール画像のURL (省略可)
      */
-    fun setProfileImage(imageView: ImageView, url: String = "") {
+    fun setProfileImage(imageView: ImageView, url: String = "", uid: String = "") {
         val loadImage = { u: String -> imageView.load(u) { error(R.drawable.user) } }
 
-        if (url.isNotEmpty()) loadImage(url)
-        else FirestoreUtils.getUserData { user ->
-            loadImage(user["photoUri"] ?: "")
+        when {
+            url.isNotEmpty() -> loadImage(url)
+            uid.isNotEmpty() -> FirestoreUtils.getUserData(uid) { user ->
+                loadImage(user["photoUri"] ?: "")
+            }
+            else -> FirestoreUtils.getUserData { user ->
+                loadImage(user["photoUri"] ?: "")
+            }
         }
     }
 
