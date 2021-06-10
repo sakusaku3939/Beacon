@@ -6,10 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.RadioButton
-import android.widget.RadioGroup
+import android.widget.*
 import androidx.fragment.app.Fragment
 import com.sakusaku.beacon.R
 
@@ -24,16 +21,19 @@ class SearchFragment : Fragment() {
         // 検索フィルターメニュー表示・非表示の切り替え
         val accordion = root.findViewById<LinearLayout>(R.id.accordion)
         val accordionArrow = root.findViewById<ImageView>(R.id.accordionArrow)
+        val accordionSwitch = root.findViewById<TextView>(R.id.accordionSwitch)
         val searchFilter = root.findViewById<View>(R.id.searchFilter)
         accordion.setOnClickListener {
+            // 表示
             if (searchFilter.visibility != View.VISIBLE) {
-                // 表示
+                accordionSwitch.text = resources.getString(R.string.search_filter_on)
                 accordionArrow.animate().rotation(90F).duration = 300
                 searchFilter.animate().alpha(1f).translationY(15F).setDuration(300).withStartAction {
                     searchFilter.visibility = View.VISIBLE
                 }
+            // 非表示
             } else {
-                // 非表示
+                accordionSwitch.text = resources.getString(R.string.search_filter_off)
                 accordionArrow.animate().rotation(0F).duration = 300
                 searchFilter.animate().alpha(0f).translationY(-15F).setDuration(300).withEndAction {
                     searchFilter.visibility = View.GONE

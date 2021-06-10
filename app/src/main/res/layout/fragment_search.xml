@@ -65,6 +65,14 @@
                 android:layout_gravity="center"
                 android:layout_marginStart="8dp"
                 android:text="@string/search_filter" />
+
+            <TextView
+                android:id="@+id/accordionSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="2dp"
+                android:text="@string/search_filter_off" />
         </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout

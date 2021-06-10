@@ -44,6 +44,8 @@
     <string name="people_grid_no_user">周辺にユーザーはいません</string>
     <string name="search_hint">Search people</string>
     <string name="search_filter">検索フィルター</string>
+    <string name="search_filter_on">・ON</string>
+    <string name="search_filter_off">・OFF</string>
     <string name="preference_logout">ログアウト</string>
     <string name="preference_scan_period">スキャンの間隔</string>
     <string name="preference_disclosure_range">プライバシー設定</string>
