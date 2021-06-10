@@ -1,5 +1,6 @@
 package com.sakusaku.beacon.ui.location
 
+import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -235,17 +236,24 @@ class LocationFragment : Fragment() {
                 when (customFab.getOppositeMode()) {
                     // ビーコン取得開始
                     FloatingMusicActionButton.Mode.PAUSE_TO_PLAY -> {
-                        // デバイスのBLE対応チェック
-                        if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                            Toast.makeText(activity, "このデバイスはBLE未対応です", Toast.LENGTH_LONG).show()
+                        val cancelBeaconScan = { msg: String ->
+                            Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
                             Handler().postDelayed({
                                 customFab.changeMode(FloatingMusicActionButton.Mode.PLAY_TO_PAUSE)
                                 fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.blue_500))
                             }, 300)
-                        } else {
-                            pref.edit().putBoolean("isBeaconScan", true).apply()
-                            fabToggle(fab, FloatingMusicActionButton.Mode.PAUSE_TO_PLAY)
-                            requireActivity().startForegroundService(Intent(activity, BeaconService::class.java))
+                        }
+
+                        when {
+                            !requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) ->
+                                cancelBeaconScan("このデバイスはBLE未対応です")
+                            !BluetoothAdapter.getDefaultAdapter().isEnabled ->
+                                cancelBeaconScan("デバイスのBluetoothをオンにして下さい")
+                            else -> {
+                                pref.edit().putBoolean("isBeaconScan", true).apply()
+                                fabToggle(fab, FloatingMusicActionButton.Mode.PAUSE_TO_PLAY)
+                                requireActivity().startForegroundService(Intent(activity, BeaconService::class.java))
+                            }
                         }
                     }
                     // ビーコン取得停止
@@ -254,7 +262,8 @@ class LocationFragment : Fragment() {
                         fabToggle(fab, FloatingMusicActionButton.Mode.PLAY_TO_PAUSE)
                         requireActivity().stopService(Intent(activity, BeaconService::class.java))
                     }
-                    else -> {}
+                    else -> {
+                    }
                 }
 
                 // 連続クリックを無効化
