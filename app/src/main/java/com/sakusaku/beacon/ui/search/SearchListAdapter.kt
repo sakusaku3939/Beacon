@@ -3,10 +3,12 @@ package com.sakusaku.beacon.ui.search
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.sakusaku.beacon.CircleView
 import com.sakusaku.beacon.R
+import com.sakusaku.beacon.firebase.CloudStorageUtils
 
 class SearchListAdapter(private val searchList: ArrayList<SearchList>) : RecyclerView.Adapter<SearchListAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -23,6 +25,8 @@ class SearchListAdapter(private val searchList: ArrayList<SearchList>) : Recycle
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val list = searchList[position]
+        val profilePhoto = viewHolder.itemView.findViewById<ImageView>(R.id.profilePhoto)
+        CloudStorageUtils.setProfileImage(profilePhoto, uid = list.uid)
 
         viewHolder.name.text = list.name
         viewHolder.position.text = list.position

@@ -16,8 +16,10 @@
         app:cardElevation="0dp">
 
         <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/profilePhoto"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/light_gray"
             android:scaleType="centerCrop"
             android:src="@drawable/user" />
     </androidx.cardview.widget.CardView>

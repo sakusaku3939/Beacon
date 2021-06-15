@@ -54,7 +54,7 @@ class SearchActivity : AppCompatActivity() {
                 }
                 val addList = { map: List<Map<String, Any?>>, state: Boolean ->
                     map.forEach {
-                        searchList.add(SearchList(getStrVal(it, "name"), getStrVal(it, "position"), getStrVal(it, "location"), state))
+                        searchList.add(SearchList(getStrVal(it, "id"), getStrVal(it, "name"), getStrVal(it, "position"), getStrVal(it, "location"), state))
                     }
                 }
                 addList(onlineUserMap, true)
