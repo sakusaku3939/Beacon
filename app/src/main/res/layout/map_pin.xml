@@ -8,16 +8,16 @@
         android:id="@+id/mapPinRipple"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0.3"
-        app:rb_color="@color/blue_500"
+        android:alpha="0.5"
+        app:rb_color="@color/gray"
         app:rb_duration="5000"
         app:rb_radius="8dp"
         app:rb_rippleAmount="2"
         app:rb_scale="4" />
 
     <androidx.cardview.widget.CardView
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
         android:layout_gravity="center"
         android:backgroundTint="@color/white"
         app:cardCornerRadius="12dp"
@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="1dp"
-            app:cardCornerRadius="12dp"
+            app:cardCornerRadius="14dp"
             app:cardElevation="0dp">
 
             <androidx.appcompat.widget.AppCompatImageView
@@ -35,8 +35,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:scaleType="centerCrop"
-                android:src="@drawable/user" />
+                android:background="@color/light_gray"
+                android:scaleType="centerCrop" />
         </androidx.cardview.widget.CardView>
     </androidx.cardview.widget.CardView>
 </FrameLayout>

@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import com.sakusaku.beacon.R
+import com.sakusaku.beacon.firebase.CloudStorageUtils
 import com.skyfishjy.library.RippleBackground
 
 class UserPin(private val context: Context, private val inflater: LayoutInflater,
@@ -23,7 +24,10 @@ class UserPin(private val context: Context, private val inflater: LayoutInflater
         params.topMargin = (floorMapImage.height * positionY).toInt() - 32F.dp()
 
         val view = inflater.inflate(R.layout.map_pin, FrameLayout(context))
+        val mapPinImage = view.findViewById<ImageView>(R.id.mapPinImage)
         val mapPinRipple = view.findViewById<RippleBackground>(R.id.mapPinRipple)
+
+        CloudStorageUtils.setProfileImage(mapPinImage, uid = uid)
         mapPinRipple.startRippleAnimation()
 
         map[uid] = view
