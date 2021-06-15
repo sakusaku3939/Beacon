@@ -47,6 +47,23 @@ object CloudStorageUtils {
     }
 
     /**
+     * プロフィール画像を削除するメソッド (async)
+     *
+     * @return isSuccess 削除が成功したかを返す
+     */
+    suspend fun deleteProfileImage(): Boolean {
+        return suspendCoroutine { continuation ->
+            ref.delete().addOnSuccessListener {
+                Log.d(TAG, "Delete successful")
+                continuation.resume(true)
+            }.addOnFailureListener { e ->
+                Log.w(TAG, "Delete failed:", e)
+                continuation.resume(false)
+            }
+        }
+    }
+
+    /**
      * プロフィール画像をImageViewに反映するメソッド
      *
      * @param imageView 反映させたい画像データ

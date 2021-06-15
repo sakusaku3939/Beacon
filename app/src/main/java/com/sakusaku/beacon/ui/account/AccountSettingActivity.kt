@@ -30,6 +30,7 @@ class AccountSettingActivity : AppCompatActivity() {
     }
 
     private var newProfileBitmap: Bitmap? = null
+    private var isProfileImageDelete = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,11 +44,25 @@ class AccountSettingActivity : AppCompatActivity() {
 
             val image = findViewById<CardView>(R.id.cardView)
             image.setOnClickListener {
-                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "image/*"
-                }
-                startActivityForResult(intent, READ_REQUEST_CODE)
+                val selectItem = arrayOf("フォルダから画像を選択", "画像を削除")
+                AlertDialog.Builder(this, R.style.AppTheme_DialogTheme)
+                        .setItems(selectItem) { _, which ->
+                            when (selectItem[which]) {
+                                "フォルダから画像を選択" -> {
+                                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                                        addCategory(Intent.CATEGORY_OPENABLE)
+                                        type = "image/*"
+                                    }
+                                    startActivityForResult(intent, READ_REQUEST_CODE)
+                                }
+                                "画像を削除" -> {
+                                    isProfileImageDelete = true
+                                    val profilePhoto = findViewById<ImageView>(R.id.profilePhoto)
+                                    profilePhoto.setImageResource(R.drawable.user)
+                                }
+                            }
+                        }
+                        .show()
             }
             val profilePhoto = findViewById<ImageView>(R.id.profilePhoto)
             CloudStorageUtils.setProfileImage(profilePhoto)
@@ -87,14 +102,34 @@ class AccountSettingActivity : AppCompatActivity() {
                         saveButton.text = ""
 
                         GlobalScope.launch {
-                            val downloadUrl = newProfileBitmap?.let {
-                                val uploadProfileImage = async { CloudStorageUtils.uploadProfileImage(it) }
-                                if (uploadProfileImage.await()) {
-                                    newProfileBitmap = null
-                                    val downloadUrl = async { CloudStorageUtils.getDownloadUrl() }
-                                    downloadUrl.await().toString()
-                                } else null
+                            val downloadUrl = when {
+                                // プロフィール画像を更新
+                                newProfileBitmap != null -> {
+                                    val uploadProfileImage = async { CloudStorageUtils.uploadProfileImage(newProfileBitmap) }
+                                    if (uploadProfileImage.await()) {
+                                        newProfileBitmap = null
+                                        val downloadUrl = async { CloudStorageUtils.getDownloadUrl() }
+                                        downloadUrl.await().toString()
+                                    } else {
+                                        Toast.makeText(applicationContext, "画像の更新に失敗しました", Toast.LENGTH_SHORT).show()
+                                        null
+                                    }
+                                }
+                                // プロフィール画像を削除
+                                isProfileImageDelete -> {
+                                    val deleteProfileImage = async { CloudStorageUtils.deleteProfileImage() }
+                                    if (deleteProfileImage.await()) {
+                                        isProfileImageDelete = false
+                                        ""
+                                    } else {
+                                        Toast.makeText(applicationContext, "画像の削除に失敗しました", Toast.LENGTH_SHORT).show()
+                                        null
+                                    }
+                                }
+                                // 何も行わない場合
+                                else -> null
                             }
+
                             val updateUser = async { FirestoreUtils.asyncUpdateUserData(region = region, subject = subject, photoUri = downloadUrl) }
                             val updateProfile = async { FirebaseAuthUtils.asyncUpdateProfile(name = name.text.toString()) }
 
@@ -172,6 +207,7 @@ class AccountSettingActivity : AppCompatActivity() {
         val subject = findViewById<Spinner>(R.id.accountSubjectSpinner)
         return when {
             newProfileBitmap != null -> true
+            isProfileImageDelete -> true
             name.text.toString() != FirebaseAuthUtils.name.toString() -> true
             isPositionTeacher(user) &&
                     (region.selectedItem.toString() != user["region"] || subject.selectedItem.toString() != user["subject"]) -> true
