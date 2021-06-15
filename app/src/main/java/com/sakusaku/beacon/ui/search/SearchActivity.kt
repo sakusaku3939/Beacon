@@ -103,13 +103,6 @@ class SearchActivity : AppCompatActivity() {
                 }
                 editHandler.postDelayed(r, 1000)
                 runnable = r
-
-                // 入力欄が空になったら再読み込み
-                if (s.isEmpty()) swipeRefresh.post {
-                    swipeRefresh.isRefreshing = true
-                    latestSearchText = searchEditText.text.toString()
-                    searchUserUpdate(latestSearchText)
-                }
             }
         })
 
