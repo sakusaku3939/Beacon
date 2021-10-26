@@ -4,3 +4,5 @@
 https://portfolio.sakusaku3939.com/?posts=tkg-beacon  
 
 ![tkg-beacon](https://user-images.githubusercontent.com/53967490/123509845-d15d2f80-d6b2-11eb-9873-a82b8e3cc4b9.png)
+
+©2021 sakusaku3939
