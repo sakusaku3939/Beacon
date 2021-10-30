@@ -88,12 +88,12 @@ object FirestoreUtils {
     }
 
     /**
-     * ユーザー情報があるかどうかを調べるメソッド
+     * 匿名以外かつユーザー情報があるかどうかを調べるメソッド
      *
      * @param callback: (isExist: Boolean) -> (Unit) ユーザー情報があるかを返すコールバック関数
      */
     fun existsUserData(callback: (isExist: Boolean) -> (Unit)) = loadUserData { data ->
-        callback(data != null)
+        callback(FirebaseAuthUtils.isAnonymous != true && data != null)
     }
 
     /**

@@ -18,11 +18,30 @@ import kotlin.coroutines.suspendCoroutine
 object FirebaseAuthUtils {
     private const val TAG: String = "Firebase"
 
-    val name: String? get() { return Firebase.auth.currentUser?.displayName }
-    val email: String? get() { return Firebase.auth.currentUser?.email }
-    val emailVerified: Boolean? get() { return Firebase.auth.currentUser?.isEmailVerified }
-    val photoUrl: Uri? get() { return Firebase.auth.currentUser?.photoUrl }
-    val uid: String? get() { return Firebase.auth.currentUser?.uid }
+    val name: String?
+        get() {
+            return Firebase.auth.currentUser?.displayName
+        }
+    val email: String?
+        get() {
+            return Firebase.auth.currentUser?.email
+        }
+    val emailVerified: Boolean?
+        get() {
+            return Firebase.auth.currentUser?.isEmailVerified
+        }
+    val photoUrl: Uri?
+        get() {
+            return Firebase.auth.currentUser?.photoUrl
+        }
+    val uid: String?
+        get() {
+            return Firebase.auth.currentUser?.uid
+        }
+    val isAnonymous: Boolean?
+        get() {
+            return Firebase.auth.currentUser?.isAnonymous
+        }
 
     fun isSignIn(): Boolean = Firebase.auth.currentUser != null
 
@@ -44,16 +63,20 @@ object FirebaseAuthUtils {
      *  @param actionCodeSettings
      *  @param callback: (Task<Void>) -> (Unit)
      */
-    fun sendSignInLink(email: String, actionCodeSettings: ActionCodeSettings, callback: (Task<Void>) -> (Unit) = {}) {
+    fun sendSignInLink(
+        email: String,
+        actionCodeSettings: ActionCodeSettings,
+        callback: (Task<Void>) -> (Unit) = {}
+    ) {
         Firebase.auth.sendSignInLinkToEmail(email, actionCodeSettings)
-                .addOnCompleteListener { task ->
-                    callback(task)
-                    if (task.isSuccessful) {
-                        Log.d(TAG, "Email sent.")
-                    } else {
-                        Log.d(TAG, "Email sending failed")
-                    }
+            .addOnCompleteListener { task ->
+                callback(task)
+                if (task.isSuccessful) {
+                    Log.d(TAG, "Email sent.")
+                } else {
+                    Log.d(TAG, "Email sending failed")
                 }
+            }
     }
 
     /**
@@ -63,23 +86,47 @@ object FirebaseAuthUtils {
      * @param intent
      * @param callback: (Task<AuthResult>) -> (Unit)
      */
-    fun verifySignInLink(context: Context, intent: Intent, callback: (Task<AuthResult>) -> (Unit) = {}) {
+    fun verifySignInLink(
+        context: Context,
+        intent: Intent,
+        callback: (Task<AuthResult>) -> (Unit) = {}
+    ) {
         val auth = Firebase.auth
         val emailLink = intent.data.toString()
 
         if (auth.isSignInWithEmailLink(emailLink)) {
-            val email = PreferenceManager.getDefaultSharedPreferences(context).getString("email", "").toString()
+            val email =
+                PreferenceManager.getDefaultSharedPreferences(context).getString("email", "")
+                    .toString()
 
             auth.signInWithEmailLink(email, emailLink)
-                    .addOnCompleteListener { task ->
-                        callback(task)
-                        if (task.isSuccessful) {
-                            Log.d(TAG, "Successfully signed in with email link!")
-                        } else {
-                            Log.e(TAG, "Error signing in with email link", task.exception)
-                        }
+                .addOnCompleteListener { task ->
+                    callback(task)
+                    if (task.isSuccessful) {
+                        Log.d(TAG, "Successfully signed in with email link!")
+                    } else {
+                        Log.e(TAG, "Error signing in with email link", task.exception)
                     }
+                }
         }
+    }
+
+    /**
+     * 匿名ユーザーでログインするメソッド
+     *
+     * @param callback: (Task<AuthResult>) -> (Unit)
+     */
+    fun signInAnonymously(callback: (Task<AuthResult>) -> (Unit) = {}) {
+        val auth = Firebase.auth
+        auth.signInAnonymously()
+            .addOnCompleteListener { task ->
+                callback(task)
+                if (task.isSuccessful) {
+                    Log.d(TAG, "Successfully signed in anonymously!")
+                } else {
+                    Log.e(TAG, "Error signing in anonymously", task.exception)
+                }
+            }
     }
 
     /**
@@ -89,7 +136,11 @@ object FirebaseAuthUtils {
      * @param photoUri プロフィール画像のURI
      * @param callback: (isSuccessful: Boolean) -> (Unit)
      */
-    fun updateProfile(name: String? = null, photoUri: String? = null, callback: (isSuccessful: Boolean) -> (Unit) = {}) {
+    fun updateProfile(
+        name: String? = null,
+        photoUri: String? = null,
+        callback: (isSuccessful: Boolean) -> (Unit) = {}
+    ) {
         updateProfileUtils(name, photoUri, callback)
     }
 
@@ -106,7 +157,11 @@ object FirebaseAuthUtils {
         }
     }
 
-    private fun updateProfileUtils(name: String?, uri: String?, callback: (isSuccessful: Boolean) -> (Unit)) {
+    private fun updateProfileUtils(
+        name: String?,
+        uri: String?,
+        callback: (isSuccessful: Boolean) -> (Unit)
+    ) {
         val user = Firebase.auth.currentUser
         val profileUpdates = userProfileChangeRequest {
             when {
@@ -121,12 +176,12 @@ object FirebaseAuthUtils {
         }
 
         user?.updateProfile(profileUpdates)
-                ?.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d(TAG, "User profile updated.")
-                    }
-                    callback(task.isSuccessful)
+            ?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d(TAG, "User profile updated.")
                 }
+                callback(task.isSuccessful)
+            }
 
         name?.let { FirestoreUtils.addName(name) }
     }

@@ -27,6 +27,12 @@ class GetStartedFragment : Fragment() {
                 FragmentUtil.existsUserData(requireActivity(), blurImage)
             } ?: FragmentUtil.replaceFragment(requireActivity(), EmailEntryFragment())
         }
+
+        val getAnonymouslyStarted = view.findViewById<Button?>(R.id.getAnonymouslyStartedButton)
+        getAnonymouslyStarted.setOnClickListener {
+            FirebaseAuthUtils.signInAnonymously()
+            FragmentUtil.existsUserData(requireActivity(), blurImage)
+        }
         return view
     }
 }
