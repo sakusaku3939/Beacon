@@ -18,20 +18,20 @@ class GetStartedFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_onboarding_get_started, container, false)
         val blurImage: BlurImageView = requireActivity().findViewById(R.id.BlurImage)
         blurImage.setBlur(0)
+
         val getStarted = view.findViewById<Button?>(R.id.getStartedButton)
         getStarted.setOnClickListener {
-            // 画像にぼかしを入れる
-            Handler().postDelayed({ blurImage.setBlur(5) }, 100)
+            FragmentUtil.delayBlur(blurImage)
             val isEmailVerified = FirebaseAuthUtils.emailVerified
             isEmailVerified?.let {
-                FragmentUtil.existsUserData(requireActivity(), blurImage)
+                FragmentUtil.existsUserData(requireActivity())
             } ?: FragmentUtil.replaceFragment(requireActivity(), EmailEntryFragment())
         }
 
         val getAnonymouslyStarted = view.findViewById<Button?>(R.id.getAnonymouslyStartedButton)
         getAnonymouslyStarted.setOnClickListener {
             FirebaseAuthUtils.signInAnonymously()
-            FragmentUtil.existsUserData(requireActivity(), blurImage)
+            FragmentUtil.existsUserData(requireActivity())
         }
         return view
     }

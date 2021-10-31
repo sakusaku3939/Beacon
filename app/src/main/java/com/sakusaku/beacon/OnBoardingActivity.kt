@@ -24,10 +24,10 @@ class OnBoardingActivity : AppCompatActivity() {
                     val result = task.result
                     val blurImage: BlurImageView = findViewById(R.id.BlurImage)
                     if (result?.additionalUserInfo?.isNewUser == true) {
-                        Handler().postDelayed({ blurImage.setBlur(5) }, 100)
+                        FragmentUtil.delayBlur(blurImage)
                         FragmentUtil.replaceFragment(this, NameEntryFragment())
                     } else {
-                        FragmentUtil.existsUserData(this, blurImage)
+                        FragmentUtil.existsUserData(this)
                     }
                 } else {
                     Toast.makeText(this, "マジックリンクが無効です", Toast.LENGTH_LONG).show()
@@ -54,10 +54,12 @@ object FragmentUtil {
         transaction.commit()
     }
 
-    fun existsUserData(activity: FragmentActivity, blurImage: BlurImageView) {
+    fun existsUserData(activity: FragmentActivity) {
         FirestoreUtils.existsUserData { isExist ->
-            Handler().postDelayed({ blurImage.setBlur(5) }, 100)
+            delayBlur(activity.findViewById(R.id.BlurImage))
             replaceFragment(activity, if (isExist) PermissionFragment() else NameEntryFragment())
         }
     }
+
+    fun delayBlur(blurImage: BlurImageView) = Handler().postDelayed({ blurImage.setBlur(5) }, 100)
 }
